@@ -9,18 +9,15 @@ const pLimit = require('p-limit');
 const puppeteer = require('puppeteer');
 const CryptoJS = require("crypto-js");
 const md5 = require("md5")
+const { RekognitionClient, DetectTextCommand }  = require("@aws-sdk/client-rekognition")
+
+
 
 
 const configFile = 'config/config.ini'; // Đường dẫn tới file config
 const serviceAccountPath = "config/api-google.json"
 
-// const webSiteConfig = {
-//   hi88: {
-//     site: "https://freecode-hi88.pages.dev",
-//     captcha_img: null,
-//     captcha_input: 
-//   }
-// }
+
 
 
 
@@ -134,25 +131,46 @@ async function saveConfig(config) {
 
 
 
-async function processImage(imagePath) {
-  try {
-    const client = new vision.ImageAnnotatorClient({
-      keyFilename: serviceAccountPath
-    });
-    const [result] = await client.textDetection(imagePath);
-    const detections = result.textAnnotations;
-    const codes = detections
-      .map(text => text.description)
-      .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
+  async function processImage(imagePath) {
+    try {
+      
+      let readConfig = await loadConfig();
+      let accessKeyId = readConfig.AWS_ACCESS_KEY
+      let secretAccessKey = readConfig.AWS_SECRET_KEY
+      const client = new RekognitionClient({
+        region: "ap-southeast-1",
+        credentials: {
+          accessKeyId: accessKeyId,
+          secretAccessKey: secretAccessKey
+        }
+      });
+      
 
-    console.log(chalk.blue(`🔍 Mã phát hiện trong ảnh: ${codes.join(', ')}`));
-    return codes;
-  } catch (error) {
-    console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);
-    return [];
+      // Đọc file ảnh và chuyển thành buffer
+      const imageBuffer = await fs.readFile(imagePath);
+   
+  
+      // Gửi request đến Amazon Rekognition
+      const command = new DetectTextCommand({
+        Image: { Bytes: imageBuffer }
+      });
+  
+  
+      const result = await client.send(command);
+  
+      // Trích xuất văn bản từ response
+      const codes = result.TextDetections
+        .filter(d => d.Type === 'WORD')
+        .map(d => d.DetectedText)
+        .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
+  
+      console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
+      return codes;
+    } catch (error) {
+      console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);
+      return [];
+    }
   }
-}
-
 
 async function getResult(page) {
   const titleText = await page.$eval('#swal2-title', el => el.textContent.trim()).catch(() => null);
