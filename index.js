@@ -10,6 +10,7 @@ const puppeteer = require('puppeteer');
 const CryptoJS = require("crypto-js");
 const md5 = require("md5")
 const { RekognitionClient, DetectTextCommand }  = require("@aws-sdk/client-rekognition")
+const os = require("os")
 
 
 

@@ -1,4 +1,5 @@
 const puppeteer = require('puppeteer');
+const os = require("os")
 // Or import puppeteer from 'puppeteer-core';
 
 async function main() {
