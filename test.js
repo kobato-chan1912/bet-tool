@@ -1,47 +1,29 @@
-const chalk = require('chalk')
-const fs = require('fs').promises;
-const { RekognitionClient, DetectTextCommand }  = require("@aws-sdk/client-rekognition")
+const puppeteer = require('puppeteer');
+// Or import puppeteer from 'puppeteer-core';
 
+// Launch the browser and open a new blank page
+const browser = await puppeteer.launch({headless: false});
+const page = await browser.newPage();
 
-const client = new RekognitionClient({
-    region: "ap-southeast-1",
-    credentials: {
-      accessKeyId: "AKIAWFY4T6VMNIPV2HGP",
-      secretAccessKey: "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"
-    }
-  });
-  
+// Navigate the page to a URL.
+await page.goto('https://developer.chrome.com/');
 
+// Set screen size.
+await page.setViewport({width: 1080, height: 1024});
 
-  async function processImage(imagePath) {
-    try {
-      // Đọc file ảnh và chuyển thành buffer
-      const imageBuffer = await fs.readFile(imagePath);
-   
-  
-      // Gửi request đến Amazon Rekognition
-      const command = new DetectTextCommand({
-        Image: { Bytes: imageBuffer }
-      });
-  
-  
-      const result = await client.send(command);
-  
-      // Trích xuất văn bản từ response
-      const codes = result.TextDetections
-        .filter(d => d.Type === 'WORD')
-        .map(d => d.DetectedText)
-        .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
-  
-      console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
-      return codes;
-    } catch (error) {
-      console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);
-      return [];
-    }
-  }
-  
-  // Gọi hàm để test
-  processImage('photo_2025-03-18_08-23-37.jpg');
-  
+// Type into search box.
+await page.locator('.devsite-search-field').fill('automate beyond recorder');
 
+// Wait and click on first result.
+await page.locator('.devsite-result-item-link').click();
+
+// Locate the full title with a unique string.
+const textSelector = await page
+  .locator('text/Customize and automate')
+  .waitHandle();
+const fullTitle = await textSelector?.evaluate(el => el.textContent);
+
+// Print the full title.
+console.log('The title of this blog post is "%s".', fullTitle);
+
+await browser.close();
