@@ -484,8 +484,8 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
       const message = update.message;
       const sendID = message.peerId.channelId.toString();
 
-
-
+      console.log(chalk.greenBright(`\n📥 ${sendID}`));
+      console.log(chalk.white(`\n${message.message}`));
 
       // if (hi88IDs.includes(Number(sendID)) && message.message.includes("https://freecode-hi88.pages.dev")) 
 
