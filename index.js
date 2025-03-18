@@ -192,9 +192,7 @@ async function enterHi88Code(user, codes) {
     headless: false
   };
 
-  if (os.platform() === 'win32') {
-    browserOptions.executablePath = path.join('chrome', 'chrome.exe');
-  }
+ 
 
 
   const browser = await puppeteer.launch(browserOptions);

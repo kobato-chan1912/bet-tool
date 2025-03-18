@@ -6,8 +6,8 @@ const { RekognitionClient, DetectTextCommand }  = require("@aws-sdk/client-rekog
 const client = new RekognitionClient({
     region: "ap-southeast-1",
     credentials: {
-      accessKeyId: "",
-      secretAccessKey: ""
+      accessKeyId: "AKIAWFY4T6VMNIPV2HGP",
+      secretAccessKey: "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"
     }
   });
   
@@ -42,6 +42,6 @@ const client = new RekognitionClient({
   }
   
   // Gọi hàm để test
-  processImage('photo_2025-03-15_22-03-11.jpg');
+  processImage('photo_2025-03-18_08-23-37.jpg');
   
 
