@@ -456,8 +456,8 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
   await client.connect();
   console.log(chalk.greenBright('\n✅ Đang kết nối ... '));
-  // await sleep(10000)
-  // console.log(chalk.greenBright('\n✅ Bắt đầu nhận tin nhắn!'));
+  await sleep(10000)
+  console.log(chalk.greenBright('\n✅ Bắt đầu nhận tin nhắn!'));
 
   // Lắng nghe tin nhắn mới từ channel
   client.addEventHandler(async (update) => {
