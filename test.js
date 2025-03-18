@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer');
 // Or import puppeteer from 'puppeteer-core';
 
-// Launch the browser and open a new blank page
+async function main() {
+    // Launch the browser and open a new blank page
 const browser = await puppeteer.launch({headless: false});
 const page = await browser.newPage();
 
@@ -27,3 +28,6 @@ const fullTitle = await textSelector?.evaluate(el => el.textContent);
 console.log('The title of this blog post is "%s".', fullTitle);
 
 await browser.close();
+}
+
+main()
