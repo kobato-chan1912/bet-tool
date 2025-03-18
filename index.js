@@ -40,10 +40,12 @@ async function readFileToArray(filePath) {
 
 
 // data input
-const hi88IDs = ["xxx"]
-const q88IDS = ['xxxxx']
-const f88IDS = ['ccc']
-const new88IDS = ['2673391905']
+const hi88IDs = ["2321421266", "2018121888", "1628875713"]
+const q88IDS = ['2446066378', '2272716520', '2421765170']
+const f88IDS = ['2321837001']
+const new88IDS = ['2332416396']
+
+// test group: 2673391905 
 
 // Hàm đọc config từ file dạng key=value
 async function loadConfig() {
@@ -167,7 +169,17 @@ async function getResult(page) {
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 async function enterHi88Code(user, codes) {
-  const browser = await puppeteer.launch({ headless: false });
+
+  let browserOptions = {
+    headless: false
+  };
+
+  if (os.platform() === 'win32') {
+    browserOptions.executablePath = path.join('chrome', 'chrome.exe');
+  }
+
+
+  const browser = await puppeteer.launch(browserOptions);
   const page = await browser.newPage();
 
 
@@ -348,7 +360,7 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
       console.log(chalk.yellow(`➡ Nhập mã New88 ${code} cho user ${user}`));
 
       await page.goto('https://freecode-new88.pages.dev/', {
-         waitUntil: 'networkidle0'
+        waitUntil: 'networkidle0'
       });
 
       // Nhập mã vào input
