@@ -196,7 +196,31 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 async function enterHi88Code(user, codes) {
 
   let browserOptions = {
-    headless: false
+    headless: false,
+    args: [
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-extensions",
+      "--disable-features=TranslateUI",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-sync",
+      "--disable-translate",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--safebrowsing-disable-auto-update",
+      "--disable-gpu"
+
+    ]
   };
 
   if (os.platform() === 'win32') {
@@ -259,7 +283,38 @@ async function enterHi88Code(user, codes) {
 }
 
 async function enterF88Code(user, codes) { // https://f8bet01.co/CODE
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+    args: [
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-extensions",
+      "--disable-features=TranslateUI",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-sync",
+      "--disable-translate",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--safebrowsing-disable-auto-update",
+      "--disable-gpu"
+
+    ]
+  });
+
+  if (os.platform() === 'win32') {
+    browserOptions.executablePath = path.join('chrome', 'chrome.exe');
+  }
+
   const page = await browser.newPage();
 
 
@@ -317,7 +372,35 @@ async function enterF88Code(user, codes) { // https://f8bet01.co/CODE
 }
 
 async function enterQ88Code(user, codes) { // https://qq88km8.com
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+
+    args: [
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-extensions",
+      "--disable-features=TranslateUI",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-sync",
+      "--disable-translate",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--safebrowsing-disable-auto-update",
+      "--disable-gpu"
+
+    ]
+
+  });
   const page = await browser.newPage();
 
 
@@ -376,7 +459,35 @@ async function enterQ88Code(user, codes) { // https://qq88km8.com
 
 
 async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+
+    args: [
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-extensions",
+      "--disable-features=TranslateUI",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-sync",
+      "--disable-translate",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--safebrowsing-disable-auto-update",
+      "--disable-gpu"
+
+    ]
+
+  });
   const page = await browser.newPage();
 
 
@@ -505,7 +616,36 @@ const enterJ88 = async (user, code, bank) => {
 
 
 async function enterSHCode(user, codes) { // https://https://freecode-shbet.pages.dev/
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({
+    headless: false,
+
+    args: [
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-update",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-extensions",
+      "--disable-features=TranslateUI",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-sync",
+      "--disable-translate",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--safebrowsing-disable-auto-update",
+      "--disable-gpu"
+
+    ]
+
+
+  });
   const page = await browser.newPage();
 
 
