@@ -128,3 +128,5 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
   await browser.close();
 }
 
+
+enter8K('bb454R6t', 'tuannguyen333')

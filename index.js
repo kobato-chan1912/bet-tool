@@ -44,8 +44,10 @@ const q88IDS = ['2446066378', '2272716520', '2421765170']
 const f88IDS = ['2321837001']
 const new88IDS = ['2332416396']
 
-const EightKIDS = ['2673391905']
+const EightKIDS = ['2482026491']
 const J88IDS = ['1610937400']
+// const J88IDS = ['2673391905']
+
 const SHBets = ['2256674249', '2473867941']
 
 const testGroup = ["2673391905"]
@@ -547,7 +549,10 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
 
-const enter8K = async (user, code) => {
+const enter8K = async (user, codes) => {
+
+  let code = codes[0]
+
   const url = 'https://cjw242c.kmncksje.top/Promotion/CheckCode';
 
   const headers = {
@@ -582,6 +587,8 @@ const enter8K = async (user, code) => {
 
 
 const enterJ88 = async (user, code, bank) => {
+
+ 
   const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
 
   const headers = {
@@ -985,7 +992,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
         for (const user of J88Users) {
           const [username, userNumber] = user.split(/\s+/);
           for (const code of codes) {
-            tasks.push(limit(() => enterJ88(username, [code], userNumber)));
+            tasks.push(limit(() => enterJ88(username, code, userNumber)));
           }
         }
 
