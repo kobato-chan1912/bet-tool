@@ -43,7 +43,8 @@ const hi88IDs = ["2321421266", "2018121888", "1628875713"]
 const q88IDS = ['2446066378', '2272716520', '2421765170']
 const f88IDS = ['2321837001']
 const new88IDS = ['2332416396']
-const EightKIDS = ['2482026491']
+
+const EightKIDS = ['2673391905']
 const J88IDS = ['1610937400']
 const SHBets = ['2256674249', '2473867941']
 
@@ -712,7 +713,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
   const apiId = parseInt(config.API_ID);
   const apiHash = config.API_HASH;
   const captchaKey = config.CAPTCHA_KEY
-  const limitThreads = config.THREADS;
+  const limitThreads = parseInt(config.THREADS);
 
   let stringSession;
 
