@@ -13,8 +13,6 @@ const { RekognitionClient, DetectTextCommand } = require("@aws-sdk/client-rekogn
 const os = require("os")
 const path = require("path")
 
-const limitThreads = 100
-
 
 
 const configFile = 'config/config.ini'; // Đường dẫn tới file config
@@ -522,17 +520,9 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
           const hi88Users = await readFileToArray("config/hi88.txt")
-          let limit = pLimit(limitThreads);
+          let limit = pLimit(hi88Users.length);
           // let limit = pLimit(3);
-
-          const tasks = [];
-          for (const user of hi88Users) {
-            for (const code of codes) {
-              tasks.push(limit(() => enterHi88Code(user, [code]))); 
-            }
-          }
-          
-          
+          const tasks = hi88Users.map(user => limit(() => enterHi88Code(user, codes)));
           await Promise.all(tasks);
 
         } else {
@@ -567,15 +557,10 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
           const q88Users = await readFileToArray("config/q88.txt")
-          let limit = pLimit(limitThreads);
+          let limit = pLimit(q88Users.length);
           // let limit = pLimit(3);
-
-          const tasks = [];
-          for (const user of q88Users) {
-            for (const code of codes) {
-              tasks.push(limit(() => enterQ88Code(user, [code]))); 
-            }
-          }
+          const tasks = q88Users.map(user => limit(() => enterQ88Code(user, codes)));
+          await Promise.all(tasks);
 
         } else {
           console.log(chalk.red('⚠ Không tìm thấy ảnh trong tin nhắn!'));
@@ -610,15 +595,10 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
           const f88Users = await readFileToArray("config/f88.txt")
-          let limit = pLimit(limitThreads);
+          let limit = pLimit(f88Users.length);
           // let limit = pLimit(3);
-
-          const tasks = [];
-          for (const user of f88Users) {
-            for (const code of codes) {
-              tasks.push(limit(() => enterF88Code(user, [code]))); 
-            }
-          }
+          const tasks = f88Users.map(user => limit(() => enterF88Code(user, codes)));
+          await Promise.all(tasks);
 
         } else {
           console.log(chalk.red('⚠ Không tìm thấy ảnh trong tin nhắn!'));
@@ -643,15 +623,10 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
         const new88Users = await readFileToArray("config/new88.txt")
-        let limit = pLimit(limitThreads);
+        let limit = pLimit(new88Users.length);
 
-          const tasks = [];
-          for (const user of new88Users) {
-            for (const code of codes) {
-              tasks.push(limit(() => enterNew88Code(user, [code]))); 
-            }
-          }
-
+        // let limit = pLimit(3);
+        const tasks = new88Users.map(user => limit(() => enterNew88Code(user, codes)));
         await Promise.all(tasks);
 
 
