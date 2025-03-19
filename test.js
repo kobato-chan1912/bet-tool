@@ -3,7 +3,7 @@ const os = require("os")
 const path = require("path")
 // Or import puppeteer from 'puppeteer-core';
 const pLimit = require('p-limit');
-const limitThreads = 1
+const limitThreads = 20
 let limit = pLimit(limitThreads);
 
 async function main(browser) {
@@ -57,7 +57,7 @@ async function runMain() {
 
   await Promise.all(tasks);
   await browser.close();
-  
+
 }
 
 runMain()
