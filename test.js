@@ -8,10 +8,7 @@ let limit = pLimit(limitThreads);
 
 async function main(browser) {
   // Launch the browser and open a new blank page
-  let browserOptions = {
-    headless: false
-    
-  };
+  
 
   
   const page = await browser.newPage();
@@ -42,6 +39,10 @@ async function main(browser) {
 }
 
 async function runMain() {
+  let browserOptions = {
+    headless: false
+    
+  };
   if (os.platform() === 'win32') {
     browserOptions.executablePath = path.join('chrome', 'chrome.exe');
   }
