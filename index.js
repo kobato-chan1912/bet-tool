@@ -9,7 +9,7 @@ const pLimit = require('p-limit');
 const puppeteer = require('puppeteer');
 const CryptoJS = require("crypto-js");
 const md5 = require("md5")
-const { RekognitionClient, DetectTextCommand }  = require("@aws-sdk/client-rekognition")
+const { RekognitionClient, DetectTextCommand } = require("@aws-sdk/client-rekognition")
 const os = require("os")
 const path = require("path")
 
@@ -42,6 +42,7 @@ const hi88IDs = ["2321421266", "2018121888", "1628875713"]
 const q88IDS = ['2446066378', '2272716520', '2421765170']
 const f88IDS = ['2321837001']
 const new88IDS = ['2332416396']
+const testGroup = ["2673391905"]
 
 // test group: 2673391905 
 
@@ -132,46 +133,46 @@ async function saveConfig(config) {
 
 
 
-  async function processImage(imagePath) {
-    try {
-      
-      let readConfig = await loadConfig();
-      let accessKeyId = readConfig.AWS_ACCESS_KEY
-      let secretAccessKey = readConfig.AWS_SECRET_KEY
-      const client = new RekognitionClient({
-        region: "ap-southeast-1",
-        credentials: {
-          accessKeyId: accessKeyId,
-          secretAccessKey: secretAccessKey
-        }
-      });
-      
+async function processImage(imagePath) {
+  try {
 
-      // Đọc file ảnh và chuyển thành buffer
-      const imageBuffer = await fs.readFile(imagePath);
-   
-  
-      // Gửi request đến Amazon Rekognition
-      const command = new DetectTextCommand({
-        Image: { Bytes: imageBuffer }
-      });
-  
-  
-      const result = await client.send(command);
-  
-      // Trích xuất văn bản từ response
-      const codes = result.TextDetections
-        .filter(d => d.Type === 'WORD')
-        .map(d => d.DetectedText)
-        .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
-  
-      console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
-      return codes;
-    } catch (error) {
-      console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);
-      return [];
-    }
+    let readConfig = await loadConfig();
+    let accessKeyId = readConfig.AWS_ACCESS_KEY
+    let secretAccessKey = readConfig.AWS_SECRET_KEY
+    const client = new RekognitionClient({
+      region: "ap-southeast-1",
+      credentials: {
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey
+      }
+    });
+
+
+    // Đọc file ảnh và chuyển thành buffer
+    const imageBuffer = await fs.readFile(imagePath);
+
+
+    // Gửi request đến Amazon Rekognition
+    const command = new DetectTextCommand({
+      Image: { Bytes: imageBuffer }
+    });
+
+
+    const result = await client.send(command);
+
+    // Trích xuất văn bản từ response
+    const codes = result.TextDetections
+      .filter(d => d.Type === 'WORD')
+      .map(d => d.DetectedText)
+      .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
+
+    console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
+    return codes;
+  } catch (error) {
+    console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);
+    return [];
   }
+}
 
 async function getResult(page) {
   const titleText = await page.$eval('#swal2-title', el => el.textContent.trim()).catch(() => null);
@@ -484,11 +485,15 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
       const message = update.message;
       const sendID = message.peerId.channelId.toString();
 
-      console.log(chalk.greenBright(`\n📥 ${sendID}`));
-      console.log(chalk.white(`\n${message.message}`));
+
 
       // if (hi88IDs.includes(Number(sendID)) && message.message.includes("https://freecode-hi88.pages.dev")) 
 
+
+      if (testGroup.includes(sendID)) {
+        console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
+        console.log(chalk.white(`\n${message.message}`));
+      }
 
       if (hi88IDs.includes(sendID) && message.message.includes("freecode-hi88.pages.dev")) {
         console.log(chalk.greenBright(`\n📥 Code mới từ hi88`));
