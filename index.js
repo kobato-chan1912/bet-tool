@@ -520,8 +520,8 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
           const hi88Users = await readFileToArray("config/hi88.txt")
-          // let limit = pLimit(hi88Users.length);
-          let limit = pLimit(3);
+          let limit = pLimit(hi88Users.length);
+          // let limit = pLimit(3);
           const tasks = hi88Users.map(user => limit(() => enterHi88Code(user, codes)));
           await Promise.all(tasks);
 
@@ -557,8 +557,8 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
           const q88Users = await readFileToArray("config/q88.txt")
-          // let limit = pLimit(q88Users.length);
-          let limit = pLimit(3);
+          let limit = pLimit(q88Users.length);
+          // let limit = pLimit(3);
           const tasks = q88Users.map(user => limit(() => enterQ88Code(user, codes)));
           await Promise.all(tasks);
 
@@ -595,8 +595,8 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
           const f88Users = await readFileToArray("config/f88.txt")
-          // let limit = pLimit(f88Users.length);
-          let limit = pLimit(3);
+          let limit = pLimit(f88Users.length);
+          // let limit = pLimit(3);
           const tasks = f88Users.map(user => limit(() => enterF88Code(user, codes)));
           await Promise.all(tasks);
 
@@ -623,9 +623,9 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
 
 
         const new88Users = await readFileToArray("config/new88.txt")
-        // let limit = pLimit(new88Users.length);
+        let limit = pLimit(new88Users.length);
 
-        let limit = pLimit(3);
+        // let limit = pLimit(3);
         const tasks = new88Users.map(user => limit(() => enterNew88Code(user, codes)));
         await Promise.all(tasks);
 
