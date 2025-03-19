@@ -9,7 +9,11 @@ let limit = pLimit(limitThreads);
 async function main() {
   // Launch the browser and open a new blank page
   let browserOptions = {
-    headless: false
+    headless: true,
+    args: [
+      '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36',
+      '--window-size=1200,800',
+    ],
   };
 
   if (os.platform() === 'win32') {
@@ -46,9 +50,8 @@ async function main() {
 
 async function runMain() {
   const tasks = [];
-  for (let i = 0; i < 105; i++)
-  {
-    tasks.push(limit(() => main())); 
+  for (let i = 0; i < 105; i++) {
+    tasks.push(limit(() => main()));
   }
 
 
