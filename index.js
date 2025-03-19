@@ -276,7 +276,7 @@ async function enterF88Code(user, codes) { // https://f8bet01.co/CODE
       const captchaText = await solveCaptcha(captchaImage);
       console.log(chalk.magenta(`🔠 Captcha: ${captchaText}`));
 
-      await page.type("#captcha-input", captchaText.toUpperCase(), { delay: 500 });
+      await page.type("#captcha-input", captchaText.toUpperCase());
       await page.click("#verify-captcha")
 
       try {
@@ -334,7 +334,7 @@ async function enterQ88Code(user, codes) { // https://qq88km8.com
       const captchaText = await solveCaptcha(captchaImage);
       console.log(chalk.magenta(`🔠 Captcha: ${captchaText}`));
 
-      await page.type("#captcha-input", captchaText.toUpperCase(), { delay: 500 });
+      await page.type("#captcha-input", captchaText.toUpperCase());
       await page.click("#verify-captcha")
 
       try {
@@ -393,7 +393,7 @@ async function enterNew88Code(user, codes) { // https://freecode-new88.pages.dev
       const captchaText = await solveCaptcha(captchaImage);
       console.log(chalk.magenta(`🔠 Captcha: ${captchaText}`));
 
-      await page.type("#captcha-input", captchaText.toUpperCase(), { delay: 500 });
+      await page.type("#captcha-input", captchaText.toUpperCase());
       await page.click('#verify-captcha')
 
       try {
