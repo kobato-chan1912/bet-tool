@@ -3,15 +3,22 @@ const os = require("os")
 const path = require("path")
 // Or import puppeteer from 'puppeteer-core';
 const pLimit = require('p-limit');
-const limitThreads = 20
+const limitThreads = 1
 let limit = pLimit(limitThreads);
 
-async function main(browser) {
+async function main() {
   // Launch the browser and open a new blank page
-  
+  let browserOptions = {
+    headless: false
+    
+  };
 
-  
+  if (os.platform() === 'win32') {
+    browserOptions.executablePath = path.join('chrome', 'chrome.exe');
+  }
+  const browser = await puppeteer.launch(browserOptions);
   const page = await browser.newPage();
+
 
 
   // Navigate the page to a URL.
@@ -35,29 +42,17 @@ async function main(browser) {
   // Print the full title.
   console.log('The title of this blog post is "%s".', fullTitle);
 
-  
+  await browser.close();
 }
 
 async function runMain() {
-  let browserOptions = {
-    headless: false
-    
-  };
-  if (os.platform() === 'win32') {
-    browserOptions.executablePath = path.join('chrome', 'chrome.exe');
-  }
-  const browser = await puppeteer.launch(browserOptions);
-  
-
-
   const tasks = [];
   for (let i = 0; i < 105; i++) {
-    tasks.push(limit(() => main(browser)));
+    tasks.push(limit(() => main()));
   }
 
 
   await Promise.all(tasks);
-  await browser.close();
 
 }
 
