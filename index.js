@@ -959,7 +959,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
         const Eight88Users = await readFileToArray("config/8k.txt")
 
-        let limit = pLimit(config.NO_BROWSER_THREADS);
+        let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
         const tasks = [];
         for (const user of Eight88Users) {
@@ -993,7 +993,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
         const J88Users = await readFileToArray("config/j88.txt")
 
         
-        let limit = pLimit(config.NO_BROWSER_THREADS);
+        let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
         const tasks = [];
         for (const user of J88Users) {
