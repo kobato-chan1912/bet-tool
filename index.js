@@ -976,6 +976,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
       if (J88IDS.includes(sendID)) { // CODE may mắn
         console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
+        console.log(chalk.greenBright(`\n${message}`));
         console.log(chalk.white(`\n${message.message}`));
         let messageContent = message.message;
 
