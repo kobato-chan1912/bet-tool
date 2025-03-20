@@ -553,6 +553,8 @@ const enter8K = async (user, codes) => {
 
   let code = codes[0]
 
+  let formatUser = user.replace(/\b\w/g, char => char.toUpperCase());
+
   const url = 'https://cjw242c.kmncksje.top/Promotion/CheckCode';
 
   const headers = {
@@ -572,14 +574,14 @@ const enter8K = async (user, codes) => {
   };
 
   const data = {
-    Account: user,
+    Account: formatUser,
     InvitationCode: code
   };
 
   try {
     const response = await axios.post(url, data, { headers });
 
-    console.log(`✅ 8KBet Kết quả nhập mã ${code} cho ${user}: ` + response.data.message)
+    console.log(`✅ 8KBet Kết quả nhập mã ${code} cho ${formatUser}: ` + response.data.message)
   } catch (error) {
     console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
   }
