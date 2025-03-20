@@ -770,6 +770,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
   // Lắng nghe tin nhắn mới từ channel
   client.addEventHandler(async (update) => {
     if (update.className === 'UpdateNewChannelMessage') {
+      
       const message = update.message;
       const sendID = message.peerId.channelId.toString();
 
@@ -978,6 +979,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
       if (J88IDS.includes(sendID)) { // CODE may mắn
         console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
         await fs.writeFile("log.txt", JSON.stringify(message, null, 2), "utf8");
+        await fs.writeFile("update.txt", JSON.stringify(update, null, 2), "utf8");
 
         console.log(chalk.white(`\n${message.message}`));
         let messageContent = message.message;
