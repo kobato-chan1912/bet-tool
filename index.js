@@ -590,7 +590,7 @@ const enter8K = async (user, codes) => {
 
 const enterJ88 = async (user, code, bank) => {
 
- 
+
   const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
 
   const headers = {
@@ -958,7 +958,8 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
 
         const Eight88Users = await readFileToArray("config/8k.txt")
-        let limit = pLimit(limitThreads);
+
+        let limit = pLimit(config.NO_BROWSER_THREADS);
 
         const tasks = [];
         for (const user of Eight88Users) {
@@ -976,7 +977,8 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
       if (J88IDS.includes(sendID)) { // CODE may mắn
         console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
-        console.log(chalk.greenBright(`\n${message}`));
+        await fs.writeFile("log.txt", JSON.stringify(message, null, 2), "utf8");
+
         console.log(chalk.white(`\n${message.message}`));
         let messageContent = message.message;
 
@@ -989,7 +991,9 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
 
         const J88Users = await readFileToArray("config/j88.txt")
-        let limit = pLimit(limitThreads);
+
+        
+        let limit = pLimit(config.NO_BROWSER_THREADS);
 
         const tasks = [];
         for (const user of J88Users) {
@@ -1006,7 +1010,7 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
 
       if (SHBets.includes(sendID)) { // CODE may mắn
-        console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
+        console.log(chalk.greenBright(`\n📥 Code mới từ SHBet`));
         console.log(chalk.white(`\n${message.message}`));
         let messageContent = message.message;
 
