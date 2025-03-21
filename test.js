@@ -1,59 +1,24 @@
-const puppeteer = require('puppeteer');
-const os = require("os")
-const path = require("path")
-// Or import puppeteer from 'puppeteer-core';
-const pLimit = require('p-limit');
-const limitThreads = 1
-let limit = pLimit(limitThreads);
+const axios = require('axios');
+const cheerio = require('cheerio');
 
-async function main() {
-  // Launch the browser and open a new blank page
-  let browserOptions = {
-    headless: false
-    
-  };
+async function fetchSpoilerText(url) {
+  try {
+    // const url = 'https://t.me/J88COM_NOHU_BANCA/4963?embed=1';
+    const { data } = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0' // Giúp tránh bị chặn
+      }
+    });
 
-  if (os.platform() === 'win32') {
-    browserOptions.executablePath = path.join('chrome', 'chrome.exe');
+    const $ = cheerio.load(data);
+    const spoilerText = $('tg-spoiler').text().trim(); // Lấy nội dung
+
+    return spoilerText;
+  } catch (error) {
+    console.error('Lỗi:', error.message);
+    return null
+
   }
-  const browser = await puppeteer.launch(browserOptions);
-  const page = await browser.newPage();
-
-
-
-  // Navigate the page to a URL.
-  await page.goto('https://developer.chrome.com/');
-
-  // Set screen size.
-  await page.setViewport({ width: 1080, height: 1024 });
-
-  // Type into search box.
-  await page.locator('.devsite-search-field').fill('automate beyond recorder');
-
-  // Wait and click on first result.
-  await page.locator('.devsite-result-item-link').click();
-
-  // Locate the full title with a unique string.
-  const textSelector = await page
-    .locator('text/Customize and automate')
-    .waitHandle();
-  const fullTitle = await textSelector?.evaluate(el => el.textContent);
-
-  // Print the full title.
-  console.log('The title of this blog post is "%s".', fullTitle);
-
-  await browser.close();
 }
 
-async function runMain() {
-  const tasks = [];
-  for (let i = 0; i < 105; i++) {
-    tasks.push(limit(() => main()));
-  }
-
-
-  await Promise.all(tasks);
-
-}
-
-runMain()
+fetchSpoilerText();

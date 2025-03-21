@@ -12,7 +12,7 @@ const md5 = require("md5")
 const { RekognitionClient, DetectTextCommand } = require("@aws-sdk/client-rekognition")
 const os = require("os")
 const path = require("path")
-
+const cheerio = require('cheerio');
 
 
 
@@ -98,6 +98,25 @@ async function solveCaptcha(imageBase64) {
   }
 }
 
+async function fetchSpoilerText(url) {
+  try {
+    // const url = 'https://t.me/J88COM_NOHU_BANCA/4963?embed=1'; // lấy id = message.id
+    const { data } = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0' // Giúp tránh bị chặn
+      }
+    });
+
+    const $ = cheerio.load(data);
+    const spoilerText = $('tg-spoiler').text().trim(); // Lấy nội dung
+
+    return spoilerText;
+  } catch (error) {
+    console.error('Lỗi:', error.message);
+    return null
+
+  }
+}
 
 async function processImage(imagePath) {
   try {
@@ -978,12 +997,13 @@ async function enterSHCode(user, codes) { // https://https://freecode-shbet.page
 
       if (J88IDS.includes(sendID)) { // CODE may mắn
         console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
-        await fs.writeFile("log.txt", JSON.stringify(message, null, 2), "utf8");
-        await fs.writeFile("update.txt", JSON.stringify(update, null, 2), "utf8");
+        
+        let msgId = message.id
+        let url = `https://t.me/J88COM_NOHU_BANCA/${msgId}?embed=1`
 
-        console.log(chalk.white(`\n${message.message}`));
-        let messageContent = message.message;
-
+       
+        let messageContent = await fetchSpoilerText(url);
+        console.log(chalk.white(`\n${messageContent}`));
 
         const codes = await processText(messageContent, 6);
         if (codes.length === 0) {
