@@ -173,7 +173,7 @@ const enterNew88Code = async (promoCode, playerId) => {
             console.log('Add points result:', addPointResult);
 
             if (addPointResult.valid === true) {
-                await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", user, messageRsp, 0);
+                await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
                 console.log(`New88 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
                 console.log('New88 - Không thể thêm điểm:', addPointResult.text_mess);
