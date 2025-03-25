@@ -3,6 +3,7 @@ const helper = require("../helpers/helper.js")
 const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const enter8K = async (user, code, proxyString) => {
 
