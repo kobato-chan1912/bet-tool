@@ -180,7 +180,7 @@ async function processNew88(message) {
 
     const tasks = [];
     for (const user of new88Users) {
-        let proxy = helper.getRandomProxy();
+        let proxy = await helper.getRandomProxy();
         let code = helper.getRandomElement(codes)
         tasks.push(limit(() => enterNew88Code(code, user, proxy)));
         // for (const code of codes) {

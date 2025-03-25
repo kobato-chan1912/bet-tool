@@ -75,7 +75,7 @@ async function processJ88(message) {
     // await sleep(parseInt(config.SLEEP_BEFORE))
     for (const user of J88Users) {
         let [username, userNumber, status] = user.split(/\s+/);
-        let proxy = helper.getRandomProxy()
+        let proxy = await helper.getRandomProxy()
         if (typeof (status) == "undefined") { status = 0 }
         for (const code of codes) {
             tasks.push(limit(() => enterJ88(username, code, userNumber, status, proxy)));

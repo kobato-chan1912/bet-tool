@@ -53,7 +53,7 @@ async function process8K(message) {
     // await sleep(parseInt(config.SLEEP_BEFORE))
     const tasks = [];
     for (const user of Eight88Users) {
-        let proxy = helper.getRandomProxy()
+        let proxy = await helper.getRandomProxy()
         for (const code of codes) {
             tasks.push(limit(() => enter8K(user, code, proxy)));
         }

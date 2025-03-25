@@ -1,6 +1,8 @@
 const axios = require('axios');
+const helper = require("./helpers/helper.js")
 
-const proxyText = "49431527-zone-custom-region-VN-sessid-cvY2ajei-sessTime-120:VFck7dfB@as.proxys5.net:6200";
+
+let processText = await helper.getRandomProxy()
 
 // Tách username:password và host:port
 const [authPart, hostPort] = proxyText.split('@');

@@ -11,7 +11,7 @@ function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-async function getRandomProxy(filePath = 'config/proxies.txt') {
+async function getRandomProxy(filePath = './config/proxies.txt') {
   try {
       // Đọc nội dung file
       const data = await fs.readFile(filePath, 'utf8');
