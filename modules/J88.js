@@ -5,33 +5,39 @@ const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 const { HttpsProxyAgent } = require('https-proxy-agent');
 
-const enterJ88 = async (user, code, bank, status, proxyString) => {
+const enterJ88 = async (user, codes, bank, status, proxyString) => {
 
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
 
-    const headers = {
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-    };
+    for (const code of codes) {
+        const headers = {
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+        };
 
-    const data = {
-        Account: user,
-        InvitationCode: code,
-        BankCard: bank
-    };
+        const data = {
+            Account: user,
+            InvitationCode: code,
+            BankCard: bank
+        };
 
-    try {
-        const response = await axios.post(url, data, { headers, httpsAgent: agent });
+        try {
+            const response = await axios.post(url, data, { headers, httpsAgent: agent });
 
-        const messageRsp = response.data.message;
-        console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-        if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
-            await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", user, messageRsp, status);
+            const messageRsp = response.data.message;
+            console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
+            if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
+                await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", user, messageRsp, status);
+            }
+
+        } catch (error) {
+            console.error('❌ J88 Lỗi:', error.response ? error.response.data : error.message);
         }
-
-    } catch (error) {
-        console.error('❌ J88 Lỗi:', error.response ? error.response.data : error.message);
     }
+
+    await sleep(10000)
+
+
 };
 
 
@@ -75,9 +81,8 @@ async function processJ88(message) {
         let [username, userNumber, status] = user.split(/\s+/);
         let proxy = await helper.getRandomProxy()
         if (typeof (status) == "undefined") { status = 0 }
-        for (const code of codes) {
-            tasks.push(limit(() => enterJ88(username, code, userNumber, status, proxy)));
-        }
+        tasks.push(limit(() => enterJ88(username, codes, userNumber, status, proxy)));
+
     }
 
     await Promise.all(tasks);

@@ -5,31 +5,38 @@ const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 const { HttpsProxyAgent } = require('https-proxy-agent');
 
-const enter8K = async (user, code, proxyString) => {
+const enter8K = async (user, codes, proxyString) => {
 
     const agent = new HttpsProxyAgent(`http://${proxyString}`);
 
-    const url = 'https://cjw242c.kmncksje.top/Promotion/CheckCode';
+    for (const code of codes) {
+        const url = 'https://cjw242c.kmncksje.top/Promotion/CheckCode';
 
-    const headers = {
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-    };
+        const headers = {
+            'accept': 'application/json, text/javascript, */*; q=0.01',
+        };
 
-    const data = {
-        Account: user,
-        InvitationCode: code
-    };
+        const data = {
+            Account: user,
+            InvitationCode: code
+        };
 
-    try {
-        const response = await axios.post(url, data, { headers, httpsAgent: agent });
-        const messageRsp = response.data.message;
-        console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-        if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
-            await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
+        try {
+            const response = await axios.post(url, data, { headers, httpsAgent: agent });
+            const messageRsp = response.data.message;
+            console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
+            if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
+                await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
+            }
+        } catch (error) {
+            console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
         }
-    } catch (error) {
-        console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
+
+        await sleep(10000)
+
     }
+
+
 };
 
 async function process8K(message) {
@@ -55,9 +62,7 @@ async function process8K(message) {
     const tasks = [];
     for (const user of Eight88Users) {
         let proxy = await helper.getRandomProxy()
-        for (const code of codes) {
-            tasks.push(limit(() => enter8K(user, code, proxy)));
-        }
+        tasks.push(limit(() => enter8K(user, codes, proxy)));
     }
 
     await Promise.all(tasks);
