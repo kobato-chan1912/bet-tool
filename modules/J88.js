@@ -9,7 +9,7 @@ const enterJ88 = async (user, codes, bank, status, proxyString) => {
 
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
-    let shuffleCodes = helper.shuffleCodes(codes)
+    let shuffleCodes = helper.shuffleArray(codes)
     for (const code of shuffleCodes) {
         const headers = {
             'accept': 'application/json, text/javascript, */*; q=0.01',

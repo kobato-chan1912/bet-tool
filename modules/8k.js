@@ -9,7 +9,7 @@ const enter8K = async (user, codes, proxyString) => {
 
     const agent = new HttpsProxyAgent(`http://${proxyString}`);
 
-    let shuffleCodes = helper.shuffleCodes(codes)
+    let shuffleCodes = helper.shuffleArray(codes)
 
     for (const code of shuffleCodes) {
         const url = 'https://cjw242c.kmncksje.top/Promotion/CheckCode';
