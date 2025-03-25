@@ -244,7 +244,7 @@ async function processText(text, lengthOfCode) {
 
 
   console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
-  return shuffleArray(codes);
+  return codes;
 }
 
 
