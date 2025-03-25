@@ -32,7 +32,7 @@ const enter8K = async (user, codes, proxyString) => {
             console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
         }
 
-        await sleep(10000)
+        await sleep(15000)
 
     }
 

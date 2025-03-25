@@ -31,6 +31,15 @@ async function getRandomProxy(filePath = './config/proxies.txt') {
   }
 }
 
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1)); // Chọn ngẫu nhiên chỉ số từ 0 đến i
+      [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi vị trí phần tử
+  }
+  return array;
+}
+
+
 // 🛠 Hàm xử lý proxy
 const parseProxyString = (proxyString) => {
   if (!proxyString) return null;
@@ -235,7 +244,7 @@ async function processText(text, lengthOfCode) {
 
 
   console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
-  return codes;
+  return shuffleArray(codes);
 }
 
 

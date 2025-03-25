@@ -35,7 +35,7 @@ const enterJ88 = async (user, codes, bank, status, proxyString) => {
         }
     }
 
-    await sleep(10000)
+    await sleep(15000)
 
 
 };
