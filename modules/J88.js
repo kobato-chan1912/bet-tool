@@ -55,18 +55,21 @@ async function processJ88(message) {
 
     let codes = await helper.processText(messageContent, 6);
     if (codes.length === 0) {
-        await sleep(30000)
-        messageContent = await helper.fetchSpoilerText(url);
-        codes = await helper.processText(messageContent, 6);
-
-        if (codes.length === 0) {
-            {
+        let attempts = 0;
+        const maxAttempts = 14;
+        const interval = 5000; // 5 giây = 5000 mili giây
+    
+        while (attempts < maxAttempts && codes.length === 0) {
+            await sleep(interval);
+            messageContent = await helper.fetchSpoilerText(url);
+            codes = await helper.processText(messageContent, 6);
+            attempts++;
+            
+            if (codes.length === 0 && attempts === maxAttempts) {
                 console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
                 return;
             }
         }
-
-
     }
 
 
