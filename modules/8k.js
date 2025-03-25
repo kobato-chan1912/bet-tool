@@ -6,7 +6,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 const enter8K = async (user, code, proxyString) => {
 
-    let proxy = helper.parseProxyString(proxyString);
+    const agent = new HttpsProxyAgent(`http://${proxyString}`);
 
     const url = 'https://cjw242c.kmncksje.top/Promotion/CheckCode';
 
@@ -20,7 +20,7 @@ const enter8K = async (user, code, proxyString) => {
     };
 
     try {
-        const response = await axios.post(url, data, { headers, proxy });
+        const response = await axios.post(url, data, { headers, httpsAgent: agent });
         const messageRsp = response.data.message;
         console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {

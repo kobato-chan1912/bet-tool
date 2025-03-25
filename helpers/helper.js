@@ -13,40 +13,41 @@ function getRandomElement(arr) {
 
 async function getRandomProxy(filePath = './config/proxies.txt') {
   try {
-      // Đọc nội dung file
-      const data = await fs.readFile(filePath, 'utf8');
-      
-      // Tách từng dòng (loại bỏ dòng trống)
-      const proxies = data.split('\n').map(line => line.trim()).filter(line => line);
-      
-      if (proxies.length === 0) {
-          throw new Error('Không có proxy nào trong file!');
-      }
+    // Đọc nội dung file
+    const data = await fs.readFile(filePath, 'utf8');
 
-      // Chọn ngẫu nhiên một proxy
-      return proxies[Math.floor(Math.random() * proxies.length)];
+    // Tách từng dòng (loại bỏ dòng trống)
+    const proxies = data.split('\n').map(line => line.trim()).filter(line => line);
+
+    if (proxies.length === 0) {
+      throw new Error('Không có proxy nào trong file!');
+    }
+
+    // Chọn ngẫu nhiên một proxy
+    return proxies[Math.floor(Math.random() * proxies.length)];
   } catch (error) {
-      console.error('Lỗi khi lấy proxy:', error.message);
-      return null;
+    console.error('Lỗi khi lấy proxy:', error.message);
+    return null;
   }
 }
 
 // 🛠 Hàm xử lý proxy
 const parseProxyString = (proxyString) => {
-    if (!proxyString) return null;
-    try {
-        const [auth, hostPort] = proxyString.split('@');
-        const [username, password] = auth.split(':');
-        const [host, port] = hostPort.split(':');
-        return {
-            host,
-            port: parseInt(port, 10),
-            auth: { username, password }
-        };
-    } catch (error) {
-        console.error('❌ Lỗi xử lý proxy:', error.message);
-        return null;
-    }
+  if (!proxyString) return null;
+  try {
+    const [auth, hostPort] = proxyString.split('@');
+    const [username, password] = auth.split(':');
+    const [host, port] = hostPort.split(':');
+    return {
+      protocol: "http",
+      host,
+      port: parseInt(port, 10),
+      auth: { username, password }
+    };
+  } catch (error) {
+    console.error('❌ Lỗi xử lý proxy:', error.message);
+    return null;
+  }
 };
 
 
@@ -124,22 +125,22 @@ const processDoneUser = async (inputFile, outputFile, username, point, status = 
 
 
 const isNaturalNumber = (str) => {
-    const num = Number(str);
-    return Number.isInteger(num) && num >= 0;
+  const num = Number(str);
+  return Number.isInteger(num) && num >= 0;
 };
 
 
 async function readFileToArray(filePath) {
-    try {
-        // Đọc nội dung file
-        const content = await fs.readFile(filePath, 'utf8');
-        // Chia thành mảng và loại bỏ dòng trống
-        const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
-        return lines;
-    } catch (error) {
-        console.error('Lỗi đọc file:', error);
-        return [];
-    }
+  try {
+    // Đọc nội dung file
+    const content = await fs.readFile(filePath, 'utf8');
+    // Chia thành mảng và loại bỏ dòng trống
+    const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
+    return lines;
+  } catch (error) {
+    console.error('Lỗi đọc file:', error);
+    return [];
+  }
 }
 
 
@@ -304,5 +305,7 @@ async function getResult(page) {
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 
-module.exports = { solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText, 
-  getRandomElement, getRandomProxy, parseProxyString }
+module.exports = {
+  solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
+  getRandomElement, getRandomProxy, parseProxyString
+}

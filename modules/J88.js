@@ -3,10 +3,11 @@ const helper = require("../helpers/helper.js")
 const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const enterJ88 = async (user, code, bank, status, proxyString) => {
 
-    let proxy = helper.parseProxyString(proxyString);
+    const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
 
     const headers = {
@@ -20,10 +21,7 @@ const enterJ88 = async (user, code, bank, status, proxyString) => {
     };
 
     try {
-        const response = await axios.post(url, data, { 
-            headers, 
-            proxy 
-        });
+        const response = await axios.post(url, data, { headers, httpsAgent: agent });
 
         const messageRsp = response.data.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)

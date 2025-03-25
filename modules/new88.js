@@ -2,10 +2,11 @@ const axios = require('axios');
 const CryptoJS = require('crypto-js');
 const md5 = require('md5');
 const fs = require('fs').promises;
-const helper = require("../helpers/helper.js")
-const chalk = require('chalk')
+const helper = require("../helpers/helper.js");
+const chalk = require('chalk');
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
+const { HttpsProxyAgent } = require('https-proxy-agent');
 
 // Thông tin cấu hình
 const information = {
@@ -13,7 +14,6 @@ const information = {
     endpoint: "https://api-code.khuyenmainew88.net",
     key_free: "att.code.free-code.new-88@2030$",
 };
-
 
 // Hàm mã hóa
 const encrypt = (text) => {
@@ -28,10 +28,11 @@ const decrypt = (cipherText) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-// 🧩 Giải Captcha (có proxy)
+// 🧩 Giải Captcha (dùng HttpsProxyAgent)
 async function solveCaptcha(imageBase64) {
     let readConfig = await loadConfig();
     let apiKey = readConfig.CAPTCHA_KEY;
+
     try {
         const response = await axios.post('https://autocaptcha.pro/apiv3/process', {
             key: apiKey,
@@ -67,12 +68,16 @@ async function loadConfig() {
     }
 }
 
-// 🏆 Lấy token captcha (có proxy)
-const getCaptchaToken = async (proxy) => {
+// 🏆 Lấy token captcha (dùng HttpsProxyAgent)
+const getCaptchaToken = async (proxyString) => {
+    const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     try {
         const response = await axios.get(
             `${information.endpoint}/api/get-verification-code?site=${information.site}`,
-            { headers: { 'Content-Type': 'application/json' }, proxy }
+            {
+                headers: { 'Content-Type': 'application/json' },
+                httpsAgent: agent
+            }
         );
         return response.data;
     } catch (error) {
@@ -81,8 +86,9 @@ const getCaptchaToken = async (proxy) => {
     }
 };
 
-// ✅ Xác thực code (có proxy)
-const getCode = async (promoCode, captchaInput, clientToken, proxy) => {
+// ✅ Xác thực code (dùng HttpsProxyAgent)
+const getCode = async (promoCode, captchaInput, clientToken, proxyString) => {
+    const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': clientToken
@@ -101,7 +107,7 @@ const getCode = async (promoCode, captchaInput, clientToken, proxy) => {
         const response = await axios.post(
             `${information.endpoint}/client/get-code?promo_code=${promoCode}&site=${information.site}`,
             body,
-            { headers, proxy }
+            { headers, httpsAgent: agent }
         );
         return response.data;
     } catch (error) {
@@ -110,8 +116,9 @@ const getCode = async (promoCode, captchaInput, clientToken, proxy) => {
     }
 };
 
-// ⭐ Cộng điểm (có proxy)
-const addPoints = async (playerId, promoCode, proxy) => {
+// ⭐ Cộng điểm (dùng HttpsProxyAgent)
+const addPoints = async (playerId, promoCode, proxyString) => {
+    const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const headers = { 'Content-Type': 'application/json' };
     const objParam = { promo_code: promoCode };
     const encryptedKey = encrypt(JSON.stringify(objParam));
@@ -121,7 +128,7 @@ const addPoints = async (playerId, promoCode, proxy) => {
         const response = await axios.post(
             `${information.endpoint}/client?player_id=${playerId}&promo_code=${promoCode}&site=${information.site}`,
             body,
-            { headers, proxy }
+            { headers, httpsAgent: agent }
         );
         return response.data;
     } catch (error) {
@@ -130,26 +137,25 @@ const addPoints = async (playerId, promoCode, proxy) => {
     }
 };
 
-// 🔄 Hàm chính (có proxy)
+// 🔄 Hàm chính (dùng HttpsProxyAgent)
 const enterNew88Code = async (promoCode, playerId, proxyString) => {
     try {
-        let proxy = helper.parseProxyString(proxyString);
         console.log('Getting captcha token...');
-        const captchaData = await getCaptchaToken(proxy);
+        const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
         const clientToken = captchaData.token;
 
         console.log('Solving captcha...');
-        let captchaSolution = await solveCaptcha(captchaBase64);
+        let captchaSolution = await solveCaptcha(captchaBase64, proxyString);
         console.log(captchaSolution);
         captchaSolution = captchaSolution.toUpperCase();
 
         console.log('Checking promo code:', promoCode);
-        const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxy);
+        const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
 
         if (codeResult.valid) {
             console.log('Adding points for player:', playerId);
-            const addPointResult = await addPoints(playerId, promoCode, proxy);
+            const addPointResult = await addPoints(playerId, promoCode, proxyString);
             console.log('Add points result:', addPointResult);
 
             if (addPointResult.valid) {
@@ -166,7 +172,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
     }
 };
 
-// 🔥 Xử lý message (có proxy)
+// 🔥 Xử lý message (dùng HttpsProxyAgent)
 async function processNew88(message) {
     let messageContent = message.message;
     const codes = await helper.processText(messageContent, 10);
@@ -174,21 +180,18 @@ async function processNew88(message) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
         return;
     }
-    const new88Users = await helper.readFileToArray("config/new88.txt")
+    const new88Users = await helper.readFileToArray("config/new88.txt");
     const config = await helper.loadConfig();
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
     for (const user of new88Users) {
-        let proxy = await helper.getRandomProxy();
-        let code = helper.getRandomElement(codes)
-        tasks.push(limit(() => enterNew88Code(code, user, proxy)));
-        // for (const code of codes) {
-        //     tasks.push(limit(() => enterNew88Code(code, username, proxy)));
-        // }
+        let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
+        let code = helper.getRandomElement(codes);
+        tasks.push(limit(() => enterNew88Code(code, user, proxyString)));
     }
 
     await Promise.all(tasks);
 }
 
-module.exports = { processNew88 }
+module.exports = { processNew88 };
