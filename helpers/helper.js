@@ -7,6 +7,48 @@ const lockFile = require('proper-lockfile');
 const configFile = './config/config.ini'; // Đường dẫn tới file config
 const axios = require("axios")
 
+function getRandomElement(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+async function getRandomProxy(filePath = 'config/proxies.txt') {
+  try {
+      // Đọc nội dung file
+      const data = await fs.readFile(filePath, 'utf8');
+      
+      // Tách từng dòng (loại bỏ dòng trống)
+      const proxies = data.split('\n').map(line => line.trim()).filter(line => line);
+      
+      if (proxies.length === 0) {
+          throw new Error('Không có proxy nào trong file!');
+      }
+
+      // Chọn ngẫu nhiên một proxy
+      return proxies[Math.floor(Math.random() * proxies.length)];
+  } catch (error) {
+      console.error('Lỗi khi lấy proxy:', error.message);
+      return null;
+  }
+}
+
+// 🛠 Hàm xử lý proxy
+const parseProxyString = (proxyString) => {
+    if (!proxyString) return null;
+    try {
+        const [auth, hostPort] = proxyString.split('@');
+        const [username, password] = auth.split(':');
+        const [host, port] = hostPort.split(':');
+        return {
+            host,
+            port: parseInt(port, 10),
+            auth: { username, password }
+        };
+    } catch (error) {
+        console.error('❌ Lỗi xử lý proxy:', error.message);
+        return null;
+    }
+};
+
 
 const ensureFileExists = async (filePath) => {
   try {
@@ -262,4 +304,5 @@ async function getResult(page) {
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 
-module.exports = { solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText }
+module.exports = { solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText, 
+  getRandomElement, getRandomProxy, parseProxyString }
