@@ -7,7 +7,6 @@ const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const enterJ88 = async (user, codes, bank, status, proxyString) => {
 
-    const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
     let shuffleCodes = helper.shuffleArray(codes)
     for (const code of shuffleCodes) {
@@ -33,9 +32,12 @@ const enterJ88 = async (user, codes, bank, status, proxyString) => {
         } catch (error) {
             console.error('❌ J88 Lỗi:', error.response ? error.response.data : error.message);
         }
+
+        await sleep(15000)
+
     }
 
-    await sleep(15000)
+    
 
 
 };
@@ -49,7 +51,6 @@ async function processJ88(message) {
     console.log(msgId)
     let url = `https://t.me/J88COM_NOHU_BANCA/${msgId}?embed=1`
 
-    await sleep(30000)
     let messageContent = await helper.fetchSpoilerText(url);
 
 

@@ -7,7 +7,6 @@ const { HttpsProxyAgent } = require('https-proxy-agent');
 
 const enter8K = async (user, codes, proxyString) => {
 
-    const agent = new HttpsProxyAgent(`http://${proxyString}`);
 
     let shuffleCodes = helper.shuffleArray(codes)
 
