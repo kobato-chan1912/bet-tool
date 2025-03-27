@@ -175,10 +175,17 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
 // 🔥 Xử lý message (dùng HttpsProxyAgent)
 async function processNew88(message) {
     let messageContent = message.message;
-    const codes = await helper.processText(messageContent, 10);
+    let codes = await helper.processText(messageContent, 12);
     if (codes.length === 0) {
-        console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
-        return;
+
+        codes = await helper.processText(messageContent, 10);
+
+        if (codes.length === 0) {
+            console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
+            return;
+        }
+
+
     }
     const new88Users = await helper.readFileToArray("config/new88.txt");
     const config = await helper.loadConfig();
