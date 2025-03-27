@@ -316,5 +316,5 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
-  getRandomElement, getRandomProxy, parseProxyString, shuffleArray
+  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig
 }

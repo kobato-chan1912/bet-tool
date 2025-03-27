@@ -71,7 +71,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
     // Lưu session vào config
     config.SESSION = client.session.save();
-    await saveConfig(config);
+    await helper.saveConfig(config);
 
   } else {
     // Nếu đã có SESSION, sử dụng nó
