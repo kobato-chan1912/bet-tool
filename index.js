@@ -97,7 +97,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
         console.log(chalk.white(`\n${message}`));
 
-        await EightK.process8K(message, client)
+        // await EightK.process8K(message, client)
 
       }
 
