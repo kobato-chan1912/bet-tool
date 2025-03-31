@@ -44,7 +44,7 @@ const enter8K = async (user, codes) => {
     }
 };
 
-async function process8K(message) {
+async function process8K(message, client) {
     console.log(chalk.greenBright(`\n📥 Code mới từ 8K`));
     console.log(chalk.white(`\n${message.message}`));
     let messageContent = message.message;
@@ -52,7 +52,7 @@ async function process8K(message) {
     if (messageContent.includes("ở bên dưới")) {
         codes = await helper.processText(messageContent, 8);
     } else if (messageContent.includes("PHÁT THƯỞNG HÀNG GIỜ")) {
-        let imgPath = await helper.downloadMedia(message)
+        let imgPath = await helper.downloadMedia(message, client)
         codes = await helper.processImage(imgPath, 8);
     }
 

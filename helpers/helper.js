@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 const lockFile = require('proper-lockfile');
 const configFile = './config/config.ini'; // Đường dẫn tới file config
 const axios = require("axios")
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -259,31 +259,13 @@ async function fetchImage(url) {
     return filePath;
 
   } catch (error) {
-    console.error('Lỗi khi tải ảnh:', error.message);
     return null;
   }
 }
 
-async function processImage(imagePath) {
-  try {
-    const client = new vision.ImageAnnotatorClient({
-      keyFilename: "api-google.json"
-    });
-    const [result] = await client.textDetection(imagePath);
-    const detections = result.textAnnotations;
-    const codes = detections
-      .map(text => text.description)
-      .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
 
-    console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
-    return codes;
-  } catch (error) {
-    console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);
-    return [];
-  }
-}
 
-async function downloadMedia(message) {
+async function downloadMedia(message, client) {
     if (message.media)
     {
       const photo = message.media.photo;
@@ -306,7 +288,7 @@ async function downloadMedia(message) {
         filePath = `./video_${document.id}.mp4`
         imgPath = `./video_${document.id}.jpg`
         await fs.writeFile(filePath, buffer);
-        exec(`ffmpeg -i ${filePath} -frames:v 1 -q:v 2 ${imgPath}`)
+        execSync(`ffmpeg -i ${filePath} -frames:v 1 -q:v 2 ${imgPath}`)
         await fs.unlink(filePath)
         return imgPath
       }
@@ -374,6 +356,11 @@ async function processImage(imagePath, lengthOfCode) {
       .filter(word => regex.test(word)); 
 
     console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
+    try {
+      await fs.unlink(imagePath)
+    } catch (error) {  }
+
+
     return codes;
   } catch (error) {
     console.error(chalk.red('❌ Lỗi nhận diện hình ảnh:'), error);

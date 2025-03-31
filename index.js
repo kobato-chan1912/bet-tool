@@ -97,41 +97,14 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
         console.log(chalk.white(`\n${message}`));
 
-        // await new88.processNew88(message)
-        let document = message.media.document
-        console.log(document);
-
-        if (document.thumbs && document.thumbs.length > 0) {
-
-          console.log(document.fileReference)
-
-
-          // Tải hình thu nhỏ
-          const buffer = await client.downloadFile(message.media, {
-            workers: 1
-          });
-
-          // Lưu buffer thành file hoặc xử lý theo cách bạn muốn
-          const fs = require('fs');
-          fs.writeFileSync('video.mp4', buffer);
-
-
-          const { exec } = require('child_process');
-          exec('ffmpeg -i video.mp4 -frames:v 1 -q:v 2 frame.jpg', (err) => {
-            if (err) {
-              console.error('Lỗi khi trích xuất khung hình:', err);
-            } else {
-              console.log('Đã trích xuất khung hình rõ nét thành frame.jpg!');
-            }
-          });
-        }
+        await EightK.process8K(message, client)
 
       }
 
-      if (EightKIDS.includes(sendID) && message.message.includes("được ẩn ở bên dưới")) { // CODE may mắn
+      if (EightKIDS.includes(sendID)) { // CODE may mắn
 
 
-        await EightK.process8K(message)
+        await EightK.process8K(message, client)
 
       }
 
