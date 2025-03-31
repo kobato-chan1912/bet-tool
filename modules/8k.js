@@ -48,9 +48,15 @@ async function process8K(message) {
     console.log(chalk.greenBright(`\n📥 Code mới từ 8K`));
     console.log(chalk.white(`\n${message.message}`));
     let messageContent = message.message;
+    let codes
+    if (messageContent.includes("ở bên dưới")) {
+        codes = await helper.processText(messageContent, 8);
+    } else if (messageContent.includes("PHÁT THƯỞNG HÀNG GIỜ")) {
+        let imgPath = await helper.downloadMedia(message)
+        codes = await helper.processImage(imgPath, 8);
+    }
 
 
-    const codes = await helper.processText(messageContent, 8);
     if (codes.length === 0) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
         return;

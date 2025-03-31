@@ -65,6 +65,21 @@ async function processJ88(message) {
             await sleep(interval);
             messageContent = await helper.fetchSpoilerText(url);
             codes = await helper.processText(messageContent, 6);
+            if (codes.length === 0)
+            {
+
+                let imagePath = await helper.fetchImage(url)
+                if (imagePath !== null){
+
+                    codes = await helper.processImage(imagePath, 6)
+
+                }
+
+            }
+
+
+
+
             attempts++;
             
             if (codes.length === 0 && attempts === maxAttempts) {

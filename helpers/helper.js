@@ -6,6 +6,7 @@ const cheerio = require('cheerio');
 const lockFile = require('proper-lockfile');
 const configFile = './config/config.ini'; // Đường dẫn tới file config
 const axios = require("axios")
+const { exec } = require('child_process');
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -216,6 +217,53 @@ async function fetchSpoilerText(url) {
   }
 }
 
+
+async function fetchImage(url) {
+  try {
+    // Lấy HTML từ URL
+    const { data } = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0' // Giúp tránh bị chặn
+      }
+    });
+
+    // Parse HTML với cheerio
+    const $ = cheerio.load(data);
+    
+    // Lấy URL ảnh từ style background-image
+    const photoWrap = $('.tgme_widget_message_photo_wrap');
+    const style = photoWrap.attr('style');
+    const imageUrlMatch = style.match(/url\('(.+?)'\)/);
+    if (!imageUrlMatch) {
+      throw new Error('Không tìm thấy URL ảnh');
+    }
+    
+    const imageUrl = imageUrlMatch[1];
+    
+    // Tải ảnh về
+    const response = await axios.get(imageUrl, {
+      responseType: 'arraybuffer',
+      headers: {
+        'User-Agent': 'Mozilla/5.0'
+      }
+    });
+    
+    // Tạo tên file từ timestamp để tránh trùng
+    const fileName = `image_${Date.now()}.jpg`;
+    const filePath = "./" + fileName;
+    
+    
+    // Ghi file ảnh xuống đĩa
+    await fs.writeFile(filePath, Buffer.from(response.data));
+    
+    return filePath;
+
+  } catch (error) {
+    console.error('Lỗi khi tải ảnh:', error.message);
+    return null;
+  }
+}
+
 async function processImage(imagePath) {
   try {
     const client = new vision.ImageAnnotatorClient({
@@ -235,6 +283,38 @@ async function processImage(imagePath) {
   }
 }
 
+async function downloadMedia(message) {
+    if (message.media)
+    {
+      const photo = message.media.photo;
+      const document = message.media.document;
+      const buffer = await client.downloadMedia(message.media, {
+        workers: 1, // Số lượng worker tải xuống
+      });
+
+      let filePath;
+
+      if (photo)
+      {
+        filePath = `./photo_${photo.id}.jpg`; // Đổi đường dẫn nếu cần
+        await fs.writeFile(filePath, buffer);
+        return filePath;
+      }
+
+      else if(document)
+      {
+        filePath = `./video_${document.id}.mp4`
+        imgPath = `./video_${document.id}.jpg`
+        await fs.writeFile(filePath, buffer);
+        exec(`ffmpeg -i ${filePath} -frames:v 1 -q:v 2 ${imgPath}`)
+        await fs.unlink(filePath)
+        return imgPath
+      }
+
+    }
+
+    return null
+}
 
 async function processText(text, lengthOfCode) {
   const regex = new RegExp(`^[A-Za-z0-9]{${lengthOfCode}}$`); // Regex động với độ dài tùy chỉnh
@@ -258,7 +338,7 @@ async function saveConfig(config) {
 
 
 
-async function processImage(imagePath) {
+async function processImage(imagePath, lengthOfCode) {
   try {
 
     let readConfig = await loadConfig();
@@ -286,10 +366,12 @@ async function processImage(imagePath) {
     const result = await client.send(command);
 
     // Trích xuất văn bản từ response
+
+    const regex = new RegExp(`^[A-Za-z0-9]{${lengthOfCode}}$`);
     const codes = result.TextDetections
       .filter(d => d.Type === 'WORD')
       .map(d => d.DetectedText)
-      .filter(text => /^[A-Za-z0-9]{8}$/.test(text));
+      .filter(word => regex.test(word)); 
 
     console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
     return codes;
@@ -316,5 +398,5 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
-  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig
+  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage
 }

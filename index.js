@@ -6,8 +6,7 @@ const helper = require("./helpers/helper.js")
 const EightK = require("./modules/8k.js")
 const J88 = require("./modules/J88.js")
 const new88 = require("./modules/new88.js")
-
-
+const { Api } = require('telegram/tl/');
 
 // data input
 const hi88IDs = ["2321421266", "2018121888", "1628875713"]
@@ -96,20 +95,48 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
       if (testGroup.includes(sendID)) {
         console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
-        console.log(chalk.white(`\n${message.message}`));
+        console.log(chalk.white(`\n${message}`));
+
         // await new88.processNew88(message)
+        let document = message.media.document
+        console.log(document);
+
+        if (document.thumbs && document.thumbs.length > 0) {
+
+          console.log(document.fileReference)
+
+
+          // Tải hình thu nhỏ
+          const buffer = await client.downloadFile(message.media, {
+            workers: 1
+          });
+
+          // Lưu buffer thành file hoặc xử lý theo cách bạn muốn
+          const fs = require('fs');
+          fs.writeFileSync('video.mp4', buffer);
+
+
+          const { exec } = require('child_process');
+          exec('ffmpeg -i video.mp4 -frames:v 1 -q:v 2 frame.jpg', (err) => {
+            if (err) {
+              console.error('Lỗi khi trích xuất khung hình:', err);
+            } else {
+              console.log('Đã trích xuất khung hình rõ nét thành frame.jpg!');
+            }
+          });
+        }
 
       }
 
       if (EightKIDS.includes(sendID) && message.message.includes("được ẩn ở bên dưới")) { // CODE may mắn
-       
+
 
         await EightK.process8K(message)
 
       }
 
       if (J88IDS.includes(sendID)) { // CODE may mắn
-        
+
         // 
         await J88.processJ88(message)
 
@@ -117,7 +144,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 
       if (new88IDS.includes(sendID)) { // CODE may mắn
-        
+
         // 
         await new88.processNew88(message)
 
