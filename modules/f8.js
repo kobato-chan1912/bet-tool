@@ -10,9 +10,10 @@ const { HttpsProxyAgent } = require('https-proxy-agent');
 
 // Thông tin cấu hình
 const information = {
-    site: "new88",
-    endpoint: "https://api-code.khuyenmainew88.net",
-    key_free: "att.code.free-code.new-88@2030$",
+    site: "f8bet",
+    endpoint: "https://api-f8bet.freecodevip.org",
+    key_free: "att.code.free-code.f8-bet@2030$",
+    cskh_url: "https://f8bet28.vip/cd/cskh",
 };
 
 // Hàm mã hóa
@@ -21,7 +22,7 @@ const encrypt = (text) => {
     return CryptoJS.AES.encrypt(text, md5Key).toString();
 };
 
-// Giải mã (nếu cần)
+// Hàm giải mã (nếu cần)
 const decrypt = (cipherText) => {
     const md5Key = md5(information.key_free).toLowerCase();
     const bytes = CryptoJS.AES.decrypt(cipherText, md5Key);
@@ -29,7 +30,7 @@ const decrypt = (cipherText) => {
 };
 
 
-// 🏆 Lấy token captcha (dùng HttpsProxyAgent)
+// Lấy token captcha
 const getCaptchaToken = async (proxyString) => {
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     try {
@@ -47,9 +48,10 @@ const getCaptchaToken = async (proxyString) => {
     }
 };
 
-// ✅ Xác thực code (dùng HttpsProxyAgent)
+// Kiểm tra mã code
 const getCode = async (promoCode, captchaInput, clientToken, proxyString) => {
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
+
     const headers = {
         'Content-Type': 'application/json',
         'Authorization': clientToken
@@ -61,7 +63,7 @@ const getCode = async (promoCode, captchaInput, clientToken, proxyString) => {
         key: encryptedKey,
         captchaCode: captchaInput,
         token: clientToken,
-        deviceType: 'mobile'
+        deviceType: 'desktop' // Giả lập desktop, có thể thay đổi
     };
 
     try {
@@ -77,13 +79,18 @@ const getCode = async (promoCode, captchaInput, clientToken, proxyString) => {
     }
 };
 
-// ⭐ Cộng điểm (dùng HttpsProxyAgent)
+// Cộng điểm cho người chơi
 const addPoints = async (playerId, promoCode, proxyString) => {
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
-    const headers = { 'Content-Type': 'application/json' };
+    const headers = {
+        'Content-Type': 'application/json'
+    };
+
     const objParam = { promo_code: promoCode };
     const encryptedKey = encrypt(JSON.stringify(objParam));
-    const body = { key: encryptedKey };
+    const body = {
+        key: encryptedKey
+    };
 
     try {
         const response = await axios.post(
@@ -98,68 +105,72 @@ const addPoints = async (playerId, promoCode, proxyString) => {
     }
 };
 
-// 🔄 Hàm chính (dùng HttpsProxyAgent)
-const enterNew88Code = async (promoCode, playerId, proxyString) => {
+// Hàm chính thực hiện toàn bộ quy trình
+const enterF8Code = async (promoCode, playerId, proxyString) => {
     try {
+        // Bước 1: Lấy token và captcha
         console.log('Getting captcha token...');
         const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
         const clientToken = captchaData.token;
 
+        // Bước 2: Giải captcha
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptcha(captchaBase64);
-        console.log(captchaSolution);
-        captchaSolution = captchaSolution.toUpperCase();
+        const captchaSolution = await helper.solveCaptcha(captchaBase64);
 
+        // Bước 3: Kiểm tra code
         console.log('Checking promo code:', promoCode);
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
+        console.log('Code check result:', codeResult);
 
-        if (codeResult.valid) {
+        if (codeResult.valid === true) {
+            // Bước 4: Cộng điểm nếu code hợp lệ
             console.log('Adding points for player:', playerId);
             const addPointResult = await addPoints(playerId, promoCode, proxyString);
             console.log('Add points result:', addPointResult);
 
-            if (addPointResult.valid) {
-                await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
-                console.log(`New88 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
+            if (addPointResult.valid === true) {
+                await helper.processDoneUser("./config/f8.txt", "./output/f8-done.txt", playerId, addPointResult.point, 0);
+                console.log(`F8 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
-                console.log('New88 - Không thể thêm điểm:', addPointResult.text_mess);
+                console.log('F8 - Failed to add points:', addPointResult.text_mess);
             }
         } else {
-            console.log('New88 - Lỗi API Code Result: ', codeResult.text_mess);
+            console.log('F8 - Invalid promo code:', codeResult.text_mess);
         }
+
     } catch (error) {
-        console.error('Lỗi: ', error.message);
+        console.error('Process failed:', error.message);
     }
 };
 
-// 🔥 Xử lý message (dùng HttpsProxyAgent)
-async function processNew88(message) {
+
+async function processF8(message, client) {
     let messageContent = message.message;
-    let codes = await helper.processText(messageContent, 12);
-    if (codes.length === 0) {
-
-        codes = await helper.processText(messageContent, 10);
-
-        if (codes.length === 0) {
-            console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
-            return;
-        }
-
-
+    console.log(messageContent)
+    if (!messageContent.includes("Nhập code tại link"))
+    {
+        return;
     }
-    const new88Users = await helper.readFileToArray("config/new88.txt");
+
+
+    let imgPath = await helper.downloadMedia(message, client)
+    let codes = await helper.processImage(imgPath, 8);
+
+
+    const f8Users = await helper.readFileToArray("config/f8.txt");
     const config = await helper.loadConfig();
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
-    for (const user of new88Users) {
+    for (const user of f8Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
-        tasks.push(limit(() => enterNew88Code(code, user, proxyString)));
+        tasks.push(limit(() => enterF8Code(code, user, proxyString)));
     }
 
     await Promise.all(tasks);
 }
 
-module.exports = { processNew88 };
+
+module.exports = { processF8 }

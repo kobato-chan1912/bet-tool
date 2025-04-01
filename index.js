@@ -6,6 +6,7 @@ const helper = require("./helpers/helper.js")
 const EightK = require("./modules/8k.js")
 const J88 = require("./modules/J88.js")
 const new88 = require("./modules/new88.js")
+const f8 = require("./modules/f8.js")
 const { Api } = require('telegram/tl/');
 
 // data input
@@ -97,7 +98,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
         console.log(chalk.white(`\n${message}`));
 
-        // await EightK.process8K(message, client)
+        // await f8.processF8(message, client)
 
       }
 
@@ -121,6 +122,12 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         // 
         await new88.processNew88(message)
 
+      }
+
+
+      if (f88IDS.includes(sendID))
+      {
+        await f8.processF8(message, client)
       }
 
 

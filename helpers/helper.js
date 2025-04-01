@@ -171,31 +171,7 @@ async function loadConfig() {
   }
 }
 
-async function solveCaptcha(imageBase64) {
-  let readConfig = await loadConfig()
-  let apiKey = readConfig.CAPTCHA_KEY;
-  try {
-    const response = await axios.post('https://autocaptcha.pro/apiv3/process', {
-      key: apiKey,
-      type: 'imagetotext',
-      img: imageBase64
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
 
-    let data = response.data; // Kết quả từ API
-    if (data.captcha == null) {
-      throw new Error(`❌ Lỗi lấy kết quả captcha`);
-    } else {
-      return data.captcha
-    }
-  } catch (error) {
-    console.error('Lỗi giải Captcha:', error.response?.data || error.message);
-    return null;
-  }
-}
 
 async function fetchSpoilerText(url) {
   try {
@@ -376,6 +352,29 @@ async function getResult(page) {
     return `${titleText} - ${containerText}`;
   } else {
     return "Không thấy kết quả!";
+  }
+}
+
+
+async function solveCaptcha(imageBase64) {
+  let readConfig = await loadConfig();
+  let apiKey = readConfig.CAPTCHA_KEY;
+
+  try {
+      const response = await axios.post('https://autocaptcha.pro/apiv3/process', {
+          key: apiKey,
+          type: 'imagetotext',
+          img: imageBase64
+      }, {
+          headers: { 'Content-Type': 'application/json' }
+      });
+
+      let data = response.data;
+      if (!data.captcha) throw new Error(`❌ Lỗi lấy kết quả captcha`);
+      return data.captcha;
+  } catch (error) {
+      console.error('Lỗi giải Captcha:', error.response?.data || error.message);
+      return null;
   }
 }
 
