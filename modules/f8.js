@@ -63,7 +63,7 @@ const getCode = async (promoCode, captchaInput, clientToken, proxyString) => {
         key: encryptedKey,
         captchaCode: captchaInput,
         token: clientToken,
-        deviceType: 'desktop' // Giả lập desktop, có thể thay đổi
+        deviceType: 'mobile' // Giả lập desktop, có thể thay đổi
     };
 
     try {
@@ -112,11 +112,13 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
         console.log('Getting captcha token...');
         const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
+        console.log(captchaBase64)
         const clientToken = captchaData.token;
 
         // Bước 2: Giải captcha
         console.log('Solving captcha...');
-        const captchaSolution = await helper.solveCaptcha(captchaBase64);
+        let captchaSolution = await helper.solveCaptcha(captchaBase64);
+        captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code
         console.log('Checking promo code:', promoCode);
