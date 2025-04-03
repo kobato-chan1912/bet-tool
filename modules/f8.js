@@ -37,7 +37,23 @@ const getCaptchaToken = async (proxyString) => {
         const response = await axios.get(
             `${information.endpoint}/api/get-verification-code?site=${information.site}`,
             {
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'accept': 'application/json, text/javascript, */*; q=0.01',
+                    'accept-language': 'vi,en-US;q=0.9,en;q=0.8,fr-FR;q=0.7,fr;q=0.6,ja;q=0.5,pt;q=0.4,da;q=0.3,it;q=0.2,tr;q=0.1,ko;q=0.1,zh-CN;q=0.1,zh;q=0.1',
+                    'content-type': 'application/json',
+                    'origin': 'https://f8bet2b.xyz/',
+                    'priority': 'u=1, i',
+                    'referer': 'https://f8bet2b.xyz/',
+                    'sec-ch-ua': '"Chromium";v="135", "Not:A-Brand";v="24", "Google Chrome";v="135"',
+                    'sec-ch-ua-mobile': '?0',
+                    'sec-ch-ua-platform': '"macOS"',
+                    'sec-fetch-dest': 'empty',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-site': 'cross-site',
+                    'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/135.0.7049.53 Mobile/15E148 Safari/604.1'
+            
+
+                 },
                 httpsAgent: agent
             }
         );
@@ -53,8 +69,21 @@ const getCode = async (promoCode, captchaInput, clientToken, proxyString) => {
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
 
     const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': clientToken
+        'Authorization': clientToken,
+        'accept': 'application/json, text/javascript, */*; q=0.01',
+        'accept-language': 'vi,en-US;q=0.9,en;q=0.8,fr-FR;q=0.7,fr;q=0.6,ja;q=0.5,pt;q=0.4,da;q=0.3,it;q=0.2,tr;q=0.1,ko;q=0.1,zh-CN;q=0.1,zh;q=0.1',
+        'content-type': 'application/json',
+        'origin': 'https://f8bet2b.xyz/',
+        'priority': 'u=1, i',
+        'referer': 'https://f8bet2b.xyz/',
+        'sec-ch-ua': '"Chromium";v="135", "Not:A-Brand";v="24", "Google Chrome";v="135"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"macOS"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'cross-site',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/135.0.7049.53 Mobile/15E148 Safari/604.1'
+
     };
 
     const objParam = { promo_code: promoCode };
@@ -89,13 +118,13 @@ const addPoints = async (playerId, promoCode, proxyString) => {
         'origin': 'https://f8bet2b.xyz/',
         'priority': 'u=1, i',
         'referer': 'https://f8bet2b.xyz/',
-        'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+        'sec-ch-ua': '"Chromium";v="135", "Not:A-Brand";v="24", "Google Chrome";v="135"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"macOS"',
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
         'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/135.0.7049.53 Mobile/15E148 Safari/604.1'
     };
 
     const objParam = { promo_code: promoCode };
