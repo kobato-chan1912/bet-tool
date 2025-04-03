@@ -8,6 +8,10 @@ const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 const { HttpsProxyAgent } = require('https-proxy-agent');
 
+let success = [];
+
+
+
 // Thông tin cấu hình
 const information = {
     site: "f8bet",
@@ -37,7 +41,7 @@ const getCaptchaToken = async (proxyString) => {
         const response = await axios.get(
             `${information.endpoint}/api/get-verification-code?site=${information.site}`,
             {
-                headers: { 
+                headers: {
                     'accept': 'application/json, text/javascript, */*; q=0.01',
                     'accept-language': 'vi,en-US;q=0.9,en;q=0.8,fr-FR;q=0.7,fr;q=0.6,ja;q=0.5,pt;q=0.4,da;q=0.3,it;q=0.2,tr;q=0.1,ko;q=0.1,zh-CN;q=0.1,zh;q=0.1',
                     'content-type': 'application/json',
@@ -51,9 +55,9 @@ const getCaptchaToken = async (proxyString) => {
                     'sec-fetch-mode': 'cors',
                     'sec-fetch-site': 'cross-site',
                     'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/135.0.7049.53 Mobile/15E148 Safari/604.1'
-            
 
-                 },
+
+                },
                 httpsAgent: agent
             }
         );
@@ -172,7 +176,10 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
             console.log('Add points result:', addPointResult);
 
             if (addPointResult.valid === true) {
-                await helper.processDoneUser("./config/f8.txt", "./output/f8-done.txt", playerId, addPointResult.point, 0);
+                success.push({
+                    user: addPointResult.player_id,
+                    msg: addPointResult.point
+                })
                 console.log(`F8 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
                 console.log('F8 - Failed to add points:', addPointResult.text_mess);
@@ -190,8 +197,7 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
 async function processF8(message, client) {
     let messageContent = message.message;
     console.log(messageContent)
-    if (!messageContent.includes("Nhập code tại link"))
-    {
+    if (!messageContent.includes("Nhập code tại link")) {
         return;
     }
 
@@ -205,6 +211,7 @@ async function processF8(message, client) {
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
+    success = [];
     for (const user of f8Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
@@ -212,6 +219,10 @@ async function processF8(message, client) {
     }
 
     await Promise.all(tasks);
+    for (const ele of success) {
+        await helper.processDoneUser("./config/f8.txt", "./output/f8-done.txt", ele.user, ele.msg, 0);
+    }
+
 }
 
 

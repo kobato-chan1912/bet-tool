@@ -3,6 +3,7 @@ const helper = require("../helpers/helper.js")
 const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
+let success = [];
 
 const enter8K = async (user, codes) => {
 
@@ -37,7 +38,13 @@ const enter8K = async (user, codes) => {
         const messageRsp = response.data.message;
         console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
-            await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
+
+            success.push({
+                user: user,
+                msg: messageRsp
+            })
+
+            // await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
         }
     } catch (error) {
         console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
@@ -71,6 +78,7 @@ async function process8K(message, client) {
 
     // await sleep(parseInt(config.SLEEP_BEFORE))
     const tasks = [];
+    success = [];
     for (const user of Eight88Users) {
         for (const code of codes) {
             tasks.push(limit(() => enter8K(user, [code])));
@@ -78,6 +86,9 @@ async function process8K(message, client) {
     }
 
     await Promise.all(tasks);
+    for (const ele of success) {
+        await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
+    }
 
 }
 

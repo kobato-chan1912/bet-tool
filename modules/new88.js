@@ -7,6 +7,7 @@ const chalk = require('chalk');
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 const { HttpsProxyAgent } = require('https-proxy-agent');
+let success = [];
 
 // Thông tin cấu hình
 const information = {
@@ -120,7 +121,11 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
             console.log('Add points result:', addPointResult);
 
             if (addPointResult.valid) {
-                await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
+                success.push({
+                    user: addPointResult.player_id,
+                    msg: addPointResult.point
+                })
+                // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
                 console.log(`New88 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
                 console.log('New88 - Không thể thêm điểm:', addPointResult.text_mess);
@@ -153,6 +158,8 @@ async function processNew88(message) {
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
+    success = [];
+
     for (const user of new88Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
@@ -160,6 +167,9 @@ async function processNew88(message) {
     }
 
     await Promise.all(tasks);
+    for (const ele of success) {
+        await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", ele.user, ele.msg, 0);
+    }
 }
 
 module.exports = { processNew88 };

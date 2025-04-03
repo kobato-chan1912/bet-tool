@@ -4,6 +4,10 @@ const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
+let success = [];
+
+
+
 const enterJ88 = async (user, code, bank, status) => {
 
     let TurnstileToken = await helper.solveTurnstile("0x4AAAAAABDOJN8QNe5PfVyR", "https://j88code.com")
@@ -38,7 +42,10 @@ const enterJ88 = async (user, code, bank, status) => {
         const messageRsp = response.data.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
-            await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", user, messageRsp, status);
+            success.push({
+                user: user,
+                msg: messageRsp
+            })
         }
 
     } catch (error) {
@@ -49,6 +56,7 @@ const enterJ88 = async (user, code, bank, status) => {
 
 async function processJ88(message) {
 
+    success = [];
     console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
 
     let msgId = message.id
@@ -111,6 +119,10 @@ async function processJ88(message) {
     }
 
     await Promise.all(tasks);
+    for (const ele of success)
+    {
+        await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", ele.user, ele.msg, 0);
+    }
 
 
 }
