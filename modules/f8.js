@@ -177,7 +177,7 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
 
             if (addPointResult.valid === true) {
                 success.push({
-                    user: addPointResult.player_id,
+                    user: playerId,
                     msg: addPointResult.point
                 })
                 console.log(`F8 -  ${addPointResult.point} cho ${addPointResult.player_id}`);

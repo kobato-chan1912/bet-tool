@@ -122,7 +122,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
 
             if (addPointResult.valid) {
                 success.push({
-                    user: addPointResult.player_id,
+                    user: playerId,
                     msg: addPointResult.point
                 })
                 // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
