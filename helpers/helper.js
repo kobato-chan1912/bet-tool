@@ -34,8 +34,8 @@ async function getRandomProxy(filePath = './config/proxies.txt') {
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1)); // Chọn ngẫu nhiên chỉ số từ 0 đến i
-      [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi vị trí phần tử
+    const j = Math.floor(Math.random() * (i + 1)); // Chọn ngẫu nhiên chỉ số từ 0 đến i
+    [array[i], array[j]] = [array[j], array[i]]; // Hoán đổi vị trí phần tử
   }
   return array;
 }
@@ -205,7 +205,7 @@ async function fetchImage(url) {
 
     // Parse HTML với cheerio
     const $ = cheerio.load(data);
-    
+
     // Lấy URL ảnh từ style background-image
     const photoWrap = $('.tgme_widget_message_photo_wrap');
     const style = photoWrap.attr('style');
@@ -213,9 +213,9 @@ async function fetchImage(url) {
     if (!imageUrlMatch) {
       throw new Error('Không tìm thấy URL ảnh');
     }
-    
+
     const imageUrl = imageUrlMatch[1];
-    
+
     // Tải ảnh về
     const response = await axios.get(imageUrl, {
       responseType: 'arraybuffer',
@@ -223,15 +223,15 @@ async function fetchImage(url) {
         'User-Agent': 'Mozilla/5.0'
       }
     });
-    
+
     // Tạo tên file từ timestamp để tránh trùng
     const fileName = `image_${Date.now()}.jpg`;
     const filePath = "./" + fileName;
-    
-    
+
+
     // Ghi file ảnh xuống đĩa
     await fs.writeFile(filePath, Buffer.from(response.data));
-    
+
     return filePath;
 
   } catch (error) {
@@ -242,36 +242,33 @@ async function fetchImage(url) {
 
 
 async function downloadMedia(message, client) {
-    if (message.media)
-    {
-      const photo = message.media.photo;
-      const document = message.media.document;
-      const buffer = await client.downloadMedia(message.media, {
-        workers: 1, // Số lượng worker tải xuống
-      });
+  if (message.media) {
+    const photo = message.media.photo;
+    const document = message.media.document;
+    const buffer = await client.downloadMedia(message.media, {
+      workers: 1, // Số lượng worker tải xuống
+    });
 
-      let filePath;
+    let filePath;
 
-      if (photo)
-      {
-        filePath = `./photo_${photo.id}.jpg`; // Đổi đường dẫn nếu cần
-        await fs.writeFile(filePath, buffer);
-        return filePath;
-      }
-
-      else if(document)
-      {
-        filePath = `./video_${document.id}.mp4`
-        imgPath = `./video_${document.id}.jpg`
-        await fs.writeFile(filePath, buffer);
-        execSync(`ffmpeg -i ${filePath} -frames:v 1 -q:v 2 ${imgPath}`)
-        await fs.unlink(filePath)
-        return imgPath
-      }
-
+    if (photo) {
+      filePath = `./photo_${photo.id}.jpg`; // Đổi đường dẫn nếu cần
+      await fs.writeFile(filePath, buffer);
+      return filePath;
     }
 
-    return null
+    else if (document) {
+      filePath = `./video_${document.id}.mp4`
+      imgPath = `./video_${document.id}.jpg`
+      await fs.writeFile(filePath, buffer);
+      execSync(`ffmpeg -i ${filePath} -frames:v 1 -q:v 2 ${imgPath}`)
+      await fs.unlink(filePath)
+      return imgPath
+    }
+
+  }
+
+  return null
 }
 
 async function processText(text, lengthOfCode) {
@@ -329,12 +326,12 @@ async function processImage(imagePath, lengthOfCode) {
     const codes = result.TextDetections
       .filter(d => d.Type === 'WORD')
       .map(d => d.DetectedText)
-      .filter(word => regex.test(word)); 
+      .filter(word => regex.test(word));
 
     console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
     try {
       await fs.unlink(imagePath)
-    } catch (error) {  }
+    } catch (error) { }
 
 
     return codes;
@@ -361,22 +358,51 @@ async function solveCaptcha(imageBase64) {
   let apiKey = readConfig.CAPTCHA_KEY;
 
   try {
-      const response = await axios.post('https://autocaptcha.pro/apiv3/process', {
-          key: apiKey,
-          type: 'imagetotext',
-          img: imageBase64
-      }, {
-          headers: { 'Content-Type': 'application/json' }
-      });
+    const response = await axios.post('https://autocaptcha.pro/apiv3/process', {
+      key: apiKey,
+      type: 'imagetotext',
+      img: imageBase64
+    }, {
+      headers: { 'Content-Type': 'application/json' }
+    });
 
-      let data = response.data;
-      if (!data.captcha) throw new Error(`❌ Lỗi lấy kết quả captcha`);
-      return data.captcha;
+    let data = response.data;
+    if (!data.captcha) throw new Error(`❌ Lỗi lấy kết quả captcha`);
+    return data.captcha;
   } catch (error) {
-      console.error('Lỗi giải Captcha:', error.response?.data || error.message);
-      return null;
+    console.error('Lỗi giải Captcha:', error.response?.data || error.message);
+    return null;
   }
 }
+
+async function solveTurnstile(SITE_KEY, PAGE_URL) {
+  let readConfig = await loadConfig();
+  let API_KEY = readConfig.ANTICAPTCHA_KEY;
+
+  try {
+    // Bước 1: Gửi yêu cầu giải Captcha
+    let response = await axios.post("https://anticaptcha.top/api/captcha", {
+      apikey: API_KEY,
+      type: 23,
+      websitekey: SITE_KEY,
+      pageurl: PAGE_URL
+    });
+
+    if (!response.data.success) {
+      console.log("Lỗi khi gửi yêu cầu Captcha:", response.data);
+      return null;
+    }
+    let captchaData = JSON.parse(response.data.captcha);
+
+
+    let token = captchaData.token;
+    return token;
+  } catch (error) {
+    console.error("Lỗi khi xử lý Captcha:", error.message);
+  }
+}
+
+
 
 
 const sleep = ms => new Promise(res => setTimeout(res, ms));
@@ -384,5 +410,5 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
-  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage
+  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile
 }

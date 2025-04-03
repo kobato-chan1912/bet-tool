@@ -8,11 +8,10 @@ const {HttpsProxyAgent} = require('https-proxy-agent');
 
 
 const enterJ88 = async (user, code, bank, status) => {
-    let proxyString = await helper.getRandomProxy()
-    const agent = new HttpsProxyAgent(`https://${proxyString}`);
-    console.log(agent)
-    
-    const url = 'https://httpbin.org/ip';
+
+    let TurnstileToken = await helper.solveTurnstile("0x4AAAAAABDOJN8QNe5PfVyR", "https://j88code.com")
+
+    const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
 
     const headers = {
         'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -33,21 +32,13 @@ const enterJ88 = async (user, code, bank, status) => {
     const data = {
         Account: user,
         InvitationCode: code,
-        BankCard: bank
+        BankCard: bank,
+        TurnstileToken: TurnstileToken
+
     };
 
-
-
     try {
-        const response = await axios.post(url, { 
-            headers, 
-            proxy: false,
-            httpsAgent: agent
-        });
-
-        console.log(response)
-        
-
+        const response = await axios.post(url, data, { headers });
         const messageRsp = response.data.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
@@ -55,18 +46,9 @@ const enterJ88 = async (user, code, bank, status) => {
         }
 
     } catch (error) {
-        console.log(error)
         console.error('❌ J88 Lỗi:', error.response ? error.response.data : error.message);
     }
 };
 
-const fetchIP = async () => {
-    try {
-        const response = await axios.get('http://httpbin.org/ip', { proxy });
-        console.log(response.data);
-    } catch (error) {
-        console.error('Lỗi:', error.message);
-    }
-};
 
-enterJ88('xxx', 'xxx', 1234, 0)
+enterJ88('xxx', 'xxx', '1234', 0)

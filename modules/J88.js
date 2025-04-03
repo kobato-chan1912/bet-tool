@@ -6,6 +6,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 const enterJ88 = async (user, code, bank, status) => {
 
+    let TurnstileToken = await helper.solveTurnstile("0x4AAAAAABDOJN8QNe5PfVyR", "https://j88code.com")
 
     const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
 
@@ -28,7 +29,8 @@ const enterJ88 = async (user, code, bank, status) => {
     const data = {
         Account: user,
         InvitationCode: code,
-        BankCard: bank
+        BankCard: bank,
+        TurnstileToken: TurnstileToken
     };
 
     try {
@@ -101,9 +103,11 @@ async function processJ88(message) {
     for (const user of J88Users) {
         let [username, userNumber, status] = user.split(/\s+/);
         if (typeof (status) == "undefined") { status = 0 }
-        for (const code of codes) {
-            tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
-        }
+        let code = helper.getRandomElement(codes);
+        tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
+        // for (const code of codes) {
+        //     tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
+        // }
     }
 
     await Promise.all(tasks);
