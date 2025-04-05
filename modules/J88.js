@@ -76,7 +76,7 @@ async function processJ88(message) {
             await sleep(interval);
             messageContent = await helper.fetchSpoilerText(url);
             codes = await helper.processText(messageContent, 6);
-            if (codes.length === 0)
+            if (codes.length < 2)
             {
 
                 let imagePath = await helper.fetchImage(url)
