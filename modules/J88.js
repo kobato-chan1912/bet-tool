@@ -72,7 +72,7 @@ async function processJ88(message) {
         const maxAttempts = 30;
         const interval = 100; // 5 giây = 5000 mili giây
     
-        while (attempts < maxAttempts && codes.length === 0) {
+        while (attempts < maxAttempts && codes.length < 2) {
             await sleep(interval);
             messageContent = await helper.fetchSpoilerText(url);
             codes = await helper.processText(messageContent, 6);
