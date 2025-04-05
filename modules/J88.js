@@ -76,7 +76,7 @@ async function processJ88(message) {
             await sleep(interval);
             messageContent = await helper.fetchSpoilerText(url);
             codes = await helper.processText(messageContent, 6);
-            if (codes.length === 0 && codes[0] !== "THUONG")
+            if (codes.length === 0)
             {
 
                 let imagePath = await helper.fetchImage(url)
@@ -93,7 +93,7 @@ async function processJ88(message) {
 
             attempts++;
             
-            if (codes.length === 0 && attempts === maxAttempts) {
+            if (codes.length < 2 && attempts === maxAttempts) {
                 console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
                 return;
             }
