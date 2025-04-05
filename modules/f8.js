@@ -195,13 +195,7 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
 
 
 async function processF8(message, client) {
-    let messageContent = message.message;
-    console.log(messageContent)
-    if (!messageContent.includes("Nhập code tại link")) {
-        return;
-    }
-
-
+    
     let imgPath = await helper.downloadMedia(message, client)
     let codes = await helper.processImage(imgPath, 8);
 
