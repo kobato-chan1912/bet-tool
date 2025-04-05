@@ -67,7 +67,7 @@ async function processJ88(message) {
     let messageContent = await helper.fetchSpoilerText(url);
 
     let codes = await helper.processText(messageContent, 6);
-    if (codes.length === 0) {
+    if (codes.length < 2) {
         let attempts = 0;
         const maxAttempts = 30;
         const interval = 100; // 5 giây = 5000 mili giây
