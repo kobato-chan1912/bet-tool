@@ -183,9 +183,16 @@ async function fetchSpoilerText(url) {
     });
 
     const $ = cheerio.load(data);
-    const spoilerText = $('tg-spoiler').text().trim(); // Lấy nội dung
 
-    return spoilerText;
+    const rawHtml = $('.tgme_widget_message_text').html(); // Lấy HTML thay vì text
+    const formattedText = rawHtml
+        .replace(/<br\s*\/?>/gi, '\n') // Chuyển <br> thành xuống dòng
+        .replace(/<\/?[^>]+(>|$)/g, '') // Bỏ các thẻ HTML khác như <span>, <b>, etc.
+        .trim();
+
+    return formattedText
+
+    
   } catch (error) {
     console.error('Lỗi:', error.message);
     return null
