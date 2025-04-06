@@ -192,7 +192,7 @@ async function fetchSpoilerText(url) {
 
     return formattedText
 
-    
+
   } catch (error) {
     console.error('Lỗi:', error.message);
     return null
@@ -362,24 +362,31 @@ async function getResult(page) {
 
 async function solveCaptcha(imageBase64) {
   let readConfig = await loadConfig();
-  let apiKey = readConfig.CAPTCHA_KEY;
+  let apiKey = readConfig.ANTICAPTCHA_KEY;
 
   try {
-    const response = await axios.post('https://autocaptcha.pro/apiv3/process', {
-      key: apiKey,
-      type: 'imagetotext',
-      img: imageBase64
+    const response = await axios.post('https://anticaptcha.top/api/captcha', {
+      apikey: apiKey,
+      img: imageBase64,
+      type: 14
     }, {
-      headers: { 'Content-Type': 'application/json' }
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
 
-    let data = response.data;
-    if (!data.captcha) throw new Error(`❌ Lỗi lấy kết quả captcha`);
-    return data.captcha;
+    if (response.data.success) {
+      return response.data.captcha; // Trả về chuỗi captcha giải được
+    } else {
+      console.error('Captcha API trả về lỗi:', response.data.message);
+      return null;
+    }
+
   } catch (error) {
-    console.error('Lỗi giải Captcha:', error.response?.data || error.message);
+    console.error('Lỗi khi gọi API:', error.response?.data || error.message);
     return null;
   }
+
 }
 
 async function solveTurnstile(SITE_KEY, PAGE_URL) {
