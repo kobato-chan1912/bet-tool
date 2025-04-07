@@ -99,7 +99,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         console.log(chalk.white(`\n${message}`));
 
         // await f8.processF8(message, client)
-
+        await new88.processNew88(message)
       }
 
       if (EightKIDS.includes(sendID)) { // CODE may mắn

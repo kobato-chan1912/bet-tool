@@ -7,6 +7,7 @@ const lockFile = require('proper-lockfile');
 const configFile = './config/config.ini'; // Đường dẫn tới file config
 const axios = require("axios")
 const { execSync } = require('child_process');
+const sharp = require('sharp');
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -360,14 +361,75 @@ async function getResult(page) {
 }
 
 
+async function modifySvgBase64AndReturnPngBase64(svgBase64Full) {
+    // Giải mã base64 thành chuỗi SVG
+    const base64Data = svgBase64Full.replace(/^data:image\/svg\+xml;base64,/, '');
+    const svgContent = Buffer.from(base64Data, 'base64').toString('utf-8');
+
+    // Sử dụng cheerio để phân tích và chỉnh sửa SVG
+    const $ = cheerio.load(svgContent, { xmlMode: true });
+
+    // Lặp qua tất cả các path và thực hiện yêu cầu:
+    $('path').each((i, elem) => {
+        // Xóa path có fill="none"
+        if ($(elem).attr('fill') === 'none') {
+            $(elem).remove();
+        } else {
+            // Thêm stroke="black" cho các path còn lại
+            $(elem).attr('stroke', 'black');
+        }
+    });
+
+    // Lấy lại nội dung SVG đã chỉnh sửa
+    const modifiedSvgContent = $.html();
+
+    // Tạo một tệp tạm để lưu SVG đã chỉnh sửa
+    const randomId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+
+    // Tạo đường dẫn file tạm
+    const tempSvgPath = path.join(__dirname, `temp-${randomId}.svg`);
+    const tempPngPath = path.join(__dirname, `temp-${randomId}.png`);
+
+
+    // Ghi nội dung SVG đã chỉnh sửa vào file
+    await fs.writeFile(tempSvgPath, modifiedSvgContent);
+
+    // Sử dụng sharp để chuyển SVG thành PNG
+    await sharp(tempSvgPath)
+        .resize(298, 98, {
+            fit: 'cover', // Giữ tỉ lệ trong khung
+            background: '#ffffff' // Nền trắng
+        })
+        .flatten({ background: '#ffffff' }) // Đảm bảo nền trắng nếu SVG trong suốt
+        .png()
+        .toFile(tempPngPath);
+
+    // Đọc file PNG và chuyển thành base64
+    const pngBuffer = await fs.readFile(tempPngPath);
+    const pngBase64 = pngBuffer.toString('base64');
+
+    // Xóa file tạm
+    await fs.unlink(tempSvgPath);
+    await fs.unlink(tempPngPath);
+
+
+
+
+    // Trả về base64 của ảnh PNG
+    let b64png =  `data:image/png;base64,${pngBase64}`;
+    return b64png
+}
+
+
 async function solveCaptcha(imageBase64) {
+  let b64Modified = await modifySvgBase64AndReturnPngBase64(imageBase64)
   let readConfig = await loadConfig();
   let apiKey = readConfig.ANTICAPTCHA_KEY;
 
   try {
     const response = await axios.post('https://anticaptcha.top/api/captcha', {
       apikey: apiKey,
-      img: imageBase64,
+      img: b64Modified,
       type: 14
     }, {
       headers: {

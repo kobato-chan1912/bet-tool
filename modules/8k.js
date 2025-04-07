@@ -58,7 +58,7 @@ async function process8K(message, client) {
     let codes
     if (messageContent.includes("ở bên dưới")) {
         codes = await helper.processText(messageContent, 8);
-    } else if (messageContent.includes("PHÁT THƯỞNG HÀNG GIỜ")) {
+    } else {
         let imgPath = await helper.downloadMedia(message, client)
         codes = await helper.processImage(imgPath, 8);
     }

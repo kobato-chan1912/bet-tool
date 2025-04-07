@@ -105,6 +105,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
         console.log('Getting captcha token...');
         const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
+        // console.log(captchaBase64)
         const clientToken = captchaData.token;
 
         console.log('Solving captcha...');
