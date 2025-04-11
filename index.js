@@ -98,7 +98,8 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
         console.log(chalk.white(`\n${message}`));
 
-        // await f8.processF8(message, client)
+        // await J88.processJ88(message)
+        await f8.processF8(message, client)
         // await new88.processNew88(message)
       }
 

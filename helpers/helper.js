@@ -8,6 +8,7 @@ const configFile = './config/config.ini'; // Đường dẫn tới file config
 const axios = require("axios")
 const { execSync } = require('child_process');
 const sharp = require('sharp');
+const openai = require("./openai")
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -187,9 +188,9 @@ async function fetchSpoilerText(url) {
 
     const rawHtml = $('.tgme_widget_message_text').html(); // Lấy HTML thay vì text
     const formattedText = rawHtml
-        .replace(/<br\s*\/?>/gi, '\n') // Chuyển <br> thành xuống dòng
-        .replace(/<\/?[^>]+(>|$)/g, '') // Bỏ các thẻ HTML khác như <span>, <b>, etc.
-        .trim();
+      .replace(/<br\s*\/?>/gi, '\n') // Chuyển <br> thành xuống dòng
+      .replace(/<\/?[^>]+(>|$)/g, '') // Bỏ các thẻ HTML khác như <span>, <b>, etc.
+      .trim();
 
     return formattedText
 
@@ -362,83 +363,91 @@ async function getResult(page) {
 
 
 async function modifySvgBase64AndReturnPngBase64(svgBase64Full) {
-    // Giải mã base64 thành chuỗi SVG
-    const base64Data = svgBase64Full.replace(/^data:image\/svg\+xml;base64,/, '');
-    const svgContent = Buffer.from(base64Data, 'base64').toString('utf-8');
+  // Giải mã base64 thành chuỗi SVG
+  const base64Data = svgBase64Full.replace(/^data:image\/svg\+xml;base64,/, '');
+  const svgContent = Buffer.from(base64Data, 'base64').toString('utf-8');
 
-    // Sử dụng cheerio để phân tích và chỉnh sửa SVG
-    const $ = cheerio.load(svgContent, { xmlMode: true });
+  // Sử dụng cheerio để phân tích và chỉnh sửa SVG
+  const $ = cheerio.load(svgContent, { xmlMode: true });
 
-    // Lặp qua tất cả các path và thực hiện yêu cầu:
-    $('path').each((i, elem) => {
-        // Xóa path có fill="none"
-        if ($(elem).attr('fill') === 'none') {
-            $(elem).remove();
-        } else {
-            // Thêm stroke="black" cho các path còn lại
-            $(elem).attr('stroke', 'black');
-        }
-    });
+  // Lặp qua tất cả các path và thực hiện yêu cầu:
+  $('path').each((i, elem) => {
+    // Xóa path có fill="none"
+    if ($(elem).attr('fill') === 'none') {
+      $(elem).remove();
+    } else {
+      // Thêm stroke="black" cho các path còn lại
+      $(elem).attr('stroke', 'black');
+    }
+  });
 
-    // Lấy lại nội dung SVG đã chỉnh sửa
-    const modifiedSvgContent = $.html();
+  // Lấy lại nội dung SVG đã chỉnh sửa
+  const modifiedSvgContent = $.html();
 
-    // Tạo một tệp tạm để lưu SVG đã chỉnh sửa
-    const randomId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+  // Tạo một tệp tạm để lưu SVG đã chỉnh sửa
+  const randomId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
 
-    // Tạo đường dẫn file tạm
-    const tempSvgPath = path.join(__dirname, `temp-${randomId}.svg`);
-    const tempPngPath = path.join(__dirname, `temp-${randomId}.png`);
-
-
-    // Ghi nội dung SVG đã chỉnh sửa vào file
-    await fs.writeFile(tempSvgPath, modifiedSvgContent);
-
-    // Sử dụng sharp để chuyển SVG thành PNG
-    await sharp(tempSvgPath)
-        .resize(298, 98, {
-            fit: 'cover', // Giữ tỉ lệ trong khung
-            background: '#ffffff' // Nền trắng
-        })
-        .flatten({ background: '#ffffff' }) // Đảm bảo nền trắng nếu SVG trong suốt
-        .png()
-        .toFile(tempPngPath);
-
-    // Đọc file PNG và chuyển thành base64
-    const pngBuffer = await fs.readFile(tempPngPath);
-    const pngBase64 = pngBuffer.toString('base64');
-
-    // Xóa file tạm
-    await fs.unlink(tempSvgPath);
-    await fs.unlink(tempPngPath);
+  // Tạo đường dẫn file tạm
+  const tempSvgPath = path.join(__dirname, `temp-${randomId}.svg`);
+  const tempPngPath = path.join(__dirname, `temp-${randomId}.png`);
 
 
+  // Ghi nội dung SVG đã chỉnh sửa vào file
+  await fs.writeFile(tempSvgPath, modifiedSvgContent);
+
+  // Sử dụng sharp để chuyển SVG thành PNG
+  await sharp(tempSvgPath)
+    .resize(298, 98, {
+      fit: 'cover', // Giữ tỉ lệ trong khung
+      background: '#ffffff' // Nền trắng
+    })
+    .flatten({ background: '#ffffff' }) // Đảm bảo nền trắng nếu SVG trong suốt
+    .png()
+    .toFile(tempPngPath);
+
+  // Đọc file PNG và chuyển thành base64
+  const pngBuffer = await fs.readFile(tempPngPath);
+  const pngBase64 = pngBuffer.toString('base64');
+
+  // Xóa file tạm
+  await fs.unlink(tempSvgPath);
+  await fs.unlink(tempPngPath);
 
 
-    // Trả về base64 của ảnh PNG
-    let b64png =  `data:image/png;base64,${pngBase64}`;
-    return b64png
+
+
+  // Trả về base64 của ảnh PNG
+  let b64png = `data:image/png;base64,${pngBase64}`;
+  return b64png
 }
 
 
 async function solveCaptcha(imageBase64) {
   let b64Modified = await modifySvgBase64AndReturnPngBase64(imageBase64)
   let readConfig = await loadConfig();
-  let apiKey = readConfig.ANTICAPTCHA_KEY;
+  let apiKey = readConfig.CAPTCHA_SOLVER;
 
   try {
-    const response = await axios.post('https://anticaptcha.top/api/captcha', {
-      apikey: apiKey,
-      img: b64Modified,
-      type: 14
-    }, {
+    const response = await axios.post('https://api.capsolver.com/createTask',
+      {
+        "clientKey": apiKey,
+        "task": {
+          "type": "ImageToTextTask",
+          "module": "common",
+          "body": b64Modified
+        }
+      }, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
 
-    if (response.data.success) {
-      return response.data.captcha; // Trả về chuỗi captcha giải được
+    let result = response.data;
+
+    if (result.errorId === 0) {
+      let solution = result.solution;
+      let answers = solution.answers;
+      return answers[0];
     } else {
       console.error('Captcha API trả về lỗi:', response.data.message);
       return null;
@@ -451,40 +460,85 @@ async function solveCaptcha(imageBase64) {
 
 }
 
-async function solveTurnstile(SITE_KEY, PAGE_URL) {
+
+async function solveCaptchaWithGPT(imageBase64) {
+  let b64Modified = await modifySvgBase64AndReturnPngBase64(imageBase64)
   let readConfig = await loadConfig();
-  let API_KEY = readConfig.ANTICAPTCHA_KEY;
+  let apiKey = readConfig.OPENAI;
+  let prompt = "hình ảnh sau chứa captcha gì, chỉ trả về captcha đó"
+  let captcha = await openai.getChatGptResponseImages(apiKey, prompt, [b64Modified])
+  return captcha
+}
+
+
+async function createTurnstileTask(API_KEY, SITE_KEY, PAGE_URL) {
+  const payload = {
+    clientKey: API_KEY,
+    "task": {
+      "type": "AntiTurnstileTaskProxyLess",
+      "websiteURL": PAGE_URL,
+      "websiteKey": SITE_KEY
+    }
+  };
 
   try {
-    // Bước 1: Gửi yêu cầu giải Captcha
-    let response = await axios.post("https://anticaptcha.top/api/captcha", {
-      apikey: API_KEY,
-      type: 23,
-      websitekey: SITE_KEY,
-      pageurl: PAGE_URL
-    });
-
-    if (!response.data.success) {
-      console.log("Lỗi khi gửi yêu cầu Captcha:", response.data);
-      return null;
+    const response = await axios.post('https://api.capsolver.com/createTask', payload);
+    if (response.data.errorId === 0) {
+      console.log('Task created:', response.data.taskId);
+      return response.data.taskId;
+    } else {
+      throw new Error(`Create task failed: ${JSON.stringify(response.data)}`);
     }
-    let captchaData = JSON.parse(response.data.captcha);
+  } catch (err) {
+    throw new Error(`Error creating task: ${err.message}`);
+  }
+}
 
 
-    let token = captchaData.token;
-    return token;
-  } catch (error) {
-    console.error("Lỗi khi xử lý Captcha:", error.message);
+async function getTurnstileResult(API_KEY, taskId) {
+  const payload = {
+    clientKey: API_KEY,
+    taskId: taskId,
+  };
+
+  try {
+    const response = await axios.post('https://api.capsolver.com/getTaskResult', payload);
+    return response.data;
+  } catch (err) {
+    throw new Error(`Error getting task result: ${err.message}`);
+  }
+}
+
+async function solveTurnstile(SITE_KEY, PAGE_URL) {
+  let readConfig = await loadConfig();
+  let API_KEY = readConfig.CAPTCHA_SOLVER;
+
+  try {
+    const taskId = await createTurnstileTask(API_KEY, SITE_KEY, PAGE_URL);
+    // Đợi và kiểm tra kết quả
+    const pollInterval = 100;
+    const maxAttemp = 10;
+    let attemp = 0;
+    while (true && attemp <= maxAttemp) {
+      console.log('Checking result...');
+      const result = await getTurnstileResult(API_KEY, taskId);
+      if (result.status === 'ready') {
+        let solution = result.solution;
+        return solution.token;
+      }
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      attemp++;
+
+    }
+  } catch (err) {
+    console.error('Solve failed:', err.message);
   }
 }
 
 
 
 
-const sleep = ms => new Promise(res => setTimeout(res, ms));
-
-
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
-  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile
+  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile, solveCaptchaWithGPT
 }

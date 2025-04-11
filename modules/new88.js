@@ -109,7 +109,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
         const clientToken = captchaData.token;
 
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptcha(captchaBase64);
+        let captchaSolution = await helper.solveCaptchaWithGPT(captchaBase64);
         console.log(captchaSolution);
         captchaSolution = captchaSolution.toUpperCase();
 

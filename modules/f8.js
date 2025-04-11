@@ -161,7 +161,7 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
 
         // Bước 2: Giải captcha
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptcha(captchaBase64);
+        let captchaSolution = await helper.solveCaptchaWithGPT(captchaBase64);
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code
