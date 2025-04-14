@@ -4,6 +4,8 @@ const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 let success = [];
+let deleteAccs = [];
+
 
 const enter8K = async (user, codes) => {
 
@@ -37,7 +39,7 @@ const enter8K = async (user, codes) => {
         const response = await axios.post(url, data, { headers });
         const messageRsp = response.data.message;
         console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-        if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
+        if (helper.isNaturalNumber(messageRsp)) {
 
             success.push({
                 user: user,
@@ -46,6 +48,15 @@ const enter8K = async (user, codes) => {
 
             // await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
         }
+
+        if (messageRsp.includes("Đã tham gia") || messageRsp.includes("đủ điều kiện")) {
+
+            deleteAccs.push({
+                user: user
+            })
+
+        }
+
     } catch (error) {
         console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
     }
@@ -79,6 +90,7 @@ async function process8K(message, client) {
     // await sleep(parseInt(config.SLEEP_BEFORE))
     const tasks = [];
     success = [];
+    deleteAccs = [];
     for (const user of Eight88Users) {
         for (const code of codes) {
             tasks.push(limit(() => enter8K(user, [code])));
@@ -88,6 +100,10 @@ async function process8K(message, client) {
     await Promise.all(tasks);
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
+    }
+
+    for (const dlAcc of deleteAccs) {
+        await helper.deleteAccs("./config/8k.txt", dlAcc.user)
     }
 
 }

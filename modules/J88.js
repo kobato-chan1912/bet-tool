@@ -5,7 +5,7 @@ const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 let success = [];
-
+let deleteAccs = [];
 
 
 const enterJ88 = async (user, code, bank, status) => {
@@ -41,12 +41,21 @@ const enterJ88 = async (user, code, bank, status) => {
         const response = await axios.post(url, data, { headers });
         const messageRsp = response.data.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-        if (helper.isNaturalNumber(messageRsp) || messageRsp.includes("Đã tham gia")) {
+        if (helper.isNaturalNumber(messageRsp)) {
             success.push({
                 user: user,
                 msg: messageRsp
             })
         }
+
+        if (messageRsp.includes("Đã tham gia") || messageRsp.includes("đủ điều kiện")) {
+
+            deleteAccs.push({
+                user: user
+            })
+
+        }
+
 
     } catch (error) {
         console.error('❌ J88 Lỗi:', error.response ? error.response.data : error.message);
@@ -57,6 +66,7 @@ const enterJ88 = async (user, code, bank, status) => {
 async function processJ88(message) {
 
     success = [];
+    deleteAccs = [];
     console.log(chalk.greenBright(`\n📥 Code mới từ J88`));
 
     let msgId = message.id
@@ -71,16 +81,15 @@ async function processJ88(message) {
         let attempts = 0;
         const maxAttempts = 30;
         const interval = 100; // 5 giây = 5000 mili giây
-    
+
         while (attempts < maxAttempts && codes.length < 2) {
             await sleep(interval);
             messageContent = await helper.fetchSpoilerText(url);
             codes = await helper.processText(messageContent, 6);
-            if (codes.length < 2)
-            {
+            if (codes.length < 2) {
 
                 let imagePath = await helper.fetchImage(url)
-                if (imagePath !== null){
+                if (imagePath !== null) {
 
                     codes = await helper.processImage(imagePath, 6)
 
@@ -92,7 +101,7 @@ async function processJ88(message) {
 
 
             attempts++;
-            
+
             if (codes.length < 2 && attempts === maxAttempts) {
                 console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
                 return;
@@ -119,9 +128,12 @@ async function processJ88(message) {
     }
 
     await Promise.all(tasks);
-    for (const ele of success)
-    {
+    for (const ele of success) {
         await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", ele.user, ele.msg, 0);
+    }
+
+    for (const dlAcc of deleteAccs) {
+        await helper.deleteAccs("./config/j88.txt", dlAcc.user)
     }
 
 

@@ -134,6 +134,22 @@ const processDoneUser = async (inputFile, outputFile, username, point, status = 
   }
 };
 
+async function deleteAccs(inputFile, username) {
+  let inputData = [];
+  try {
+    const inputContent = await fs.readFile(inputFile, 'utf8');
+    inputData = inputContent.split('\n').map(line => line.trim()).filter(line => line);
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error; // Bỏ qua nếu file không tồn tại
+  }
+
+  // Xóa username khỏi inputFile nếu cần
+  let newInputData = inputData;
+  newInputData = inputData.filter(user => !user.includes(username));
+
+  await fs.writeFile(inputFile, newInputData.join('\n'), 'utf8');
+}
+
 
 
 const isNaturalNumber = (str) => {
@@ -540,5 +556,6 @@ async function solveTurnstile(SITE_KEY, PAGE_URL) {
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
-  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile, solveCaptchaWithGPT
+  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile, solveCaptchaWithGPT,
+  deleteAccs
 }
