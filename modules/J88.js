@@ -8,7 +8,7 @@ let success = [];
 let deleteAccs = [];
 
 
-const enterJ88 = async (user, code, bank, status) => {
+const enterJ88 = async (user, code, bank, status, chatId) => {
 
     let TurnstileToken = await helper.solveTurnstile("0x4AAAAAABDOJN8QNe5PfVyR", "https://j88code.com")
 
@@ -44,14 +44,17 @@ const enterJ88 = async (user, code, bank, status) => {
         if (helper.isNaturalNumber(messageRsp)) {
             success.push({
                 user: user,
-                msg: messageRsp
+                msg: messageRsp,
+                chatId: chatId
             })
         }
 
         if (messageRsp.includes("Đã tham gia") || messageRsp.includes("đủ điều kiện")) {
 
             deleteAccs.push({
-                user: user
+                user: user,
+                msg: messageRsp,
+                chatId: chatId
             })
 
         }
@@ -77,16 +80,16 @@ async function processJ88(message) {
     let messageContent = await helper.fetchSpoilerText(url);
 
     let codes = await helper.processText(messageContent, 6);
-    if (codes.length < 2) {
+    if (codes.length < 5) {
         let attempts = 0;
         const maxAttempts = 30;
         const interval = 100; // 5 giây = 5000 mili giây
 
-        while (attempts < maxAttempts && codes.length < 2) {
+        while (attempts < maxAttempts && codes.length < 5) {
             await sleep(interval);
             messageContent = await helper.fetchSpoilerText(url);
             codes = await helper.processText(messageContent, 6);
-            if (codes.length < 2) {
+            if (codes.length < 5) {
 
                 let imagePath = await helper.fetchImage(url)
                 if (imagePath !== null) {
@@ -102,7 +105,7 @@ async function processJ88(message) {
 
             attempts++;
 
-            if (codes.length < 2 && attempts === maxAttempts) {
+            if (codes.length < 5 && attempts === maxAttempts) {
                 console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
                 return;
             }
@@ -118,10 +121,9 @@ async function processJ88(message) {
     const tasks = [];
     // await sleep(parseInt(config.SLEEP_BEFORE))
     for (const user of J88Users) {
-        let [username, userNumber, status] = user.split(/\s+/);
-        if (typeof (status) == "undefined") { status = 0 }
+        let [username, userNumber, chatId] = user.split(/\s+/);
         let code = helper.getRandomElement(codes);
-        tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
+        tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
         // for (const code of codes) {
         //     tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
         // }
@@ -130,10 +132,14 @@ async function processJ88(message) {
     await Promise.all(tasks);
     for (const ele of success) {
         await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", ele.user, ele.msg, 0);
+        let msg = `${ele.user} | ${ele.msg}`
+        await helper.sendTelegramMessage(ele.chatId, msg)
     }
 
     for (const dlAcc of deleteAccs) {
         await helper.deleteAccs("./config/j88.txt", dlAcc.user)
+        let msg = `${dlAcc.user} | ${dlAcc.msg}`
+        await helper.sendTelegramMessage(dlAcc.chatId, msg)
     }
 
 

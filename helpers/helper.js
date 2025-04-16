@@ -551,11 +551,28 @@ async function solveTurnstile(SITE_KEY, PAGE_URL) {
   }
 }
 
+async function sendTelegramMessage(chatId, message, options = {}) {
+  try {
+    let config = await loadConfig()
+    let BOT_TOKEN = config.BOT_TOKEN
+    const payload = {
+      chat_id: chatId,
+      text: message,
+      parse_mode: options.parse_mode || 'HTML',
+      ...options,
+    };
+
+    const res = await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, payload);
+    return res.data;
+  } catch (err) {
+    console.error('❌ Lỗi gửi tin nhắn Telegram:', err.response?.data || err.message);
+  }
+}
 
 
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile, solveCaptchaWithGPT,
-  deleteAccs
+  deleteAccs, sendTelegramMessage
 }

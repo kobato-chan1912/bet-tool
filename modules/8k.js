@@ -7,7 +7,7 @@ let success = [];
 let deleteAccs = [];
 
 
-const enter8K = async (user, codes) => {
+const enter8K = async (user, codes, chatId) => {
 
     let code = codes[0]
 
@@ -43,7 +43,8 @@ const enter8K = async (user, codes) => {
 
             success.push({
                 user: user,
-                msg: messageRsp
+                msg: messageRsp,
+                chatId: chatId
             })
 
             // await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
@@ -52,7 +53,9 @@ const enter8K = async (user, codes) => {
         if (messageRsp.includes("Đã tham gia") || messageRsp.includes("đủ điều kiện")) {
 
             deleteAccs.push({
-                user: user
+                user: user,
+                msg: messageRsp,
+                chatId: chatId
             })
 
         }
@@ -92,18 +95,23 @@ async function process8K(message, client) {
     success = [];
     deleteAccs = [];
     for (const user of Eight88Users) {
+        let [username, chatId] = user.split(/\s+/);
         for (const code of codes) {
-            tasks.push(limit(() => enter8K(user, [code])));
+            tasks.push(limit(() => enter8K(username, [code], chatId)));
         }
     }
 
     await Promise.all(tasks);
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
+        let msg = `${ele.user} | ${ele.msg}`
+        await helper.sendTelegramMessage(ele.chatId, msg)
     }
 
     for (const dlAcc of deleteAccs) {
         await helper.deleteAccs("./config/8k.txt", dlAcc.user)
+        let msg = `${dlAcc.user} | ${dlAcc.msg}`
+        await helper.sendTelegramMessage(dlAcc.chatId, msg)
     }
 
 }
