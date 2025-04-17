@@ -86,19 +86,26 @@ async function processJ88(message) {
         const interval = 100; // 5 giây = 5000 mili giây
 
         while (attempts < maxAttempts && codes.length < 5) {
-            await sleep(interval);
-            messageContent = await helper.fetchSpoilerText(url);
-            codes = await helper.processText(messageContent, 6);
-            if (codes.length < 5) {
 
-                let imagePath = await helper.fetchImage(url)
-                if (imagePath !== null) {
+            try {
+                await sleep(interval);
+                messageContent = await helper.fetchSpoilerText(url);
+                codes = await helper.processText(messageContent, 6);
+                if (codes.length < 5) {
 
-                    codes = await helper.processImage(imagePath, 6)
+                    let imagePath = await helper.fetchImage(url)
+                    if (imagePath !== null) {
+
+                        codes = await helper.processImage(imagePath, 6)
+
+                    }
 
                 }
+            } catch (error) {
 
             }
+
+
 
 
 
@@ -146,7 +153,7 @@ async function processJ88(message) {
         await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
-    
+
 
     for (const dlAcc of deleteAccs) {
         await helper.deleteAccs("./config/j88.txt", dlAcc.user)
