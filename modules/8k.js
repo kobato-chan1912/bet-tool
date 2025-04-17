@@ -102,11 +102,20 @@ async function process8K(message, client) {
     }
 
     await Promise.all(tasks);
+    let summaryMsg = "Code mới J88 đây\n";
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
-        let msg = `${ele.user} | ${ele.msg}`
-        await helper.sendTelegramMessage(ele.chatId, msg)
+        summaryMsg += `${ele.user} | ${ele.msg}\n`;
+        // await helper.sendTelegramMessage(ele.chatId, msg)
     }
+    if (success.length > 0) {
+        // Giả sử dùng chatId từ phần tử đầu tiên
+        const chatId1 = -1002544552541;
+        const chatId2 = -1002613344439
+        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
+    }
+
 
     for (const dlAcc of deleteAccs) {
         await helper.deleteAccs("./config/8k.txt", dlAcc.user)

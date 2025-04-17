@@ -38,11 +38,11 @@ async function main() {
     ])
 
     function showMenu(chatId) {
-        bot.sendMessage(chatId, '️🎉 Chào mừng đến Bot Telegram', {
+        bot.sendMessage(chatId, `🎉 Chào mừng đến Bot Hunter Code \n\n⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!\n\n👉 Muốn làm gì thì chọn bên dưới bạn nhé!`, {
             reply_markup: {
                 keyboard: [
-                    ['Xem số dư', 'Nạp tiền'],
-                    ['Thêm Acc J88', 'Thêm Acc 8K']
+                    ['💰 Xem số dư', '💸 Nạp tiền'],
+                    ['➕ Thêm Acc J88', '➕ Thêm Acc 8K']
                 ],
                 resize_keyboard: true,
                 one_time_keyboard: false
@@ -103,35 +103,67 @@ async function main() {
         }
 
         switch (text) {
-            case 'Xem số dư':
+            case '💰 Xem số dư':
                 userStates[chatId] = 'info'
                 // await checkAndUpdateBalance();
                 const balance = balances[username] || 0;
                 bot.sendMessage(chatId, `💰 *Số dư của bạn:*  ${balance.toLocaleString()}  đồng`, { parse_mode: 'Markdown' });
                 break;
-            case 'Nạp tiền':
+            case '💸 Nạp tiền':
                 userStates[chatId] = 'deposit'
                 const qrLink = `https://img.vietqr.io/image/acb-${config.BANK}-compact.jpg?addInfo=naptienbot ${username}`;
                 bot.sendPhoto(chatId, qrLink, {
-                    caption: `💰 Vui lòng chuyển khoản đúng nội dung:\n\n➡️ *naptienbot ${username}*\n\n📌 Hệ thống sẽ tự động cộng tiền sau vài phút.`,
+                    caption: `💸 **Thanh toán nhanh chóng!**
+                
+✅ **Nội dung chuyển khoản:**  naptienbot ${username}
+                
+⏳ Tiền sẽ được cộng tự động sau vài phút!`,
                     parse_mode: 'Markdown'
                 });
                 break;
-            case 'Thêm Acc J88':
+            case '➕ Thêm Acc J88':
                 userStates[chatId] = 'awaiting_j88';
-                bot.sendMessage(chatId, `📝 *Vui lòng gửi thông tin tài khoản J88 của bạn* theo cú pháp:
-                \n\n
-                \`<username> <4 số cuối ngân hàng>\`\n\n
-                📌 *Ví dụ:* \`dungana 1234\`
-`, { parse_mode: 'Markdown' });
+                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản J88 của bạn**
+
+📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+
+\`\`\` 
+<username> <4 số cuối ngân hàng> 
+\`\`\`
+
+✅ **Ví dụ:**
+
+tuanlong 5570
+nguyentri 5560
+
+
+⚠️ **Lưu ý:** 
+
+- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
+- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
                 break;
-            case 'Thêm Acc 8K':
+            case '➕ Thêm Acc 8K':
                 userStates[chatId] = 'awaiting_8k';
-                bot.sendMessage(chatId, `📝 *Vui lòng gửi thông tin tài khoản 8K của bạn* theo cú pháp:
-                \n\n
-                \`<username>\`\n\n
-                📌 *Ví dụ:* \`dungana\`
-`, { parse_mode: 'Markdown' });
+                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản J88 của bạn**
+
+📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+
+\`\`\` 
+<username>
+\`\`\`
+
+✅ **Ví dụ:**
+
+tuanlong
+nguyentri
+
+
+⚠️ **Lưu ý:** 
+
+- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
+- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
                 break;
             default:
 

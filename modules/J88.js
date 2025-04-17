@@ -130,11 +130,23 @@ async function processJ88(message) {
     }
 
     await Promise.all(tasks);
+    let summaryMsg = "Code mới J88 đây\n";
+
     for (const ele of success) {
         await helper.processDoneUser("./config/j88.txt", "./output/j88-done.txt", ele.user, ele.msg, 0);
-        let msg = `${ele.user} | ${ele.msg}`
-        await helper.sendTelegramMessage(ele.chatId, msg)
+        summaryMsg += `${ele.user} | ${ele.msg}\n`;
+
     }
+
+
+    if (success.length > 0) {
+        // Giả sử dùng chatId từ phần tử đầu tiên
+        const chatId1 = -1002544552541;
+        const chatId2 = -1002613344439
+        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
+    }
+    
 
     for (const dlAcc of deleteAccs) {
         await helper.deleteAccs("./config/j88.txt", dlAcc.user)
