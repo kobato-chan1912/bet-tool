@@ -102,7 +102,7 @@ async function process8K(message, client) {
     }
 
     await Promise.all(tasks);
-    let summaryMsg = "Code mới J88 đây\n";
+    let summaryMsg = "Code mới 8K đây\n";
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
         summaryMsg += `${ele.user} | ${ele.msg}\n`;
