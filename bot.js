@@ -38,7 +38,8 @@ async function main() {
     ])
 
     function showMenu(chatId) {
-        bot.sendMessage(chatId, `🎉 Chào mừng đến Bot Hunter Code \n\n⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!\n\n👉 Muốn làm gì thì chọn bên dưới bạn nhé!`, {
+        bot.sendMessage(chatId, `🎉 Chào mừng đến Bot Hunter Code \n\n
+⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!`, {
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền'],
@@ -145,7 +146,7 @@ nguyentri 5560
                 break;
             case '➕ Thêm Acc 8K':
                 userStates[chatId] = 'awaiting_8k';
-                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản J88 của bạn**
+                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản 8K của bạn**
 
 📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
 
