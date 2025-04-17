@@ -335,7 +335,7 @@ nguyentri
                         }
                     }
 
-                    const cost = entries.length * 6000;
+                    const cost = entries.length * 10000;
                     if (userBalance < cost) {
                         bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
                         delete userStates[chatId];
@@ -381,7 +381,7 @@ nguyentri
                         }
                     }
 
-                    const cost = entries.length * 6000;
+                    const cost = entries.length * 12000;
                     if (userBalance < cost) {
                         bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
                         delete userStates[chatId];
