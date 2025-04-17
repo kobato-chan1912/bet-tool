@@ -42,7 +42,8 @@ async function main() {
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền'],
-                    ['➕ Thêm Acc J88', '➕ Thêm Acc 8K']
+                    ['➕ Thêm Acc J88', '➕ Thêm Acc 8K'],
+                    ['➕ Thêm Acc New88', '➕ Thêm Acc F8']
                 ],
                 resize_keyboard: true,
                 one_time_keyboard: false
@@ -165,6 +166,52 @@ nguyentri
 - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
 - Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
                 break;
+
+            case '➕ Thêm Acc New88':
+                userStates[chatId] = 'awaiting_new88';
+                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản New88 của bạn**
+    
+    📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+    
+    \`\`\` 
+    <username>
+    \`\`\`
+    
+    ✅ **Ví dụ:**
+    
+    tuanlong
+    nguyentri
+    
+    
+    ⚠️ **Lưu ý:** 
+    
+    - Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
+    - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+    - Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+                break;
+            case '➕ Thêm Acc F8':
+                userStates[chatId] = 'awaiting_f8';
+                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản F8 của bạn**
+        
+        📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+        
+        \`\`\` 
+        <username>
+        \`\`\`
+        
+        ✅ **Ví dụ:**
+        
+        tuanlong
+        nguyentri
+        
+        
+        ⚠️ **Lưu ý:** 
+        
+        - Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
+        - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+        - Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+                break;
+
             default:
 
                 const state = userStates[chatId];
@@ -260,6 +307,97 @@ nguyentri
                     fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
 
                     bot.sendMessage(chatId, `✅ Đã thêm ${added} acc 8K.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
+                    delete userStates[chatId];
+                    return;
+                }
+
+                // Thêm New88
+                if (state === 'awaiting_8k') {
+                    const lines = text.trim().split('\n');
+                    const filePath = path.join(__dirname, 'config', 'new88.txt');
+                    const balancePath = path.join(__dirname, 'database', 'balances.json');
+
+                    const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+                    const balanceData = fs.existsSync(balancePath) ? JSON.parse(fs.readFileSync(balancePath)) : {};
+                    const userBalance = balanceData[username] || 0;
+
+                    let added = 0, duplicated = 0;
+                    const entries = [];
+
+                    for (let line of lines) {
+                        const acc = line.trim();
+                        if (!acc) continue;
+                        const entry = `${acc} ${chatId}`;
+                        if (!current.includes(entry)) {
+                            entries.push(entry);
+                        } else {
+                            duplicated++;
+                        }
+                    }
+
+                    const cost = entries.length * 6000;
+                    if (userBalance < cost) {
+                        bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
+                        delete userStates[chatId];
+                        return;
+                    }
+
+                    for (const entry of entries) {
+                        fs.appendFileSync(filePath, entry + '\n');
+                        added++;
+                    }
+
+                    // Trừ tiền
+                    balanceData[username] = userBalance - cost;
+                    fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
+
+                    bot.sendMessage(chatId, `✅ Đã thêm ${added} acc New88.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
+                    delete userStates[chatId];
+                    return;
+                }
+
+
+                // Thêm New88
+                if (state === 'awaiting_f8') {
+                    const lines = text.trim().split('\n');
+                    const filePath = path.join(__dirname, 'config', 'f8.txt');
+                    const balancePath = path.join(__dirname, 'database', 'balances.json');
+
+                    const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+                    const balanceData = fs.existsSync(balancePath) ? JSON.parse(fs.readFileSync(balancePath)) : {};
+                    const userBalance = balanceData[username] || 0;
+
+                    let added = 0, duplicated = 0;
+                    const entries = [];
+
+                    for (let line of lines) {
+                        const acc = line.trim();
+                        if (!acc) continue;
+                        const entry = `${acc} ${chatId}`;
+                        if (!current.includes(entry)) {
+                            entries.push(entry);
+                        } else {
+                            duplicated++;
+                        }
+                    }
+
+                    const cost = entries.length * 6000;
+                    if (userBalance < cost) {
+                        bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
+                        delete userStates[chatId];
+                        return;
+                    }
+
+                    for (const entry of entries) {
+                        fs.appendFileSync(filePath, entry + '\n');
+                        added++;
+                    }
+
+                    // Trừ tiền
+                    balanceData[username] = userBalance - cost;
+                    fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
+
+                    bot.sendMessage(chatId, `✅ Đã thêm ${added} acc F8.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
                     delete userStates[chatId];
                     return;
                 }

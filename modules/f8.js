@@ -195,7 +195,7 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
 
 
 async function processF8(message, client) {
-    
+
     let imgPath = await helper.downloadMedia(message, client)
     let codes = await helper.processImage(imgPath, 8);
 
@@ -213,8 +213,20 @@ async function processF8(message, client) {
     }
 
     await Promise.all(tasks);
+
+    let summaryMsg = "Code mới F8 đây\n";
+
     for (const ele of success) {
         await helper.processDoneUser("./config/f8.txt", "./output/f8-done.txt", ele.user, ele.msg, 0);
+        summaryMsg += `${ele.user} | ${ele.msg}\n`;
+    }
+
+    if (success.length > 0) {
+        // Giả sử dùng chatId từ phần tử đầu tiên
+        const chatId1 = -1002544552541;
+        const chatId2 = -1002613344439
+        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
 
 }

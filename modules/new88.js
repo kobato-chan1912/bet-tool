@@ -168,9 +168,23 @@ async function processNew88(message) {
     }
 
     await Promise.all(tasks);
+
+    let summaryMsg = "Code mới New88 đây\n";
+
+
     for (const ele of success) {
         await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", ele.user, ele.msg, 0);
+        summaryMsg += `${ele.user} | ${ele.msg}\n`;
     }
+
+    if (success.length > 0) {
+        // Giả sử dùng chatId từ phần tử đầu tiên
+        const chatId1 = -1002544552541;
+        const chatId2 = -1002613344439
+        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
+    }
+
 }
 
 module.exports = { processNew88 };
