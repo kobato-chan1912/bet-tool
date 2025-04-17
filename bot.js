@@ -126,6 +126,8 @@ async function main() {
                 userStates[chatId] = 'awaiting_j88';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản J88 của bạn**
 
+💰 6k / code
+
 📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
 
 \`\`\` 
@@ -147,6 +149,8 @@ nguyentri 5560
             case '➕ Thêm Acc 8K':
                 userStates[chatId] = 'awaiting_8k';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản 8K của bạn**
+
+💰 6k / code
 
 📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
 
@@ -170,7 +174,9 @@ nguyentri
             case '➕ Thêm Acc New88':
                 userStates[chatId] = 'awaiting_new88';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản New88 của bạn**
-    
+
+💰 10k / code
+
 📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
     
 \`\`\` 
@@ -186,13 +192,15 @@ nguyentri
 ⚠️ **Lưu ý:** 
 
 - Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
- - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
 - Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
                 break;
             case '➕ Thêm Acc F8':
                 userStates[chatId] = 'awaiting_f8';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản F8 của bạn**
-        
+
+💰 12k / code
+
 📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
         
 \`\`\` 
