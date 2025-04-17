@@ -38,8 +38,7 @@ async function main() {
     ])
 
     function showMenu(chatId) {
-        bot.sendMessage(chatId, `🎉 Chào mừng đến Bot Hunter Code \n\n
-⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!`, {
+        bot.sendMessage(chatId, `🎉 Chào mừng đến Bot Hunter Code \n\n⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!\n\n👉 Muốn làm gì thì chọn bên dưới bạn nhé!`, {
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền'],
