@@ -171,45 +171,45 @@ nguyentri
                 userStates[chatId] = 'awaiting_new88';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản New88 của bạn**
     
-    📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
     
-    \`\`\` 
-    <username>
-    \`\`\`
+\`\`\` 
+<username>
+\`\`\`
     
-    ✅ **Ví dụ:**
+✅ **Ví dụ:**
     
-    tuanlong
-    nguyentri
+tuanlong
+nguyentri
     
     
-    ⚠️ **Lưu ý:** 
-    
-    - Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
-    - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
-    - Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+⚠️ **Lưu ý:** 
+
+- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
+ - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
                 break;
             case '➕ Thêm Acc F8':
                 userStates[chatId] = 'awaiting_f8';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản F8 của bạn**
         
-        📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
         
-        \`\`\` 
-        <username>
-        \`\`\`
+\`\`\` 
+<username>
+\`\`\`
         
-        ✅ **Ví dụ:**
+✅ **Ví dụ:**
         
-        tuanlong
-        nguyentri
+tuanlong
+nguyentri
         
         
-        ⚠️ **Lưu ý:** 
+⚠️ **Lưu ý:** 
         
-        - Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
-        - Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
-        - Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
+- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
+- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
                 break;
 
             default:
@@ -235,7 +235,7 @@ nguyentri
                         if (parts.length !== 2) continue;
                         const acc = parts[0];
                         const bank4 = parts[1];
-                        const entry = `${acc} ${bank4} ${chatId}`;
+                        const entry = `${acc} ${bank4}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
@@ -282,7 +282,7 @@ nguyentri
                     for (let line of lines) {
                         const acc = line.trim();
                         if (!acc) continue;
-                        const entry = `${acc} ${chatId}`;
+                        const entry = `${acc}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
@@ -312,7 +312,7 @@ nguyentri
                 }
 
                 // Thêm New88
-                if (state === 'awaiting_8k') {
+                if (state === 'awaiting_new88') {
                     const lines = text.trim().split('\n');
                     const filePath = path.join(__dirname, 'config', 'new88.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
@@ -327,7 +327,7 @@ nguyentri
                     for (let line of lines) {
                         const acc = line.trim();
                         if (!acc) continue;
-                        const entry = `${acc} ${chatId}`;
+                        const entry = `${acc}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
@@ -373,7 +373,7 @@ nguyentri
                     for (let line of lines) {
                         const acc = line.trim();
                         if (!acc) continue;
-                        const entry = `${acc} ${chatId}`;
+                        const entry = `${acc}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
