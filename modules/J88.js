@@ -41,10 +41,13 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
         const response = await axios.post(url, data, { headers });
         const messageRsp = response.data.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-        if (helper.isNaturalNumber(messageRsp)) {
+        if (helper.isNaturalNumber(messageRsp) ||
+            messageRsp.includes("không tồn tại") ||
+            messageRsp.includes("không đủ điều kiện") ||
+            messageRsp.includes("ngân hàng")) {
             success.push({
                 user: user,
-                msg: messageRsp,
+                msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
                 chatId: chatId
             })
         }
