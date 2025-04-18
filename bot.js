@@ -226,7 +226,7 @@ nguyentri
                 // console.log(chatId)
 
                 // Thêm J88
-                if (state === 'awaiting_j88') {
+                if (state === 'awaiting_j88' && text) {
                     const lines = text.trim().split('\n');
                     const filePath = path.join(__dirname, 'config', 'j88.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
@@ -275,7 +275,7 @@ nguyentri
 
 
                 // Thêm 8K
-                if (state === 'awaiting_8k') {
+                if (state === 'awaiting_8k' && text) {
                     const lines = text.trim().split('\n');
                     const filePath = path.join(__dirname, 'config', '8k.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
@@ -320,7 +320,7 @@ nguyentri
                 }
 
                 // Thêm New88
-                if (state === 'awaiting_new88') {
+                if (state === 'awaiting_new88' && text) {
                     const lines = text.trim().split('\n');
                     const filePath = path.join(__dirname, 'config', 'new88.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
@@ -366,7 +366,7 @@ nguyentri
 
 
                 // Thêm New88
-                if (state === 'awaiting_f8') {
+                if (state === 'awaiting_f8' && text) {
                     const lines = text.trim().split('\n');
                     const filePath = path.join(__dirname, 'config', 'f8.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
