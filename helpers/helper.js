@@ -554,7 +554,7 @@ async function solveTurnstile(SITE_KEY, PAGE_URL) {
 async function sendTelegramMessage(chatId, message, options = {}) {
   try {
     let config = await loadConfig()
-    let BOT_TOKEN = config.BOT_TOKEN
+    let BOT_TOKEN = config.BOT_TOKEN2
     const payload = {
       chat_id: chatId,
       text: message,
