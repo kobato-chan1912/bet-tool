@@ -42,7 +42,7 @@ async function main() {
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền'],
-                    ['➕ Thêm Acc J88', '➕ Thêm Acc 8K'],
+                    ['➕ Thêm Acc 8K'],
                     ['➕ Thêm Acc New88', '➕ Thêm Acc F8']
                 ],
                 resize_keyboard: true,
