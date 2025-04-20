@@ -4,6 +4,13 @@ const fs = require('fs');
 const path = require('path');
 const helper = require("./helpers/helper.js")
 
+const fee = {
+    'j88.txt': 6000,
+    '8k.txt': 6000,
+    'new88.txt': 10000,
+    'f8.txt': 12000
+};
+
 
 async function main() {
     let config = await helper.loadConfig()
@@ -37,12 +44,19 @@ async function main() {
         { command: '/start', description: 'Bắt đầu' },
     ])
 
-    function showMenu(chatId) {
-        bot.sendMessage(chatId, `🎉 Chào mừng đến Bot Hunter Code \n\n⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!\n\n👉 Muốn làm gì thì chọn bên dưới bạn nhé!`, {
+
+    
+
+    function showMenu(chatId, showText = 1) {
+        let text = '🎉 Chào mừng đến Bot Hunter Code \n\n⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!\n\n👉 Muốn làm gì thì chọn bên dưới bạn nhé!';
+        if (showText == 0){
+            text = '\u2063'
+        }
+        bot.sendMessage(chatId, text, {
             reply_markup: {
                 keyboard: [
-                    ['💰 Xem số dư', '💸 Nạp tiền'],
-                    ['➕ Thêm Acc 8K'],
+                    ['💰 Xem số dư', '💸 Nạp tiền', '♻️ Hoàn tiền'],
+                    ['➕ Thêm Acc J88', '➕ Thêm Acc 8K'],
                     ['➕ Thêm Acc New88', '➕ Thêm Acc F8']
                 ],
                 resize_keyboard: true,
@@ -103,7 +117,40 @@ async function main() {
             return bot.sendMessage(chatId, 'Bạn cần đặt username Telegram để sử dụng bot.');
         }
 
+
+        // xử lý hoàn tiền
+
+        if (userStates[chatId]?.state === 'awaiting_refund_confirmation') {
+            const { refundInfo } = userStates[chatId];
+            delete userStates[chatId];
+
+            if (text === '✅ Yes') {
+                // Hoàn tiền
+                const balancesPath = path.join(__dirname, 'database', 'balances.json');
+                const balances = fs.existsSync(balancesPath) ? JSON.parse(fs.readFileSync(balancesPath)) : {};
+                balances[username] = (balances[username] || 0) + refundInfo.amount;
+                fs.writeFileSync(balancesPath, JSON.stringify(balances, null, 2));
+
+                // Xóa khỏi file
+                refundInfo.entries.forEach(({ file, line }) => {
+                    const content = fs.readFileSync(file, 'utf8').split('\n').filter(l => l.trim() !== line.trim());
+                    fs.writeFileSync(file, content.join('\n'));
+                });
+
+                bot.sendMessage(chatId, `✅ Đã hoàn lại ${refundInfo.amount.toLocaleString()} đồng vào tài khoản của bạn. Vui lòng đợi tối đa 30 giây để được cập nhật.`);
+            } else if (text === '❌ No') {
+                bot.sendMessage(chatId, '🚫 Bạn đã hủy yêu cầu hoàn tiền.');
+            }
+
+            // Gửi lại menu chính nếu muốn
+            showMenu(chatId, 0);
+        }
+
         switch (text) {
+            case '❌ No': 
+                break;
+            case '✅ Yes': 
+                break;
             case '💰 Xem số dư':
                 userStates[chatId] = 'info'
                 // await checkAndUpdateBalance();
@@ -121,6 +168,58 @@ async function main() {
 ⏳ Tiền sẽ được cộng tự động sau vài phút!`,
                     parse_mode: 'Markdown'
                 });
+                break;
+
+
+            case '♻️ Hoàn tiền':
+                const userAccs = [];
+                const userId = username; // username telegram
+                const configPath = path.join(__dirname, 'config');
+                const files = ['j88.txt', '8k.txt', 'new88.txt', 'f8.txt'];
+                let totalRefund = 0;
+                const toRemove = [];
+
+                files.forEach(file => {
+                    const filePath = path.join(configPath, file);
+                    if (!fs.existsSync(filePath)) return;
+                    const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
+
+                    lines.forEach(line => {
+                        if (line.includes(userId)) {
+                            userAccs.push(`📌 ${line} (${file.replace('.txt', '')})`);
+                            totalRefund += fee[file];
+                            toRemove.push({ file: filePath, line });
+                        }
+                    });
+                });
+
+                if (userAccs.length === 0) {
+                    bot.sendMessage(chatId, '🔍 Không tìm thấy tài khoản nào của bạn cần hoàn.');
+                    return;
+                }
+                const finalRefund = Math.floor(totalRefund * 0.7);
+                const msg = `🔁 Các tài khoản bạn đã thêm:\n${userAccs.join('\n')}\n\n💰 Hoàn lại: ${finalRefund.toLocaleString()} đồng (đã trừ 30%)\n\nBạn có muốn hoàn không?`;
+                userStates[chatId] = {
+                    state: 'awaiting_refund_confirmation',
+                    refundInfo: {
+                        entries: toRemove,
+                        amount: finalRefund
+                    }
+                };
+
+
+                bot.sendMessage(chatId, msg, {
+                    reply_markup: {
+                        keyboard: [[{ text: '✅ Yes' }, { text: '❌ No' }]],
+                        resize_keyboard: true,
+                        one_time_keyboard: true
+                    }
+                });
+
+
+
+
+
                 break;
             case '➕ Thêm Acc J88':
                 userStates[chatId] = 'awaiting_j88';
@@ -225,6 +324,9 @@ nguyentri
                 const state = userStates[chatId];
                 // console.log(chatId)
 
+
+
+
                 // Thêm J88
                 if (state === 'awaiting_j88' && text) {
                     const lines = text.trim().split('\n');
@@ -243,7 +345,7 @@ nguyentri
                         if (parts.length !== 2) continue;
                         const acc = parts[0];
                         const bank4 = parts[1];
-                        const entry = `${acc} ${bank4}`;
+                        const entry = `${acc} ${bank4} ${username}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
@@ -290,7 +392,7 @@ nguyentri
                     for (let line of lines) {
                         const acc = line.trim();
                         if (!acc) continue;
-                        const entry = `${acc}`;
+                        const entry = `${acc} ${username}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
@@ -335,7 +437,7 @@ nguyentri
                     for (let line of lines) {
                         const acc = line.trim();
                         if (!acc) continue;
-                        const entry = `${acc}`;
+                        const entry = `${acc} ${username}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {
@@ -381,7 +483,7 @@ nguyentri
                     for (let line of lines) {
                         const acc = line.trim();
                         if (!acc) continue;
-                        const entry = `${acc}`;
+                        const entry = `${acc} ${username}`;
                         if (!current.includes(entry)) {
                             entries.push(entry);
                         } else {

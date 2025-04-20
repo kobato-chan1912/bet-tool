@@ -40,9 +40,10 @@ const enter8K = async (user, codes, chatId) => {
         const messageRsp = response.data.message;
         console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) ||
+            messageRsp.includes("tham gia") ||
             messageRsp.includes("không tồn tại") ||
             messageRsp.includes("không đủ điều kiện") ||
-            messageRsp.includes("ngân hàng của bạn")
+            messageRsp.includes("ngân hàng")
 
         ) {
 
@@ -55,15 +56,7 @@ const enter8K = async (user, codes, chatId) => {
             // await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
         }
 
-        if (messageRsp.includes("Đã tham gia") || messageRsp.includes("đủ điều kiện")) {
-
-            deleteAccs.push({
-                user: user,
-                msg: messageRsp,
-                chatId: chatId
-            })
-
-        }
+        
 
     } catch (error) {
         console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
@@ -122,11 +115,6 @@ async function process8K(message, client) {
     }
 
 
-    for (const dlAcc of deleteAccs) {
-        await helper.deleteAccs("./config/8k.txt", dlAcc.user)
-        let msg = `${dlAcc.user} | ${dlAcc.msg}`
-        await helper.sendTelegramMessage(dlAcc.chatId, msg)
-    }
 
 }
 

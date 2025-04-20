@@ -42,9 +42,12 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
         const messageRsp = response.data.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) ||
+            messageRsp.includes("tham gia") ||
             messageRsp.includes("không tồn tại") ||
             messageRsp.includes("không đủ điều kiện") ||
-            messageRsp.includes("ngân hàng")) {
+            messageRsp.includes("ngân hàng")
+
+        ) {
             success.push({
                 user: user,
                 msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
@@ -52,15 +55,7 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
             })
         }
 
-        if (messageRsp.includes("Đã tham gia") || messageRsp.includes("đủ điều kiện")) {
-
-            deleteAccs.push({
-                user: user,
-                msg: messageRsp,
-                chatId: chatId
-            })
-
-        }
+       
 
 
     } catch (error) {
@@ -155,13 +150,6 @@ async function processJ88(message) {
         const chatId2 = -1002613344439
         await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
-    }
-
-
-    for (const dlAcc of deleteAccs) {
-        await helper.deleteAccs("./config/j88.txt", dlAcc.user)
-        let msg = `${dlAcc.user} | ${dlAcc.msg}`
-        await helper.sendTelegramMessage(dlAcc.chatId, msg)
     }
 
 
