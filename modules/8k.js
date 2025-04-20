@@ -56,7 +56,7 @@ const enter8K = async (user, codes, chatId) => {
             // await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
         }
 
-        
+
 
     } catch (error) {
         console.error('❌ 8KBet Lỗi:', error.response ? error.response.data : error.message);
@@ -70,6 +70,10 @@ async function process8K(message, client) {
     let codes
     if (messageContent.includes("ở bên dưới")) {
         codes = await helper.processText(messageContent, 8);
+        if (codes.length === 0) {
+            let imgPath = await helper.downloadMedia(message, client)
+            codes = await helper.processImage(imgPath, 8);
+        }
     } else {
         let imgPath = await helper.downloadMedia(message, client)
         codes = await helper.processImage(imgPath, 8);
