@@ -487,11 +487,11 @@ async function solveCaptchaWithGPT(imageBase64) {
 }
 
 
-async function createTurnstileTask(API_KEY, SITE_KEY, PAGE_URL) {
+async function createMTCaptchaTask(API_KEY, SITE_KEY, PAGE_URL) {
   const payload = {
     clientKey: API_KEY,
     "task": {
-      "type": "AntiTurnstileTaskProxyLess",
+      "type": "MtCaptchaTaskProxyLess",
       "websiteURL": PAGE_URL,
       "websiteKey": SITE_KEY
     }
@@ -506,12 +506,13 @@ async function createTurnstileTask(API_KEY, SITE_KEY, PAGE_URL) {
       throw new Error(`Create task failed: ${JSON.stringify(response.data)}`);
     }
   } catch (err) {
+    console.log(err)
     throw new Error(`Error creating task: ${err.message}`);
   }
 }
 
 
-async function getTurnstileResult(API_KEY, taskId) {
+async function getTaskResult(API_KEY, taskId) {
   const payload = {
     clientKey: API_KEY,
     taskId: taskId,
@@ -525,21 +526,24 @@ async function getTurnstileResult(API_KEY, taskId) {
   }
 }
 
-async function solveTurnstile(SITE_KEY, PAGE_URL) {
+
+
+async function solveJ88Captcha(SITE_KEY, PAGE_URL) {
   let readConfig = await loadConfig();
   let API_KEY = readConfig.CAPTCHA_SOLVER;
 
   try {
-    const taskId = await createTurnstileTask(API_KEY, SITE_KEY, PAGE_URL);
+    const taskId = await createMTCaptchaTask(API_KEY, SITE_KEY, PAGE_URL);
     // Đợi và kiểm tra kết quả
     const pollInterval = 100;
     const maxAttemp = 10;
     let attemp = 0;
     while (true && attemp <= maxAttemp) {
       console.log('Checking result...');
-      const result = await getTurnstileResult(API_KEY, taskId);
+      const result = await getTaskResult(API_KEY, taskId);
       if (result.status === 'ready') {
         let solution = result.solution;
+        console.log(solution)
         return solution.token;
       }
       await new Promise(resolve => setTimeout(resolve, pollInterval));
@@ -573,6 +577,6 @@ async function sendTelegramMessage(chatId, message, options = {}) {
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
-  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveTurnstile, solveCaptchaWithGPT,
-  deleteAccs, sendTelegramMessage
+  getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
+  deleteAccs, sendTelegramMessage, solveJ88Captcha
 }

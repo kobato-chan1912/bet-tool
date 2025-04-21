@@ -8,38 +8,77 @@ let success = [];
 let deleteAccs = [];
 
 
+const API_URL = 'https://api.adavawef.top';
+const DISTINCT_ID = '019658ce-75cb-7e8d-a27c-65888e879f2f';
+
+const headers = {
+    'accept': '*/*',
+    'accept-language': 'vi,en-US;q=0.9,en;q=0.8,fr-FR;q=0.7,fr;q=0.6,ja;q=0.5,pt;q=0.4,da;q=0.3,it;q=0.2,tr;q=0.1,ko;q=0.1,zh-CN;q=0.1,zh;q=0.1',
+    'content-type': 'application/json',
+    'origin': 'https://j88code.com',
+    'priority': 'u=1, i',
+    'referer': 'https://j88code.com/',
+    'sec-ch-ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"macOS"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'cross-site',
+    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
+};
+
+async function checkVerifyCode(verifyCode) {
+    try {
+        const response = await axios.post(
+            `${API_URL}/Promotion/CheckVerifyCode`,
+            {
+                VerifyCode: verifyCode,
+                DistinctId: DISTINCT_ID
+            },
+            { headers }
+        );
+
+        if (response.data.code === 200) {
+            return response.data.data; // Returns the token
+        } else {
+            throw new Error(response.data.message || 'Verification failed');
+        }
+    } catch (error) {
+        console.error('Error in checkVerifyCode:', error.message);
+        throw error;
+    }
+}
+
+
+async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token) {
+    try {
+        const response = await axios.post(
+            `${API_URL}/Promotion/GetInviteBonus`,
+            {
+                InviteCode: inviteCode,
+                Account: account,
+                BankCard: bankCard,
+                VerifyCode: verifyCode,
+                Token: token,
+                DistinctId: DISTINCT_ID
+            },
+            { headers }
+        );
+
+        return response.data;
+    } catch (error) {
+        console.error('Error in getInviteBonus:', error.message);
+        throw error;
+    }
+}
+
 const enterJ88 = async (user, code, bank, status, chatId) => {
 
-    let TurnstileToken = await helper.solveTurnstile("0x4AAAAAABDOJN8QNe5PfVyR", "https://j88code.com")
-
-    const url = 'https://api.j88code.com/Promotion/CheckInviteCode';
-
-    const headers = {
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-        'accept-language': 'vi,en-US;q=0.9,en;q=0.8,fr-FR;q=0.7,fr;q=0.6,ja;q=0.5,pt;q=0.4,da;q=0.3,it;q=0.2,tr;q=0.1,ko;q=0.1,zh-CN;q=0.1,zh;q=0.1',
-        'content-type': 'application/json',
-        'origin': 'https://j88code.com',
-        'priority': 'u=1, i',
-        'referer': 'https://j88code.com/',
-        'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'
-    };
-
-    const data = {
-        Account: user,
-        InvitationCode: code,
-        BankCard: bank,
-        TurnstileToken: TurnstileToken
-    };
-
     try {
-        const response = await axios.post(url, data, { headers });
-        const messageRsp = response.data.message;
+        let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.com")
+        const token = await checkVerifyCode(verifyCode);
+        const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
+        const messageRsp = responseData.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) ||
             messageRsp.includes("tham gia") ||
@@ -55,7 +94,7 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
             })
         }
 
-       
+
 
 
     } catch (error) {
@@ -72,8 +111,8 @@ async function processJ88(message) {
 
     let msgId = message.id
     console.log(msgId)
-    let url = `https://t.me/J88COM_NOHU_BANCA/${msgId}?embed=1`
-    // let url = `https://t.me/testcode12321/${msgId}?embed=1`
+    // let url = `https://t.me/J88COM_NOHU_BANCA/${msgId}?embed=1`
+    let url = `https://t.me/testcode12321/${msgId}?embed=1`
 
     let messageContent = await helper.fetchSpoilerText(url);
 
