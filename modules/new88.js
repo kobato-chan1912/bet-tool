@@ -164,7 +164,8 @@ async function processNew88(message) {
     for (const user of new88Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
-        tasks.push(limit(() => enterNew88Code(code, user, proxyString)));
+        let [username, teleId] = user.split(/\s+/);
+        tasks.push(limit(() => enterNew88Code(code, username, proxyString)));
     }
 
     await Promise.all(tasks);

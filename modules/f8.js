@@ -209,7 +209,8 @@ async function processF8(message, client) {
     for (const user of f8Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
-        tasks.push(limit(() => enterF8Code(code, user, proxyString)));
+        let [username, teleId] = user.split(/\s+/);
+        tasks.push(limit(() => enterF8Code(code, username, proxyString)));
     }
 
     await Promise.all(tasks);
