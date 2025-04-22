@@ -103,11 +103,14 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
                 }
 
 
-                await new Promise(resolve => setTimeout(resolve, 7000));
+                
 
             } catch (error) {
 
             }
+
+
+            await new Promise(resolve => setTimeout(resolve, 7000));
 
 
 
