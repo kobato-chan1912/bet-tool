@@ -40,7 +40,6 @@ const enter8K = async (user, codes, chatId) => {
         const messageRsp = response.data.message;
         console.log(`✅ 8KBET Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.isNaturalNumber(messageRsp) ||
-            messageRsp.includes("tham gia") ||
             messageRsp.includes("không tồn tại") ||
             messageRsp.includes("không đủ điều kiện") ||
             messageRsp.includes("ngân hàng")

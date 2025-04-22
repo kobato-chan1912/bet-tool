@@ -157,6 +157,11 @@ const isNaturalNumber = (str) => {
   return Number.isInteger(num) && num >= 0;
 };
 
+function hasNumber(str) {
+  return /\d/.test(str);
+}
+
+
 
 async function readFileToArray(filePath) {
   try {
@@ -578,5 +583,5 @@ async function sendTelegramMessage(chatId, message, options = {}) {
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
-  deleteAccs, sendTelegramMessage, solveJ88Captcha
+  deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber
 }
