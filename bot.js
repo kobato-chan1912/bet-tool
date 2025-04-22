@@ -48,7 +48,15 @@ async function main() {
     
 
     function showMenu(chatId, showText = 1) {
-        let text = '🎉 Chào mừng đến Bot Hunter Code \n\n⏳ Mã không có sẵn – phải canh, phải săn – nhưng lời thì thật!\n\n👉 Muốn làm gì thì chọn bên dưới bạn nhé!';
+        let text = `BOT CODE GAME : J88,8K,F8,New
+🪪 Nạp tiền
+👉 Chọn game
+⏳ Chờ code
+💰Nhận thưởng
+🎮 Chơi
+Kênh  : https://t.me/+3E1oOkivHJI5ZjBl
+BOT : @HUNTER_CODE_DEN_BOT
+`;
         if (showText == 0){
             text = '\u2063'
         }
