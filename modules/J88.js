@@ -82,10 +82,11 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
             const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
             const messageRsp = responseData.message;
             console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-            if (helper.hasNumber(messageRsp) ||
-                messageRsp.includes("không tồn tại") ||
-                messageRsp.includes("không đủ điều kiện") ||
-                messageRsp.includes("ngân hàng")
+            if (helper.hasNumber(messageRsp) 
+                // ||
+                // messageRsp.includes("không tồn tại") ||
+                // messageRsp.includes("không đủ điều kiện") ||
+                // messageRsp.includes("ngân hàng")
 
             ) {
                 success.push({
