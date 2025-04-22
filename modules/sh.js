@@ -167,7 +167,7 @@ const enterSH = async (promoCode, playerId, proxyString) => {
         if (codeResult.valid === true) {
             // Bước 4: Cộng điểm nếu code hợp lệ
             console.log('SH  - Adding points for player:', playerId);
-            const addPointResult = await addPoints(playerId, promoCode);
+            const addPointResult = await addPoints(playerId, promoCode, proxyString);
             console.log('SH  - Add points result:', addPointResult);
 
             if (addPointResult.valid === true) {
