@@ -77,45 +77,61 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
     try {
         let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.com")
         const token = await checkVerifyCode(verifyCode);
+        const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
+        const messageRsp = responseData.message;
+        console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
+        if (helper.hasNumber(messageRsp)
+            // ||
+            // messageRsp.includes("không tồn tại") ||
+            // messageRsp.includes("không đủ điều kiện") ||
+            // messageRsp.includes("ngân hàng")
 
-        for (let i = 0; i < 20; i++) {
-
-            try {
-                const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
-                const messageRsp = responseData.message;
-                console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-                if (helper.hasNumber(messageRsp)
-                    // ||
-                    // messageRsp.includes("không tồn tại") ||
-                    // messageRsp.includes("không đủ điều kiện") ||
-                    // messageRsp.includes("ngân hàng")
-
-                ) {
-                    success.push({
-                        user: user,
-                        msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
-                        chatId: chatId
-                    })
-                }
-
-                if (helper.hasNumber(messageRsp)) {
-                    break;
-                }
-
-
-                
-
-            } catch (error) {
-
-            }
-
-
-            await new Promise(resolve => setTimeout(resolve, 7000));
-
-
-
-
+        ) {
+            success.push({
+                user: user,
+                msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
+                chatId: chatId
+            })
         }
+
+        //         for (let i = 0; i < 20; i++) {
+        // 
+        //             try {
+        //                 const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
+        //                 const messageRsp = responseData.message;
+        //                 console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
+        //                 if (helper.hasNumber(messageRsp)
+        //                     // ||
+        //                     // messageRsp.includes("không tồn tại") ||
+        //                     // messageRsp.includes("không đủ điều kiện") ||
+        //                     // messageRsp.includes("ngân hàng")
+        // 
+        //                 ) {
+        //                     success.push({
+        //                         user: user,
+        //                         msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
+        //                         chatId: chatId
+        //                     })
+        //                 }
+        // 
+        //                 if (helper.hasNumber(messageRsp)) {
+        //                     break;
+        //                 }
+        // 
+        // 
+        //                 
+        // 
+        //             } catch (error) {
+        // 
+        //             }
+        // 
+        // 
+        //             await new Promise(resolve => setTimeout(resolve, 7000));
+        // 
+        // 
+        // 
+        // 
+        //         }
 
 
 
