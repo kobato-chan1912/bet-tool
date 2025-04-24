@@ -42,14 +42,29 @@ const enter8K = async (user, codes, chatId) => {
         if (helper.isNaturalNumber(messageRsp) ||
             messageRsp.includes("không tồn tại") ||
             messageRsp.includes("không đủ điều kiện") ||
-            messageRsp.includes("ngân hàng")
+            messageRsp.includes("ngân hàng") || messageRsp.includes("Đã tham gia")
 
         ) {
 
+            let msg;
+
+            if (messageRsp.includes("không tồn tại")) {
+                msg = "Tài khoản không tồn tại";
+            }
+
+            else if (helper.isNaturalNumber(messageRsp)) {
+                msg = helper.isNaturalNumber(messageRsp);
+            } else {
+                msg = "Lạm dụng"
+            }
+
+
+
             success.push({
                 user: user,
-                msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
-                chatId: chatId
+                msg: msg,
+                chatId: chatId,
+                notify: messageRsp.includes("Đã tham gia") ? 0 : 1,
             })
 
             // await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", user, messageRsp, 0);
@@ -106,7 +121,9 @@ async function process8K(message, client) {
     let summaryMsg = "Code mới 8K đây\n";
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
-        summaryMsg += `${ele.user} | ${ele.msg}\n`;
+        if (ele.notify == 1) {
+            summaryMsg += `${ele.user} | ${ele.msg}\n`;
+        }
         // await helper.sendTelegramMessage(ele.chatId, msg)
     }
     if (success.length > 0) {

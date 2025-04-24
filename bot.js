@@ -6,9 +6,10 @@ const helper = require("./helpers/helper.js")
 
 const fee = {
     'j88.txt': 6000,
-    '8k.txt': 6000,
-    'new88.txt': 10000,
-    'f8.txt': 12000
+    '8k.txt': 5000,
+    'new88.txt': 12000,
+    'f8.txt': 10000,
+    'sh.txt': 10000
 };
 
 
@@ -45,7 +46,7 @@ async function main() {
     ])
 
 
-    
+
 
     function showMenu(chatId, showText = 1) {
         let text = `BOT CODE GAME : J88,8K,F8,New
@@ -57,14 +58,14 @@ async function main() {
 Kênh  : https://t.me/+3E1oOkivHJI5ZjBl
 BOT : @HUNTER_CODE_DEN_BOT
 `;
-        if (showText == 0){
+        if (showText == 0) {
             text = '\u2063'
         }
         bot.sendMessage(chatId, text, {
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền', '♻️ Hoàn tiền'],
-                    ['➕ Thêm Acc J88', '➕ Thêm Acc 8K'],
+                    ['➕ Thêm Acc SHBet', '➕ Thêm Acc 8K'],
                     ['➕ Thêm Acc New88', '➕ Thêm Acc F8']
                 ],
                 resize_keyboard: true,
@@ -127,38 +128,46 @@ BOT : @HUNTER_CODE_DEN_BOT
 
 
         // xử lý hoàn tiền
+        const refundMatch = text.match(/^\/hoantien\s+(j88|8k|new88|f8)\s+(\S+)/i);
 
-        if (userStates[chatId]?.state === 'awaiting_refund_confirmation') {
-            const { refundInfo } = userStates[chatId];
-            delete userStates[chatId];
+        if (refundMatch) {
+            const loai = refundMatch[1].toLowerCase();
+            const acc = refundMatch[2];
+            const userId = username;
+            const feeMap = fee;
 
-            if (text === '✅ Yes') {
-                // Hoàn tiền
-                const balancesPath = path.join(__dirname, 'database', 'balances.json');
-                const balances = fs.existsSync(balancesPath) ? JSON.parse(fs.readFileSync(balancesPath)) : {};
-                balances[username] = (balances[username] || 0) + refundInfo.amount;
-                fs.writeFileSync(balancesPath, JSON.stringify(balances, null, 2));
-
-                // Xóa khỏi file
-                refundInfo.entries.forEach(({ file, line }) => {
-                    const content = fs.readFileSync(file, 'utf8').split('\n').filter(l => l.trim() !== line.trim());
-                    fs.writeFileSync(file, content.join('\n'));
-                });
-
-                bot.sendMessage(chatId, `✅ Đã hoàn lại ${refundInfo.amount.toLocaleString()} đồng vào tài khoản của bạn. Vui lòng đợi tối đa 30 giây để được cập nhật.`);
-            } else if (text === '❌ No') {
-                bot.sendMessage(chatId, '🚫 Bạn đã hủy yêu cầu hoàn tiền.');
+            const filePath = path.join(__dirname, 'config', `${loai}.txt`);
+            if (!fs.existsSync(filePath)) {
+                return bot.sendMessage(chatId, `❌ Không tìm thấy danh sách ${loai}`);
             }
 
-            // Gửi lại menu chính nếu muốn
-            showMenu(chatId, 0);
+            const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
+            const targetLine = lines.find(line => line.includes(acc) && line.includes(userId));
+
+            if (!targetLine) {
+                return bot.sendMessage(chatId, `⚠️ Không tìm thấy acc "${acc}" của bạn trong danh sách ${loai}.`);
+            }
+
+            // Trả lại 70% phí
+            const refundAmount = Math.floor(feeMap[loai + ".txt"] * 0.7);
+
+            // Cập nhật số dư
+            const balancesPath = path.join(__dirname, 'database', 'balances.json');
+            const balances = fs.existsSync(balancesPath) ? JSON.parse(fs.readFileSync(balancesPath)) : {};
+            balances[userId] = (balances[userId] || 0) + refundAmount;
+            fs.writeFileSync(balancesPath, JSON.stringify(balances, null, 2));
+
+            // Xóa khỏi file
+            const newLines = lines.filter(line => line !== targetLine);
+            fs.writeFileSync(filePath, newLines.join('\n'));
+
+            bot.sendMessage(chatId, `✅ Đã hoàn lại ${refundAmount.toLocaleString()}đ cho acc <b>${acc}</b> (${loai})\n\n💰 Số dư mới của bạn sẽ được cập nhật muộn nhất sau 30 giây.`, { parse_mode: 'HTML' });
+            return;
         }
 
+
+
         switch (text) {
-            case '❌ No': 
-                break;
-            case '✅ Yes': 
-                break;
             case '💰 Xem số dư':
                 userStates[chatId] = 'info'
                 // await checkAndUpdateBalance();
@@ -180,55 +189,39 @@ BOT : @HUNTER_CODE_DEN_BOT
 
 
             case '♻️ Hoàn tiền':
-                const userAccs = [];
-                const userId = username; // username telegram
+                const userId = username;
                 const configPath = path.join(__dirname, 'config');
                 const files = ['j88.txt', '8k.txt', 'new88.txt', 'f8.txt'];
-                let totalRefund = 0;
-                const toRemove = [];
+
+                let response = `🔁 Các tài khoản bạn đã thêm:\n\n`;
+                let found = false;
 
                 files.forEach(file => {
                     const filePath = path.join(configPath, file);
                     if (!fs.existsSync(filePath)) return;
+
                     const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
+                    const userLines = lines.filter(line => line.includes(userId));
 
-                    lines.forEach(line => {
-                        if (line.includes(userId)) {
-                            userAccs.push(`📌 ${line} (${file.replace('.txt', '')})`);
-                            totalRefund += fee[file];
-                            toRemove.push({ file: filePath, line });
-                        }
-                    });
+                    if (userLines.length > 0) {
+                        found = true;
+                        const type = file.replace('.txt', '');
+                        response += `📂 <b>${type.toUpperCase()}</b>\n`;
+                        userLines.forEach(line => {
+                            response += `— ${line}\n`;
+                        });
+                        response += `📥 Hoàn tiền lệnh: <code>/hoantien ${type} account_name</code>\n\n`;
+                    }
                 });
 
-                if (userAccs.length === 0) {
-                    bot.sendMessage(chatId, '🔍 Không tìm thấy tài khoản nào của bạn cần hoàn.');
-                    return;
+                if (!found) {
+                    bot.sendMessage(chatId, '🔍 Không tìm thấy tài khoản nào bạn đã thêm.', { parse_mode: 'HTML' });
+                } else {
+                    bot.sendMessage(chatId, response, { parse_mode: 'HTML' });
                 }
-                const finalRefund = Math.floor(totalRefund * 0.7);
-                const msg = `🔁 Các tài khoản bạn đã thêm:\n${userAccs.join('\n')}\n\n💰 Hoàn lại: ${finalRefund.toLocaleString()} đồng (đã trừ 30%)\n\nBạn có muốn hoàn không?`;
-                userStates[chatId] = {
-                    state: 'awaiting_refund_confirmation',
-                    refundInfo: {
-                        entries: toRemove,
-                        amount: finalRefund
-                    }
-                };
-
-
-                bot.sendMessage(chatId, msg, {
-                    reply_markup: {
-                        keyboard: [[{ text: '✅ Yes' }, { text: '❌ No' }]],
-                        resize_keyboard: true,
-                        one_time_keyboard: true
-                    }
-                });
-
-
-
-
-
                 break;
+
+
             case '➕ Thêm Acc J88':
                 userStates[chatId] = 'awaiting_j88';
                 bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản J88 của bạn**
@@ -255,77 +248,149 @@ nguyentri 5560
                 break;
             case '➕ Thêm Acc 8K':
                 userStates[chatId] = 'awaiting_8k';
-                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản 8K của bạn**
+                bot.sendMessage(chatId, `Tài khoản 8KBET có giá trị 5000vnd/tài khoản.
 
-💰 6k / code
+📍Hướng dẫn note danh sách tài khoản . (có thể note 1 lần nhiều tk )
 
-📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
+account1
+account2
 
-\`\`\` 
-<username>
-\`\`\`
-
-✅ **Ví dụ:**
-
-tuanlong
-nguyentri
+❗️Lưu ý và cách kiểm tra tài khoản có đủ điều kiện để nhận thưởng hay không : 
 
 
-⚠️ **Lưu ý:** 
+📍NHẬP TÊN TÀI KHOẢN CÓ HIỆN NỘI DUNG SAU LÀ NHẬN ĐƯỢC :
 
-- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
-- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
-- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+- Số tiền nạp không đạt.
+
+- Kiểm tra thất bại , Duy trì nạp tiền và đặt cược bình thường để có thể nhận thưởng 
+ (nếu ko nhận được thì nạp tổi thiểu 10k, 11h trưa là nhận được code )
+
+-Tài khoản mới tạo yêu cầu nạp tổi thiểu 10k qua 11h trưa mới nhận được nha .
+
+📍NHẬP TÊN TÀI KHOẢN CÓ HIỆN NỘI DUNG SAU LÀ KHÔNG NHẬN ĐC: 
+
+-Nhận thưởng không thành công, tài khoản của bạn không đủ điều kiện nhận thưởng.
+
+-TK ko tồn tại.
+
+❗️Lưu ý :BOT SẼ KHÔNG HOÀN LẠI TIỀN KHI GẶP CÁC TRƯỜNG HỢP SAU :
+
+-TK ko tồn tại .
+
+-Note sai tên tài khoản .
+
+-Nhận thưởng không thành công, tài khoản của bạn không đủ điều kiện nhận thưởng.
+
+-📍Link check lạm dụng : https://google8ksp50k.vip/
+`);
                 break;
 
             case '➕ Thêm Acc New88':
                 userStates[chatId] = 'awaiting_new88';
-                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản New88 của bạn**
+                bot.sendMessage(chatId, `Tài khoản New88 có giá trị 12000vnd/tài khoản .
 
-💰 10k / code
+📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
 
-📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
-    
-\`\`\` 
-<username>
-\`\`\`
-    
-✅ **Ví dụ:**
-    
-tuanlong
-nguyentri
-    
-    
-⚠️ **Lưu ý:** 
+account1
+account2
 
-- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
-- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
-- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+❗️Lưu ý và điều kiện để nhận code cho mỗi tài khoản : 
+
+- Tài khoản phải có phát sinh giao dịch nạp gần đây .
+
+- Ưu tiên những tk có giao dịch nạp rút .
+
+📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
+
+- tk lâu ko nạp (trường hợp này mình sẽ không delete tài khoản ra khỏi note , sau 12h các bạn không nạp tiền vào tk hoặc là ko hoàn tiền thì Bot xóa khỏi note và k hoàn tiền )
+
+-ko đủ đkien ( trường hợp này các bạn dùng hoàn tiền 70% để hoàn tiền )
+
+-lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
+
+📍Link check lạm dụng : https://khuyenmai-new88okvip1.pages.dev/?promo_id=MM88
+
+❗️Lưu ý : 
+
+- Bot sẽ không hoàn tiền cho tk nhập sai và bị lạm dụng .
+
+-Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
+
+-1 người dùng tốt nhất chỉ sử dụng 2 đến 3 tài khoản k nên quá nhìu.( trường hợp muốn nhận nhiều tk vui lòng liên hệ mình để biết thêm thông tin chi tiết.)
+
+*Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm .
+`);
                 break;
             case '➕ Thêm Acc F8':
                 userStates[chatId] = 'awaiting_f8';
-                bot.sendMessage(chatId, `📝 **Gửi thông tin tài khoản F8 của bạn**
+                bot.sendMessage(chatId, `Tài khoản F8 có giá trị 10000vnd/tài khoản .
 
-💰 12k / code
+📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
 
-📋 **Cú pháp (mỗi hàng là một tài khoản, có thể cài nhiều tài khoản):**  
-        
-\`\`\` 
-<username>
-\`\`\`
-        
-✅ **Ví dụ:**
-        
-tuanlong
-nguyentri
-        
-        
-⚠️ **Lưu ý:** 
-        
-- Kiểm tra kỹ tài khoản lạm dụng trước khi gửi.  
-- Gửi sai cú pháp hoặc tài khoản bị lạm dụng sẽ **không được hoàn tiền**.  
-- Anh em cẩn thận trước khi gửi thông tin!`, { parse_mode: 'Markdown' });
+account1
+account2
+
+❗️Lưu ý và điều kiện để nhận code cho mỗi tài khoản : 
+
+- Tài khoản phải có phát sinh giao dịch nạp gần đây .
+
+- Ưu tiên những tk có giao dịch nạp rút .
+
+📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
+
+-ko đủ đkien ( trường hợp này các bạn dùng hoàn tiền 70% để hoàn tiền )
+
+-lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
+
+📍Link check lạm dụng : https://ttkm-f8bet02.pages.dev/?promo_id=NH03
+
+❗️Lưu ý : 
+
+- Bot sẽ không hoàn tiền cho tk nhập sai và bị lạm dụng .
+
+-Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
+
+-1 người dùng tốt nhất chỉ sử dụng 2 đến 3 tài khoản k nên quá nhìu.( trường hợp muốn nhận nhiều tk vui lòng liên hệ mình để biết thêm thông tin chi tiết.)
+
+*Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm .`);
                 break;
+
+            case '➕ Thêm Acc SHBet':
+                userStates[chatId] = 'awaiting_sh';
+                bot.sendMessage(chatId, `Tài khoản SHBET có giá trị 10000vnd/tài khoản .
+
+📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
+
+account1
+account2
+
+❗️Lưu ý và điều kiện để nhận code cho mỗi tài khoản : 
+
+- Tài khoản phải có phát sinh giao dịch nạp gần đây .
+
+- Ưu tiên những tk có giao dịch nạp rút .
+
+📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
+
+- tk lâu ko nạp r (trường hợp này mình sẽ không delete tài khoản ra khỏi note , sau 12h các bạn không nạp tiền vào tk hoặc là ko hoàn tiền thì Bot xóa khỏi note và k hoàn tiền )
+
+-ko đủ đkien ( trường hợp này các bạn dùng hoàn tiền 70% để hoàn tiền )
+
+-lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
+
+📍Link check lạm dụng : https://khuyenmai-shbet01.pages.dev/?promo_id=SL01
+
+❗️Lưu ý : 
+
+- Bot sẽ không hoàn tiền cho tk nhập sai và bị lạm dụng .
+
+-Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
+
+-1 người dùng tốt nhất chỉ sử dụng 2 đến 3 tài khoản k nên quá nhìu.( trường hợp muốn nhận nhiều tk vui lòng liên hệ mình để biết thêm thông tin chi tiết.)
+
+*Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm.`);
+                break;
+
 
             default:
 
@@ -337,7 +402,7 @@ nguyentri
 
                 // Thêm J88
                 if (state === 'awaiting_j88' && text) {
-                    const lines = text.trim().split('\n');
+                    const lines = text.trim().split(/[\s]+/);
                     const filePath = path.join(__dirname, 'config', 'j88.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
 
@@ -368,6 +433,13 @@ nguyentri
                         return;
                     }
 
+
+                    if (fs.existsSync(filePath)) {
+                        const content = fs.readFileSync(filePath, 'utf8');
+                        if (content.length > 0 && !content.endsWith('\n')) {
+                            fs.appendFileSync(filePath, '\n');
+                        }
+                    }
                     for (const entry of entries) {
                         fs.appendFileSync(filePath, entry + '\n');
                         added++;
@@ -386,7 +458,7 @@ nguyentri
 
                 // Thêm 8K
                 if (state === 'awaiting_8k' && text) {
-                    const lines = text.trim().split('\n');
+                    const lines = text.trim().split(/[\s]+/);
                     const filePath = path.join(__dirname, 'config', '8k.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
 
@@ -408,13 +480,18 @@ nguyentri
                         }
                     }
 
-                    const cost = entries.length * 6000;
+                    const cost = entries.length * fee["8k.txt"];
                     if (userBalance < cost) {
                         bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
                         delete userStates[chatId];
                         return;
                     }
-
+                    if (fs.existsSync(filePath)) {
+                        const content = fs.readFileSync(filePath, 'utf8');
+                        if (content.length > 0 && !content.endsWith('\n')) {
+                            fs.appendFileSync(filePath, '\n');
+                        }
+                    }
                     for (const entry of entries) {
                         fs.appendFileSync(filePath, entry + '\n');
                         added++;
@@ -431,7 +508,7 @@ nguyentri
 
                 // Thêm New88
                 if (state === 'awaiting_new88' && text) {
-                    const lines = text.trim().split('\n');
+                    const lines = text.trim().split(/[\s]+/);
                     const filePath = path.join(__dirname, 'config', 'new88.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
 
@@ -453,13 +530,18 @@ nguyentri
                         }
                     }
 
-                    const cost = entries.length * 10000;
+                    const cost = entries.length * fee["new88.txt"];
                     if (userBalance < cost) {
                         bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
                         delete userStates[chatId];
                         return;
                     }
-
+                    if (fs.existsSync(filePath)) {
+                        const content = fs.readFileSync(filePath, 'utf8');
+                        if (content.length > 0 && !content.endsWith('\n')) {
+                            fs.appendFileSync(filePath, '\n');
+                        }
+                    }
                     for (const entry of entries) {
                         fs.appendFileSync(filePath, entry + '\n');
                         added++;
@@ -477,7 +559,7 @@ nguyentri
 
                 // Thêm New88
                 if (state === 'awaiting_f8' && text) {
-                    const lines = text.trim().split('\n');
+                    const lines = text.trim().split(/[\s]+/);
                     const filePath = path.join(__dirname, 'config', 'f8.txt');
                     const balancePath = path.join(__dirname, 'database', 'balances.json');
 
@@ -499,13 +581,26 @@ nguyentri
                         }
                     }
 
-                    const cost = entries.length * 12000;
+                    const cost = entries.length * fee["f8.txt"];
                     if (userBalance < cost) {
                         bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
                         delete userStates[chatId];
                         return;
                     }
 
+
+                    if (fs.existsSync(filePath)) {
+                        const content = fs.readFileSync(filePath, 'utf8');
+                        if (content.length > 0 && !content.endsWith('\n')) {
+                            fs.appendFileSync(filePath, '\n');
+                        }
+                    }
+                    if (fs.existsSync(filePath)) {
+                        const content = fs.readFileSync(filePath, 'utf8');
+                        if (content.length > 0 && !content.endsWith('\n')) {
+                            fs.appendFileSync(filePath, '\n');
+                        }
+                    }
                     for (const entry of entries) {
                         fs.appendFileSync(filePath, entry + '\n');
                         added++;
@@ -516,6 +611,56 @@ nguyentri
                     fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
 
                     bot.sendMessage(chatId, `✅ Đã thêm ${added} acc F8.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
+                    delete userStates[chatId];
+                    return;
+                }
+
+
+                if (state === 'awaiting_sh' && text) {
+                    const lines = text.trim().split(/[\s]+/);
+                    const filePath = path.join(__dirname, 'config', 'sh.txt');
+                    const balancePath = path.join(__dirname, 'database', 'balances.json');
+
+                    const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
+                    const balanceData = fs.existsSync(balancePath) ? JSON.parse(fs.readFileSync(balancePath)) : {};
+                    const userBalance = balanceData[username] || 0;
+
+                    let added = 0, duplicated = 0;
+                    const entries = [];
+
+                    for (let line of lines) {
+                        const acc = line.trim();
+                        if (!acc) continue;
+                        const entry = `${acc} ${username}`;
+                        if (!current.includes(entry)) {
+                            entries.push(entry);
+                        } else {
+                            duplicated++;
+                        }
+                    }
+
+                    const cost = entries.length * fee["sh.txt"];
+                    if (userBalance < cost) {
+                        bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
+                        delete userStates[chatId];
+                        return;
+                    }
+                    if (fs.existsSync(filePath)) {
+                        const content = fs.readFileSync(filePath, 'utf8');
+                        if (content.length > 0 && !content.endsWith('\n')) {
+                            fs.appendFileSync(filePath, '\n');
+                        }
+                    }
+                    for (const entry of entries) {
+                        fs.appendFileSync(filePath, entry + '\n');
+                        added++;
+                    }
+
+                    // Trừ tiền
+                    balanceData[username] = userBalance - cost;
+                    fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
+
+                    bot.sendMessage(chatId, `✅ Đã thêm ${added} acc SHBet.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
                     delete userStates[chatId];
                     return;
                 }
