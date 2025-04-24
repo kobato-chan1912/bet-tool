@@ -53,7 +53,7 @@ const enter8K = async (user, codes, chatId) => {
             }
 
             else if (helper.isNaturalNumber(messageRsp)) {
-                msg = helper.isNaturalNumber(messageRsp);
+                msg = messageRsp;
             } else {
                 msg = "Lạm dụng"
             }
