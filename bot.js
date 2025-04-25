@@ -118,7 +118,7 @@ BOT : @HUNTER_CODE_DEN_BOT
     const userStates = {};
     bot.on('message', async (msg) => {
         const chatId = msg.chat.id;
-        const text = msg.text;
+        const text = msg.text ?? '';
         const username = msg.from.username?.toLowerCase();
 
 
