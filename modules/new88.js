@@ -142,7 +142,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
 // 🔥 Xử lý message (dùng HttpsProxyAgent)
 async function processNew88(message) {
     let messageContent = message.message;
-    let codes = await helper.processText(messageContent, 12);
+    let codes = await helper.processText(messageContent, 8);
     if (codes.length === 0) {
 
         codes = await helper.processText(messageContent, 10);
