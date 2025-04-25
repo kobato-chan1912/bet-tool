@@ -3,22 +3,13 @@ const helper = require("../helpers/helper.js")
 const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
-const { HttpsProxyAgent } = require('https-proxy-agent');
 
 let success = [];
 let deleteAccs = [];
 
-function generateUUIDv4() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-    });
-}
-  
 
 const API_URL = 'https://api.adavawef.top';
-
+const DISTINCT_ID = '019658ce-75cb-7e8d-a27c-65888e879f2f';
 
 const headers = {
     'accept': '*/*',
@@ -36,8 +27,7 @@ const headers = {
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
 };
 
-async function checkVerifyCode(verifyCode, DISTINCT_ID, proxyString) {
-    const agent = new HttpsProxyAgent(`http://${proxyString}`);
+async function checkVerifyCode(verifyCode) {
     try {
         const response = await axios.post(
             `${API_URL}/Promotion/CheckVerifyCode`,
@@ -45,7 +35,7 @@ async function checkVerifyCode(verifyCode, DISTINCT_ID, proxyString) {
                 VerifyCode: verifyCode,
                 DistinctId: DISTINCT_ID
             },
-            { headers, httpsAgent: agent }
+            { headers }
         );
 
         if (response.data.code === 200) {
@@ -60,9 +50,8 @@ async function checkVerifyCode(verifyCode, DISTINCT_ID, proxyString) {
 }
 
 
-async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token, DISTINCT_ID, proxyString) {
+async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token) {
     try {
-        const agent = new HttpsProxyAgent(`http://${proxyString}`);
         const response = await axios.post(
             `${API_URL}/Promotion/GetInviteBonus`,
             {
@@ -73,7 +62,7 @@ async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token, 
                 Token: token,
                 DistinctId: DISTINCT_ID
             },
-            { headers, httpsAgent: agent }
+            { headers }
         );
 
         return response.data;
@@ -83,13 +72,12 @@ async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token, 
     }
 }
 
-const enterJ88 = async (user, code, bank, status, chatId, DISTINCT_ID, proxyString) => {
+const enterJ88 = async (user, code, bank, status, chatId) => {
 
     try {
-       
         let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.com")
-        const token = await checkVerifyCode(verifyCode, DISTINCT_ID, proxyString);
-        const responseData = await getInviteBonus(code, user, bank, verifyCode, token, DISTINCT_ID, proxyString);
+        const token = await checkVerifyCode(verifyCode);
+        const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
         const messageRsp = responseData.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.hasNumber(messageRsp)
@@ -220,9 +208,7 @@ async function processJ88(message) {
     for (const user of J88Users) {
         let [username, userNumber, chatId] = user.split(/\s+/);
         let code = helper.getRandomElement(codes);
-        let DISTINCT_ID = generateUUIDv4()
-        let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
-        tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID, proxyString)));
+        tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
         // for (const code of codes) {
         //     tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
         // }
