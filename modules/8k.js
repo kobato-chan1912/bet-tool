@@ -83,15 +83,23 @@ async function process8K(message, client) {
     let messageContent = message.message;
     let codes
     if (messageContent.includes("ở bên dưới")) {
-        codes = await helper.processText(messageContent, 8);
-        if (codes.length === 8) {
-            let imgPath = await helper.downloadMedia(message, client)
-            codes = await helper.processImage(imgPath, 8);
+        const codes8 = await helper.processText(messageContent, 8);
+        const codes10 = await helper.processText(messageContent, 10);
+        codes = [...codes8, ...codes10];
+
+        if (codes.length === 0) {
+            const imgPath = await helper.downloadMedia(message, client);
+            const imgCodes8 = await helper.processImage(imgPath, 8);
+            const imgCodes10 = await helper.processImage(imgPath, 10);
+            codes = [...imgCodes8, ...imgCodes10];
         }
     } else {
-        let imgPath = await helper.downloadMedia(message, client)
-        codes = await helper.processImage(imgPath, 8);
+        const imgPath = await helper.downloadMedia(message, client);
+        const imgCodes8 = await helper.processImage(imgPath, 8);
+        const imgCodes10 = await helper.processImage(imgPath, 10);
+        codes = [...imgCodes8, ...imgCodes10];
     }
+
 
 
     if (codes.length === 0) {
