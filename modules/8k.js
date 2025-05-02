@@ -83,14 +83,14 @@ async function process8K(message, client) {
     let messageContent = message.message;
     let codes
     if (messageContent.includes("ở bên dưới")) {
-        codes = await helper.processText(messageContent, 10);
-        if (codes.length === 10) {
+        codes = await helper.processText(messageContent, 8);
+        if (codes.length === 8) {
             let imgPath = await helper.downloadMedia(message, client)
-            codes = await helper.processImage(imgPath, 10);
+            codes = await helper.processImage(imgPath, 8);
         }
     } else {
         let imgPath = await helper.downloadMedia(message, client)
-        codes = await helper.processImage(imgPath, 10);
+        codes = await helper.processImage(imgPath, 8);
     }
 
 
