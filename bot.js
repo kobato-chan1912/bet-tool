@@ -9,7 +9,7 @@ const fee = {
     '8k.txt': 5000,
     'new88.txt': 12000,
     'f8.txt': 10000,
-    'sh.txt': 10000
+    'sh.txt': 7000
 };
 
 
