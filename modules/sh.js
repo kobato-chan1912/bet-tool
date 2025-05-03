@@ -209,7 +209,7 @@ async function processSH(message) {
 
     await Promise.all(tasks);
 
-    //     let summaryMsg = "Code mới SHBet đây\n";
+    let summaryMsg = "Code mới SHBet đây\n";
     // 
     for (const ele of success) {
         await helper.processDoneUser("./config/sh.txt", "./output/sh-done.txt", ele.user, ele.msg, 0);
