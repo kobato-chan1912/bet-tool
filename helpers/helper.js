@@ -301,16 +301,41 @@ async function downloadMedia(message, client) {
   return null
 }
 
+
+async function downloadSecondPhotoInAlbum(message, client) {
+  if (!message.groupedId) return null; // Không phải album
+
+  const messages = await client.getMessages(message.chatId, {
+    limit: 2, // Tùy chỉnh theo số lượng gần nhất
+  });
+
+  const groupedMessages = messages.filter(
+    m => m.groupedId?.toString() === message.groupedId.toString() && m.media?.photo
+  );
+
+  if (groupedMessages.length < 2) return null;
+
+  const secondPhotoMessage = groupedMessages[0];
+  const buffer = await client.downloadMedia(secondPhotoMessage.media, { workers: 1 });
+
+  const filePath = `./photo_${secondPhotoMessage.id}.jpg`;
+  await fs.writeFile(filePath, buffer);
+
+  return filePath;
+}
+
+
 async function processText(text, lengthOfCode) {
-  const regex = new RegExp(`^[A-Za-z0-9]{${lengthOfCode}}$`); // Regex động với độ dài tùy chỉnh
+  const regex = new RegExp(`^[A-Za-z0-9]{${lengthOfCode}}$`);
   const codes = text
-    .split(/\s+/) // Tách chuỗi thành từng từ
-    .filter(word => regex.test(word)); // Lọc các từ có độ dài đúng với biến `length`
+    .split(/\s+/)
+    .map(word => word.replace(/[^A-Za-z0-9]/g, '')) // loại ký tự không phải chữ-số
+    .filter(word => regex.test(word));
 
-
-  console.log(chalk.blue(`🔍 Code phát hiện: ${codes.join(', ')}`));
+  console.log(codes);
   return codes;
 }
+
 
 
 // Hàm lưu config vào file
@@ -444,7 +469,6 @@ async function modifySvgBase64AndReturnPngBase64(svgBase64Full) {
 
 
 async function solveCaptcha(imageBase64) {
-  let b64Modified = await modifySvgBase64AndReturnPngBase64(imageBase64)
   let readConfig = await loadConfig();
   let apiKey = readConfig.CAPTCHA_SOLVER;
 
@@ -455,7 +479,7 @@ async function solveCaptcha(imageBase64) {
         "task": {
           "type": "ImageToTextTask",
           "module": "common",
-          "body": b64Modified
+          "body": imageBase64
         }
       }, {
       headers: {
@@ -583,5 +607,5 @@ async function sendTelegramMessage(chatId, message, options = {}) {
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
-  deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber
+  deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum
 }

@@ -8,6 +8,9 @@ const J88 = require("./modules/J88.js")
 const new88 = require("./modules/new88.js")
 const f8 = require("./modules/f8.js")
 const sh = require("./modules/sh.js")
+const f168 = require("./modules/f168.js")
+const win33 = require("./modules/33win.js")
+
 const { Api } = require('telegram/tl/');
 
 // data input
@@ -16,6 +19,8 @@ const q88IDS = ['2446066378', '2272716520', '2421765170']
 const f88IDS = ['2321837001']
 const new88IDS = ['2332416396', '2254564969', '2300154005', '2330343641', '2420370864']
 const shIDS = ['2473867941', '2256674249', '2039859279', '2567090159', '2461333728']
+const f168IDS = ['2276768042', '2402298595']
+const win33IDS = ['2543570786']
 
 const EightKIDS = ['2482026491']
 const J88IDS = ['1610937400']
@@ -98,9 +103,10 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
       if (testGroup.includes(sendID)) {
         console.log(chalk.greenBright(`\n📥 Test GROUP ${sendID}`));
-        console.log(chalk.white(`\n${message}`));
+        console.log(chalk.white(`\n${message.message}`));
         // await sh.processSH(message)
-        await J88.processJ88(message)
+        await win33.processwin33(message, client)
+        // await f168.processF168(message, client)
         // await EightK.process8K(message, client)
         // await f8.processF8(message, client)
         // await new88.processNew88(message)
@@ -135,6 +141,14 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
       if (shIDS.includes(sendID)) {
         await sh.processSH(message)
+      }
+
+      if (f168IDS.includes(sendID)) {
+        await f168.processF168(message, client)
+      }
+
+      if (win33IDS.includes(sendID) && message.message.includes("NHẬN TIỀN THẬT CÙNG 33WIN")) {
+        await win33.processwin33(message, client)
       }
 
 
