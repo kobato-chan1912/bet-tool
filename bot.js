@@ -302,9 +302,8 @@ account2
 
 📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
 
-- tk lâu ko nạp (trường hợp này mình sẽ không delete tài khoản ra khỏi note , sau 12h các bạn không nạp tiền vào tk hoặc là ko hoàn tiền thì Bot xóa khỏi note và k hoàn tiền )
+- tk lâu ko nạp 
 
--ko đủ đkien ( trường hợp này các bạn dùng hoàn tiền 70% để hoàn tiền )
 
 -lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
 
@@ -316,9 +315,8 @@ account2
 
 -Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
 
--1 người dùng tốt nhất chỉ sử dụng 2 đến 3 tài khoản k nên quá nhìu.( trường hợp muốn nhận nhiều tk vui lòng liên hệ mình để biết thêm thông tin chi tiết.)
 
-*Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm .
+
 `);
                 break;
             case '➕ Thêm Acc F8':
@@ -350,14 +348,14 @@ account2
 
 -Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
 
--1 người dùng tốt nhất chỉ sử dụng 2 đến 3 tài khoản k nên quá nhìu.( trường hợp muốn nhận nhiều tk vui lòng liên hệ mình để biết thêm thông tin chi tiết.)
+
 
 *Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm .`);
                 break;
 
             case '➕ Thêm Acc SHBet':
                 userStates[chatId] = 'awaiting_sh';
-                bot.sendMessage(chatId, `Tài khoản SHBET có giá trị 10000vnd/tài khoản .
+                bot.sendMessage(chatId, `Tài khoản SHBET có giá trị 7000vnd/tài khoản .
 
 📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
 
