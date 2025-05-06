@@ -154,12 +154,26 @@ async function processNew88(message) {
 
 
     }
-    const new88Users = await helper.readFileToArray("config/new88.txt");
+
+    let new88Users = await helper.readFileToArray("config/new88.txt");
+    const { firstHalf, secondHalf } = helper.splitArrayInHalf(new88Users);
+
     const config = await helper.loadConfig();
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
     success = [];
+
+
+    let fromGroupId = message.peerId.channelId.toString();
+
+    if (fromGroupId == "2332416396") {
+        new88Users = firstHalf;
+    }
+
+    if (fromGroupId == "2254564969") {
+        new88Users = secondHalf;
+    }
 
     for (const user of new88Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port

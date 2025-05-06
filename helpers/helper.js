@@ -326,11 +326,19 @@ async function downloadSecondPhotoInAlbum(message, client) {
 
 
 async function processText(text, lengthOfCode) {
-  const regex = new RegExp(`^[A-Za-z0-9]{${lengthOfCode}}$`);
-  const codes = text
-    .split(/\s+/)
-    .map(word => word.replace(/[^A-Za-z0-9]/g, '')) // loại ký tự không phải chữ-số
-    .filter(word => regex.test(word));
+  const matches = text.match(/[A-Za-z0-9]+/g) || [];
+
+  const codes = matches.filter(word => {
+    if (word.length !== lengthOfCode) return false;
+
+    const lower = word.toLowerCase();
+
+    // Loại bỏ nếu toàn số hoặc là "thuong" / "facebook"
+    if (/^\d+$/.test(word)) return false;
+    if (lower === 'thuong' || lower === 'facebook') return false;
+
+    return true;
+  });
 
   console.log(codes);
   return codes;
@@ -603,9 +611,20 @@ async function sendTelegramMessage(chatId, message, options = {}) {
 }
 
 
+function splitArrayInHalf(arr) {
+  const mid = Math.ceil(arr.length / 2);
+  const firstHalf = arr.slice(0, mid);
+  const secondHalf = arr.slice(mid);
+
+  return { firstHalf, secondHalf };
+}
+
+
+
+
 
 module.exports = {
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
-  deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum
+  deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum, splitArrayInHalf
 }
