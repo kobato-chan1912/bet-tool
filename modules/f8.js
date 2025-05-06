@@ -199,7 +199,11 @@ async function processF8(message, client) {
     let imgPath = await helper.downloadMedia(message, client)
     let codes = await helper.processImage(imgPath, 8);
 
-
+    if (codes.length === 0) {
+        console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
+        return;
+    }
+    
     const f8Users = await helper.readFileToArray("config/f8.txt");
     const config = await helper.loadConfig();
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
