@@ -313,7 +313,7 @@ async function downloadSecondPhotoInAlbum(message, client) {
     m => m.groupedId?.toString() === message.groupedId.toString() && m.media?.photo
   );
 
-  if (groupedMessages.length < 2) return null;
+  if (groupedMessages.length == 0) return null;
 
   const secondPhotoMessage = groupedMessages[0];
   const buffer = await client.downloadMedia(secondPhotoMessage.media, { workers: 1 });

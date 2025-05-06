@@ -193,6 +193,11 @@ async function processSH(message) {
     let messageContent = message.message;
     let codes = await helper.processText(messageContent, 12);
 
+    if (codes.length === 0) {
+        console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
+        return;
+    }
+
 
     const shUsers = await helper.readFileToArray("config/sh.txt");
     const config = await helper.loadConfig();
