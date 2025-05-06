@@ -73,7 +73,7 @@ const enter8K = async (user, codes, chatId) => {
 
 
     } catch (error) {
-        console.error('❌ 8KBet Lỗi: ', error);
+        console.error('❌ 8KBet Lỗi: ', error.response ? error.response.data : error.message);
     }
 };
 
