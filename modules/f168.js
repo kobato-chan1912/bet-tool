@@ -122,9 +122,9 @@ const enterF168 = async (promoCode, playerId, proxyString) => {
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code và cộng điểm
-        console.log('Checking promo code and adding points for player:', playerId);
+        // console.log('Checking promo code and adding points for player:', playerId);
         const result = await addPointClient(promoCode, captchaSolution, clientToken, playerId, proxyString);
-        console.log('Result:', result);
+        console.log(`F168 nhập code ${promoCode} cho user ${playerId}:`, result);
 
         if (result.valid === true) {
             console.log(`F168 - ${result.point} points to ${result.player_id}`);
@@ -133,13 +133,13 @@ const enterF168 = async (promoCode, playerId, proxyString) => {
                 msg: result.point
             })
         } else if (result.status_code === 403) {
-            console.log(`F168 - Error: ${result.title_mess}, Promo Code: ${promoCode}, Points: ${result.detail.point}`);
+            console.log(`F168 nhập code ${promoCode} cho user ${playerId} - Error: ${result.title_mess}, Promo Code: ${promoCode}, Points: ${result.detail.point}`);
         } else if (result.status_code === 400) {
-            console.log('F168 - Error: Invalid captcha');
+            console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: Invalid captcha`);
         } else if (result.status_code === 502) {
-            console.log(`F168 - Error: ${result.title_mess}, ${result.text_mess}`);
+            console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
         } else {
-            console.log(`F168 - Error: ${result.title_mess}, ${result.text_mess}`);
+            console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
         }
 
     } catch (error) {
