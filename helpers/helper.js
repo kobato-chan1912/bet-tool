@@ -134,6 +134,20 @@ const processDoneUser = async (inputFile, outputFile, username, point, status = 
   }
 };
 
+
+async function writeFailedUser(inputFile, msg) {
+  try {
+    await fs.mkdir(path.dirname(inputFile), { recursive: true });
+    await ensureFileExists(inputFile);
+    await fs.appendFile(inputFile, msg + '\n');
+
+   
+
+  } catch (error) {
+    console.error("❌ Lỗi:", error.message);
+  }
+}
+
 async function deleteAccs(inputFile, username) {
   let inputData = [];
   try {
@@ -623,7 +637,7 @@ function splitArrayInHalf(arr) {
 
 
 
-module.exports = {
+module.exports = { writeFailedUser,
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
   deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum, splitArrayInHalf

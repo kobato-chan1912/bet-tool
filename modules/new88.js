@@ -8,7 +8,7 @@ const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
 const { HttpsProxyAgent } = require('https-proxy-agent');
 let success = [];
-
+let failed = [];
 // Thông tin cấu hình
 const information = {
     site: "new88",
@@ -130,6 +130,12 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
                 console.log(`New88 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
                 console.log('New88 - Không thể thêm điểm:', addPointResult.text_mess);
+                if (/tài khoản/i.test(addPointResult.text_mess)) {
+                    failed.push({
+                        user: playerId,
+                        msg: addPointResult.text_mess
+                    })
+                }
             }
         } else {
             console.log('New88 - Lỗi API Code Result: ', codeResult.text_mess);
@@ -162,7 +168,7 @@ async function processNew88(message) {
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
-    success = [];
+    success = []; failed = [];
 
 
     let fromGroupId = message.peerId.channelId.toString();
@@ -190,6 +196,11 @@ async function processNew88(message) {
     for (const ele of success) {
         await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", ele.user, ele.msg, 0);
         summaryMsg += `${ele.user} | ${ele.msg}\n`;
+    }
+
+    for (const eleFail of failed) {
+        let temp = `${eleFail.user} | ${eleFail.msg}`;
+        await helper.writeFailedUser("./output/new88-failed.txt", temp);
     }
 
     if (success.length > 0) {

@@ -15,6 +15,7 @@ const information = {
     cskh_home: "https://shb27.com/trangchu"
 };
 let success = [];
+let failed = [];
 // Hàm mã hóa
 const encrypt = (text) => {
     const md5Key = md5(information.key_free).toLowerCase();
@@ -178,6 +179,13 @@ const enterSH = async (promoCode, playerId, proxyString) => {
                 console.log(`SH -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
                 console.log('SH - Failed to add points:', addPointResult.text_mess);
+                if (/tài khoản/i.test(addPointResult.text_mess)) {
+                    failed.push({
+                        user: playerId,
+                        msg: addPointResult.text_mess
+                    })
+                }
+                
             }
         } else {
             console.log('SH - Invalid promo code:', codeResult.text_mess);
@@ -207,7 +215,7 @@ async function processSH(message) {
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
-    success = [];
+    success = []; failed = [];
     for (const user of shUsers) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
@@ -223,6 +231,12 @@ async function processSH(message) {
         await helper.processDoneUser("./config/sh.txt", "./output/sh-done.txt", ele.user, ele.msg, 0);
         summaryMsg += `${ele.user} | ${ele.msg}\n`;
     }
+
+    for (const eleFail of failed) {
+        let temp = `${eleFail.user} | ${eleFail.msg}`;
+        await helper.writeFailedUser("./output/sh-failed.txt", temp);
+    }
+
     // 
     if (success.length > 0) {
         // Giả sử dùng chatId từ phần tử đầu tiên

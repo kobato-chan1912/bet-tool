@@ -121,8 +121,8 @@ async function processJ88(message) {
     let codes = await helper.processText(messageContent, 6);
     if (codes.length < 5) {
         let attempts = 0;
-        const maxAttempts = 30;
-        const interval = 100; // 5 giây = 5000 mili giây
+        const maxAttempts = 6*7;
+        const interval = 10000; // 5 giây = 5000 mili giây
 
         while (attempts < maxAttempts && codes.length < 5) {
 

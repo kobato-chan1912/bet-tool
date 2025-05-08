@@ -9,6 +9,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 const { HttpsProxyAgent } = require('https-proxy-agent');
 
 let success = [];
+let failed = [];
 
 
 
@@ -182,6 +183,12 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
                 })
                 console.log(`F8 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
+                if (/tài khoản/i.test(addPointResult.text_mess)) {
+                    failed.push({
+                        user: playerId,
+                        msg: addPointResult.text_mess
+                    })
+                }
                 console.log('F8 - Failed to add points:', addPointResult.text_mess);
             }
         } else {
@@ -203,13 +210,13 @@ async function processF8(message, client) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
         return;
     }
-    
+
     const f8Users = await helper.readFileToArray("config/f8.txt");
     const config = await helper.loadConfig();
     let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
-    success = [];
+    success = []; failed = [];
     for (const user of f8Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
@@ -224,6 +231,11 @@ async function processF8(message, client) {
     for (const ele of success) {
         await helper.processDoneUser("./config/f8.txt", "./output/f8-done.txt", ele.user, ele.msg, 0);
         summaryMsg += `${ele.user} | ${ele.msg}\n`;
+    }
+
+    for (const eleFail of failed) {
+        let temp = `${eleFail.user} | ${eleFail.msg}`;
+        await helper.writeFailedUser("./output/f8-failed.txt", temp);
     }
 
     if (success.length > 0) {
