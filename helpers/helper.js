@@ -217,7 +217,7 @@ async function fetchSpoilerText(url) {
 
 
   } catch (error) {
-    console.error('Lỗi:', error.message);
+    // console.error('Lỗi:', error.message);
     return null
 
   }
