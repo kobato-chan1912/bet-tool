@@ -77,42 +77,23 @@ const enterJ88 = async (user, code, bank, status, chatId) => {
     try {
         let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
         const token = await checkVerifyCode(verifyCode);
+        const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
+        const messageRsp = responseData.message;
+        console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
+        if (helper.hasNumber(messageRsp)
+            // ||
+            // messageRsp.includes("không tồn tại") ||
+            // messageRsp.includes("không đủ điều kiện") ||
+            // messageRsp.includes("ngân hàng")
 
-
-        for (let i = 0; i < 100; i++) {
-
-            try {
-                const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
-                const messageRsp = responseData.message;
-                console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
-                if (helper.hasNumber(messageRsp)
-                    // ||
-                    // messageRsp.includes("không tồn tại") ||
-                    // messageRsp.includes("không đủ điều kiện") ||
-                    // messageRsp.includes("ngân hàng")
-
-                ) {
-                    success.push({
-                        user: user,
-                        msg: helper.isNaturalNumber(messageRsp) ? messageRsp : "lạm dụng",
-                        chatId: chatId
-                    })
-
-                    break;
-                }
-
-            
-
-            } catch (error) {
-
-            }
-
-            // random between 10 and 20 seconds
-            let randomDelay = Math.floor(Math.random() * (5000 - 10000 + 1)) + 10000;
-            await new Promise(resolve => setTimeout(resolve, randomDelay));
+        ) {
+            success.push({
+                user: user,
+                msg: messageRsp,
+                chatId: chatId
+            })
 
         }
-
 
 
 
