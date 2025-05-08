@@ -193,8 +193,9 @@ async function processSH(message) {
     let messageContent = message.message;
     let codes11 = await helper.processText(messageContent, 11);
     let codes12 = await helper.processText(messageContent, 12);
-    let codes = [...codes11, ...codes12];
-    
+    let codes13 = await helper.processText(messageContent, 13);
+    let codes = [...codes11, ...codes12, ...codes13];
+
     if (codes.length === 0) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
         return;
