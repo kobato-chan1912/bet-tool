@@ -191,8 +191,10 @@ const enterSH = async (promoCode, playerId, proxyString) => {
 async function processSH(message) {
     console.log(chalk.greenBright(`\n📥 Code mới từ SHBet`));
     let messageContent = message.message;
-    let codes = await helper.processText(messageContent, 12);
-
+    let codes11 = await helper.processText(messageContent, 11);
+    let codes12 = await helper.processText(messageContent, 12);
+    let codes = [...codes11, ...codes12];
+    
     if (codes.length === 0) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
         return;
