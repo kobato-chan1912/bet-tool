@@ -209,7 +209,8 @@ BOT : @HUNTER_CODE_DEN_BOT
                         const type = file.replace('.txt', '');
                         response += `📂 <b>${type.toUpperCase()}</b>\n`;
                         userLines.forEach(line => {
-                            response += `— ${line}\n`;
+                            const acc = line.split(' ')[0].trim();
+                            response += `— <code>${acc}</code>\n`;
                         });
                         response += `📥 Hoàn tiền lệnh: <code>/hoantien ${type} account_name</code>\n\n`;
                     }
