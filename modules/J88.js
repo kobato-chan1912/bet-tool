@@ -3,13 +3,14 @@ const helper = require("../helpers/helper.js")
 const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
+import { v4 as uuidv4 } from 'uuid';
 
 let success = [];
 let deleteAccs = [];
 
 
 const API_URL = 'https://api.adavawef.top';
-const DISTINCT_ID = '019658ce-75cb-7e8d-a27c-65888e879f2f';
+// const DISTINCT_ID = '019658ce-75cb-7e8d-a27c-65888e879f2f';
 
 const headers = {
     'accept': '*/*',
@@ -24,10 +25,10 @@ const headers = {
     'sec-fetch-dest': 'empty',
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'cross-site',
-    'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6810.65 Safari/537.36 Edg/133.0.2871.109'
 };
 
-async function checkVerifyCode(verifyCode) {
+async function checkVerifyCode(verifyCode, DISTINCT_ID) {
     try {
         const response = await axios.post(
             `${API_URL}/Promotion/CheckVerifyCode`,
@@ -50,7 +51,7 @@ async function checkVerifyCode(verifyCode) {
 }
 
 
-async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token) {
+async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token, DISTINCT_ID) {
     try {
         const response = await axios.post(
             `${API_URL}/Promotion/GetInviteBonus`,
@@ -72,12 +73,12 @@ async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token) 
     }
 }
 
-const enterJ88 = async (user, code, bank, status, chatId) => {
+const enterJ88 = async (user, code, bank, status, chatId, DISTINCT_ID) => {
 
     try {
         let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
-        const token = await checkVerifyCode(verifyCode);
-        const responseData = await getInviteBonus(code, user, bank, verifyCode, token);
+        const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
+        const responseData = await getInviteBonus(code, user, bank, verifyCode, token, DISTINCT_ID);
         const messageRsp = responseData.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
         if (helper.hasNumber(messageRsp)
@@ -121,7 +122,7 @@ async function processJ88(message) {
     let codes = await helper.processText(messageContent, 6);
     if (codes.length < 5) {
         let attempts = 0;
-        const maxAttempts = 6*7;
+        const maxAttempts = 6 * 7;
         const interval = 10000; // 5 giây = 5000 mili giây
 
         while (attempts < maxAttempts && codes.length < 5) {
@@ -162,18 +163,27 @@ async function processJ88(message) {
     const J88Users = await helper.readFileToArray("config/j88.txt")
 
     const config = await helper.loadConfig();
-    let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
+    let limit = pLimit(1);
 
     const tasks = [];
     // await sleep(parseInt(config.SLEEP_BEFORE))
-    for (const user of J88Users) {
-        let [username, userNumber, chatId] = user.split(/\s+/);
-        let code = helper.getRandomElement(codes);
-        tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
-        // for (const code of codes) {
-        //     tasks.push(limit(() => enterJ88(username, code, userNumber, status)));
-        // }
+
+
+    for (const code of codes) {
+        const DISTINCT_ID = uuidv4();
+        for (const user of J88Users) {
+            let [username, userNumber, chatId] = user.split(/\s+/);
+            let code = helper.getRandomElement(codes);
+            // tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
+            await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID);
+
+            // random between 3 and 5 seconds
+            let randomDelay = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+            await sleep(randomDelay);
+        }
     }
+
+
 
     await Promise.all(tasks);
     let summaryMsg = "Code mới J88 đây\n";
