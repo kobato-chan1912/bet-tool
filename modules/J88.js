@@ -170,6 +170,8 @@ async function processJ88(message) {
     // await sleep(parseInt(config.SLEEP_BEFORE))
 
 
+    codes = helper.shuffleArray(codes);
+
     for (const code of codes) {
         const DISTINCT_ID = uuidv4();
         for (const user of J88Users) {
