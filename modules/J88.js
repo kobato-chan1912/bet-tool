@@ -174,7 +174,6 @@ async function processJ88(message) {
         const DISTINCT_ID = uuidv4();
         for (const user of J88Users) {
             let [username, userNumber, chatId] = user.split(/\s+/);
-            let code = helper.getRandomElement(codes);
             // tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
             await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID);
 
