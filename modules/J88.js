@@ -113,8 +113,8 @@ async function processJ88(message) {
 
     let msgId = message.id
     console.log(msgId)
-    let url = `https://t.me/J88COM_NOHU_BANCA/${msgId}?embed=1`
-    // let url = `https://t.me/testcode12321/${msgId}?embed=1`
+    // let url = `https://t.me/J88COM_NOHU_BANCA/${msgId}?embed=1`
+    let url = `https://t.me/testcode12321/${msgId}?embed=1`
 
     let messageContent = await helper.fetchSpoilerText(url);
 
