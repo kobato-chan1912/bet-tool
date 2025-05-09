@@ -3,7 +3,8 @@ const helper = require("../helpers/helper.js")
 const chalk = require('chalk')
 const pLimit = require('p-limit');
 const sleep = ms => new Promise(res => setTimeout(res, ms));
-import { v4 as uuidv4 } from 'uuid';
+const { v4: uuidv4 } = require('uuid');
+
 
 let success = [];
 let deleteAccs = [];
