@@ -171,10 +171,11 @@ async function processJ88(message) {
     codes = helper.shuffleArray(codes);
 
     for (const code of codes) {
+        const DISTINCT_ID = uuidv4();
         let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
         const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
 
-        const DISTINCT_ID = uuidv4();
+       
         for (const user of J88Users) {
             let [username, userNumber, chatId] = user.split(/\s+/);
             // tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
