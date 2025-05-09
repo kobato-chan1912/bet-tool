@@ -74,11 +74,9 @@ async function getInviteBonus(inviteCode, account, bankCard, verifyCode, token, 
     }
 }
 
-const enterJ88 = async (user, code, bank, status, chatId, DISTINCT_ID) => {
+const enterJ88 = async (user, code, bank, status, chatId, DISTINCT_ID, verifyCode, token) => {
 
     try {
-        let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
-        const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
         const responseData = await getInviteBonus(code, user, bank, verifyCode, token, DISTINCT_ID);
         const messageRsp = responseData.message;
         console.log(`✅ J88 Kết quả nhập mã ${code} cho ${user}: ` + messageRsp)
@@ -173,11 +171,14 @@ async function processJ88(message) {
     codes = helper.shuffleArray(codes);
 
     for (const code of codes) {
+        let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
+        const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
+
         const DISTINCT_ID = uuidv4();
         for (const user of J88Users) {
             let [username, userNumber, chatId] = user.split(/\s+/);
             // tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
-            await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID);
+            await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID, verifyCode, token);
 
             // random between 3 and 5 seconds
             let randomDelay = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
