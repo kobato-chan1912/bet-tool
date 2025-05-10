@@ -102,24 +102,22 @@ const addPoints = async (playerId, promoCode, proxyString) => {
 // 🔄 Hàm chính (dùng HttpsProxyAgent)
 const enterNew88Code = async (promoCode, playerId, proxyString) => {
     try {
-        console.log('Getting captcha token...');
         const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
         // console.log(captchaBase64)
         const clientToken = captchaData.token;
 
-        console.log('Solving captcha...');
         let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         console.log(captchaSolution);
         captchaSolution = captchaSolution.toUpperCase();
 
-        console.log('Checking promo code:', promoCode);
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
+        console.log(`Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
 
         if (codeResult.valid) {
-            console.log('Adding points for player:', playerId);
             const addPointResult = await addPoints(playerId, promoCode, proxyString);
-            console.log('Add points result:', addPointResult);
+            console.log(`Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
+
 
             if (addPointResult.valid) {
                 success.push({
@@ -127,9 +125,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
                     msg: addPointResult.point
                 })
                 // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
-                console.log(`New88 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
-                console.log(`New88 - Không thể thêm điểm cho ${addPointResult.player_id}: ${addPointResult}`);
                 if (/tài khoản/i.test(addPointResult.text_mess)) {
                     failed.push({
                         user: playerId,
@@ -138,10 +134,10 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
                 }
             }
         } else {
-            console.log('New88 - Lỗi API Code Result: ', codeResult);
+            // console.log('New88 - Lỗi API Code Result: ', codeResult);
         }
     } catch (error) {
-        console.error('Lỗi: ', error.message);
+        console.error('Process failed: ', error.message);
     }
 };
 

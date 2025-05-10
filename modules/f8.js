@@ -155,32 +155,28 @@ const addPoints = async (playerId, promoCode, proxyString) => {
 const enterF8Code = async (promoCode, playerId, proxyString) => {
     try {
         // Bước 1: Lấy token và captcha
-        console.log('Getting captcha token...');
         const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
         const clientToken = captchaData.token;
 
         // Bước 2: Giải captcha
-        console.log('Solving captcha...');
         let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code
-        console.log('Checking promo code:', promoCode);
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
-
+        console.log(`Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
         if (codeResult.valid === true) {
             // Bước 4: Cộng điểm nếu code hợp lệ
-            console.log('Adding points for player:', playerId);
             const addPointResult = await addPoints(playerId, promoCode, proxyString);
-            console.log('Add points result:', addPointResult);
+            console.log(`Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
 
             if (addPointResult.valid === true) {
                 success.push({
                     user: playerId,
                     msg: addPointResult.point
                 })
-                console.log(`F8 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
+                
             } else {
                 if (/tài khoản/i.test(addPointResult.text_mess)) {
                     failed.push({
@@ -188,10 +184,9 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
                         msg: addPointResult.text_mess
                     })
                 }
-                console.log('F8 - Failed to add points:', addPointResult.text_mess);
             }
         } else {
-            console.log('F8 - Invalid promo code:', codeResult.text_mess);
+
         }
 
     } catch (error) {

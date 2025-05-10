@@ -111,35 +111,32 @@ const addPointClient = async (promoCode, captchaInput, clientToken, playerId, pr
 const enterF168 = async (promoCode, playerId, proxyString) => {
     try {
         // Bước 1: Lấy token và captcha
-        console.log('Getting captcha token...' + proxyString);
         const captchaData = await getCaptchaToken(proxyString);
         const captchaBase64 = captchaData.captchaUrl;
         const clientToken = captchaData.token;
 
         // Bước 2: Giải captcha
-        console.log('Solving captcha...');
         let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code và cộng điểm
         // console.log('Checking promo code and adding points for player:', playerId);
         const result = await addPointClient(promoCode, captchaSolution, clientToken, playerId, proxyString);
-        console.log(`F168 nhập code ${promoCode} cho user ${playerId}:`, result);
+        console.log(`F168 nhập code ${promoCode} - ${captchaSolution} cho user ${playerId}:`, result);
 
         if (result.valid === true) {
-            console.log(`F168 - ${result.point} points to ${result.player_id}`);
             success.push({
                 user: playerId,
                 msg: result.point
             })
         } else if (result.status_code === 403) {
-            console.log(`F168 nhập code ${promoCode} cho user ${playerId} - Error: ${result.title_mess}, Promo Code: ${promoCode}, Points: ${result.detail.point}`);
+            // console.log(`F168 nhập code ${promoCode} cho user ${playerId} - Error: ${result.title_mess}, Promo Code: ${promoCode}, Points: ${result.detail.point}`);
         } else if (result.status_code === 400) {
-            console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: Invalid captcha`);
+            // console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: Invalid captcha`);
         } else if (result.status_code === 502) {
-            console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
+            // console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
         } else {
-            console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
+            // console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
         }
 
     } catch (error) {
@@ -153,8 +150,8 @@ async function processF168(message, client) {
     console.log(chalk.greenBright(`\n📥 Code mới từ F168`));
     let messageContent = message.message;
     let codes = await helper.processText(messageContent, 8);
-    if (codes.length === 0) {
-
+    if (codes.length === 0 || codes[0] == "phatcode") {
+        codes = [];
         const imgPath = await helper.downloadMedia(message, client);
         codes = await helper.processImage(imgPath, 8);
     }

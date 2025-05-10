@@ -175,16 +175,20 @@ async function processJ88(message) {
         let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
         const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
 
-       
-        for (const user of J88Users) {
-            let [username, userNumber, chatId] = user.split(/\s+/);
-            // tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId)));
-            await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID, verifyCode, token);
 
-            // random between 3 and 5 seconds
-            let randomDelay = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
-            await sleep(randomDelay);
+        for (let round = 0; round < 3; round++) {
+            console.log(`Code: ${code}, Vòng: ${round + 1}`);
+
+            for (const user of J88Users) {
+                let [username, userNumber, chatId] = user.split(/\s+/);
+                await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID, verifyCode, token);
+
+                // random delay between 3 and 5 seconds
+                let randomDelay = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
+                await sleep(randomDelay);
+            }
         }
+
     }
 
 
