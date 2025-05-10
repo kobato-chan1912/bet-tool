@@ -162,7 +162,7 @@ async function processJ88(message) {
     const J88Users = await helper.readFileToArray("config/j88.txt")
 
     const config = await helper.loadConfig();
-    let limit = pLimit(1);
+    let limit = pLimit(parseInt(config.NO_BROWSER_THREADS));
 
     const tasks = [];
     // await sleep(parseInt(config.SLEEP_BEFORE))
@@ -170,26 +170,21 @@ async function processJ88(message) {
 
     codes = helper.shuffleArray(codes);
 
-    for (const code of codes) {
-        const DISTINCT_ID = uuidv4();
-        let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
-        const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
 
+    if (J88Users.length > 0) {
+        for (const code of codes) {
 
-        for (let round = 0; round < 3; round++) {
-            console.log(`Code: ${code}, Vòng: ${round + 1}`);
+            const DISTINCT_ID = uuidv4();
+            let verifyCode = await helper.solveJ88Captcha("MTPublic-rNhjhnaV7", "https://j88code.art")
+            const token = await checkVerifyCode(verifyCode, DISTINCT_ID);
 
-            for (const user of J88Users) {
-                let [username, userNumber, chatId] = user.split(/\s+/);
-                await enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID, verifyCode, token);
-
-                // random delay between 3 and 5 seconds
-                let randomDelay = Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000;
-                await sleep(randomDelay);
-            }
+            // random j88 users
+            let user = J88Users[Math.floor(Math.random() * J88Users.length)];
+            let [username, userNumber, chatId] = user.split(/\s+/);
+            tasks.push(limit(() => enterJ88(username, code, userNumber, 0, chatId, DISTINCT_ID, verifyCode, token)));
         }
-
     }
+
 
 
 
