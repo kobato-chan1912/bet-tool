@@ -16,7 +16,7 @@ const information = {
 
 const getCaptchaToken = async () => {
   try {
-    let proxy = helper.getProxy();
+    let proxy = helper.getRandomProxy();
     const agent = new HttpsProxyAgent(`http://${proxy}`);
     const response = await axios.get(
       `${information.endpoint}/api/get-verification-code?site=${information.site}`,
