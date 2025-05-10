@@ -149,7 +149,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
       }
 
       if (win33IDS.includes(sendID) && message.message.includes("NHẬN TIỀN THẬT CÙNG 33WIN")) {
-        // await win33.processwin33(message, client)
+        await win33.processwin33(message, client)
       }
 
 
