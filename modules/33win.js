@@ -72,7 +72,6 @@ async function enter33win(promoCode, account, proxyString) {
     };
 
     let captchaSolution = await getCaptchaToken(proxyString);
-    console.log(captchaSolution)
 
     const body = qs.stringify({
         action: 'check_captcha',
@@ -95,9 +94,7 @@ async function enter33win(promoCode, account, proxyString) {
             user: account,
             msg: rspData.data.message
         });
-        console.log(`✅ 33Win ${account} - ${promoCode} - ${rspData.data.message}`);
     } else {
-        console.log(`❌ 33Win ${account} - ${promoCode} - ${rspData.data.message}`);
     }
 
 }
