@@ -4,6 +4,9 @@ const fs = require('fs').promises;
 const path = require('path');
 const helper = require("./helpers/helper.js");
 const axios = require('axios');
+const { HttpsProxyAgent } = require('https-proxy-agent');
+
+
 const information = {
   site: "new88",
   endpoint: "https://api-code.khuyenmainew88.net",
@@ -13,10 +16,13 @@ const information = {
 
 const getCaptchaToken = async () => {
   try {
+    let proxy = helper.getProxy();
+    const agent = new HttpsProxyAgent(`http://${proxy}`);
     const response = await axios.get(
       `${information.endpoint}/api/get-verification-code?site=${information.site}`,
       {
         headers: { 'Content-Type': 'application/json' },
+        httpsAgent: agent
       }
     );
     return response.data;
