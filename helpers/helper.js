@@ -141,7 +141,7 @@ async function writeFailedUser(inputFile, msg) {
     await ensureFileExists(inputFile);
     await fs.appendFile(inputFile, msg + '\n');
 
-   
+
 
   } catch (error) {
     console.error("❌ Lỗi:", error.message);
@@ -438,38 +438,91 @@ async function modifySvgBase64AndReturnPngBase64(svgBase64Full) {
   // Sử dụng cheerio để phân tích và chỉnh sửa SVG
   const $ = cheerio.load(svgContent, { xmlMode: true });
 
-  // Lặp qua tất cả các path và thực hiện yêu cầu:
+  // Lưu thông tin về các path và giá trị x nhỏ nhất để sắp xếp
+  const paths = [];
   $('path').each((i, elem) => {
-    // Xóa path có fill="none"
     if ($(elem).attr('fill') === 'none') {
       $(elem).remove();
-    } else {
-      // Thêm stroke="black" cho các path còn lại
-      $(elem).attr('stroke', 'black');
+      return;
     }
+
+    const d = $(elem).attr('d');
+    const coords = d.match(/[MLCQ]\s*([-+]?\d*\.?\d+)\s*[, ]\s*([-+]?\d*\.?\d+)/g) || [];
+    let minX = Infinity;
+
+    coords.forEach(coord => {
+      const x = parseFloat(coord.match(/[-+]?\d*\.?\d+(?=\s*[, ])/)[0]);
+      if (x < minX) minX = x;
+    });
+
+    if (minX === Infinity) minX = 0;
+
+    paths.push({ index: i, minX, elem });
   });
+
+  // Sắp xếp các path theo giá trị x nhỏ nhất (từ trái sang phải)
+  paths.sort((a, b) => a.minX - b.minX);
+
+  // Dịch chuyển các path với khoảng cách 100 đơn vị
+  paths.forEach((pathInfo, newIndex) => {
+    const elem = pathInfo.elem; // Truy cập elem từ pathInfo
+    let d = $(elem).attr('d');
+
+    // Thêm stroke="black"
+    $(elem).attr('stroke', 'black');
+
+    // Tính offset: path đầu tiên giữ nguyên (offset = 0), các path sau cách nhau 100 đơn vị
+    const offset = newIndex * 30;
+
+    // Dịch chuyển tất cả các tọa độ x trong d
+    let modifiedD = d;
+
+    // Biểu thức chính quy để bắt tất cả các cặp tọa độ x, y
+    modifiedD = modifiedD.replace(
+      /([MLCQ])\s*([-+]?\d*\.?\d+)\s*[, ]\s*([-+]?\d*\.?\d+)/g,
+      (match, cmd, x, y) => {
+        const newX = parseFloat(x) + offset;
+        return `${cmd} ${newX.toFixed(2)} ${y}`;
+      }
+    );
+
+    // Xử lý riêng cho Q và C vì chúng có nhiều cặp tọa độ hơn
+    // Lặp lại để cập nhật các tọa độ tiếp theo trong Q (x2 y2)
+    modifiedD = modifiedD.replace(
+      /(Q\s*[-+]?\d*\.?\d+\s*[-+]?\d*\.?\d+)\s*([-+]?\d*\.?\d+)\s*[, ]\s*([-+]?\d*\.?\d+)/g,
+      (match, prefix, x2, y2) => {
+        const newX2 = parseFloat(x2) + offset;
+        return `${prefix} ${newX2.toFixed(2)} ${y2}`;
+      }
+    );
+
+    // Cập nhật thuộc tính d với giá trị đã dịch chuyển
+    $(elem).attr('d', modifiedD);
+  });
+
+  // Cập nhật kích thước SVG để chứa tất cả các path sau khi dịch chuyển
+  const totalWidth = 300; // 140 là chiều rộng ban đầu
+  $('svg').attr('width', totalWidth);
+  $('svg').attr('viewBox', `0,0,${totalWidth},56`);
 
   // Lấy lại nội dung SVG đã chỉnh sửa
   const modifiedSvgContent = $.html();
 
   // Tạo một tệp tạm để lưu SVG đã chỉnh sửa
   const randomId = `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
-
-  // Tạo đường dẫn file tạm
-  const tempSvgPath = path.join(__dirname, `temp-${randomId}.svg`);
-  const tempPngPath = path.join(__dirname, `temp-${randomId}.png`);
-
+  const tempSvgPath = path.join(__dirname, `../temp/temp-${randomId}.svg`);
+  const tempPngPath = path.join(__dirname, `../temp/temp-${randomId}.png`);
 
   // Ghi nội dung SVG đã chỉnh sửa vào file
   await fs.writeFile(tempSvgPath, modifiedSvgContent);
 
   // Sử dụng sharp để chuyển SVG thành PNG
   await sharp(tempSvgPath)
-    .resize(298, 98, {
-      fit: 'cover', // Giữ tỉ lệ trong khung
-      background: '#ffffff' // Nền trắng
+    .resize(totalWidth, 98, {
+      fit: 'outside', // Đảm bảo toàn bộ nội dung được hiển thị
+      background: '#ffffff'
     })
-    .flatten({ background: '#ffffff' }) // Đảm bảo nền trắng nếu SVG trong suốt
+    .flatten({ background: '#ffffff' })
     .png()
     .toFile(tempPngPath);
 
@@ -481,14 +534,9 @@ async function modifySvgBase64AndReturnPngBase64(svgBase64Full) {
   await fs.unlink(tempSvgPath);
   await fs.unlink(tempPngPath);
 
-
-
-
   // Trả về base64 của ảnh PNG
-  let b64png = `data:image/png;base64,${pngBase64}`;
-  return b64png
+  return `data:image/png;base64,${pngBase64}`;
 }
-
 
 async function solveCaptcha(imageBase64) {
   let readConfig = await loadConfig();
@@ -500,7 +548,7 @@ async function solveCaptcha(imageBase64) {
         "clientKey": apiKey,
         "task": {
           "type": "ImageToTextTask",
-          "module": "common",
+          "module": "module_007",
           "body": imageBase64
         }
       }, {
@@ -517,6 +565,42 @@ async function solveCaptcha(imageBase64) {
       return answers[0];
     } else {
       console.error('Captcha API trả về lỗi:', response.data.message);
+      return null;
+    }
+
+  } catch (error) {
+    console.error('Lỗi khi gọi API:', error.response?.data || error.message);
+    return null;
+  }
+
+}
+
+async function solveCaptchaWithAntiCaptcha(imageBase64, modify = true) {
+  let b64Modified = imageBase64;
+  if (modify) {
+    b64Modified = await modifySvgBase64AndReturnPngBase64(imageBase64)
+  }
+  let readConfig = await loadConfig();
+  let apiKey = readConfig.ANTICAPTCHA_KEY;
+
+  try {
+    const response = await axios.post('https://anticaptcha.top/api/captcha',
+      {
+        "apikey": apiKey,
+        "img": b64Modified
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+    let result = response.data;
+
+    if (result.success === true) {
+      return result.captcha;
+    } else {
+      console.error('Captcha API trả về lỗi:', result.message);
       return null;
     }
 
@@ -637,7 +721,8 @@ function splitArrayInHalf(arr) {
 
 
 
-module.exports = { writeFailedUser,
+module.exports = {
+  writeFailedUser, solveCaptchaWithAntiCaptcha,
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
   deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum, splitArrayInHalf

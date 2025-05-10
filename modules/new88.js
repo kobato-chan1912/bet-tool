@@ -109,7 +109,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
         const clientToken = captchaData.token;
 
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptchaWithGPT(captchaBase64);
+        let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         console.log(captchaSolution);
         captchaSolution = captchaSolution.toUpperCase();
 
@@ -129,7 +129,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
                 // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
                 console.log(`New88 -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
-                console.log('New88 - Không thể thêm điểm:', addPointResult.text_mess);
+                console.log(`New88 - Không thể thêm điểm cho ${addPointResult.player_id}: ${addPointResult}`);
                 if (/tài khoản/i.test(addPointResult.text_mess)) {
                     failed.push({
                         user: playerId,
@@ -138,7 +138,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
                 }
             }
         } else {
-            console.log('New88 - Lỗi API Code Result: ', codeResult.text_mess);
+            console.log('New88 - Lỗi API Code Result: ', codeResult);
         }
     } catch (error) {
         console.error('Lỗi: ', error.message);

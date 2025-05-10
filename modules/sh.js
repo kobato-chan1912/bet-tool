@@ -157,13 +157,12 @@ const enterSH = async (promoCode, playerId, proxyString) => {
 
         // Bước 2: Giải captcha
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptchaWithGPT(captchaBase64);
+        let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code
         console.log('Checking promo code:', promoCode);
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
-        console.log('Code check result:', codeResult);
 
         if (codeResult.valid === true) {
             // Bước 4: Cộng điểm nếu code hợp lệ
@@ -178,7 +177,7 @@ const enterSH = async (promoCode, playerId, proxyString) => {
                 })
                 console.log(`SH -  ${addPointResult.point} cho ${addPointResult.player_id}`);
             } else {
-                console.log('SH - Failed to add points:', addPointResult.text_mess);
+                console.log(`SH - Failed to add points for ${addPointResult.player_id}:`, addPointResult.text_mess);
                 if (/tài khoản/i.test(addPointResult.text_mess)) {
                     failed.push({
                         user: playerId,
@@ -188,7 +187,7 @@ const enterSH = async (promoCode, playerId, proxyString) => {
                 
             }
         } else {
-            console.log('SH - Invalid promo code:', codeResult.text_mess);
+            console.log('SH - Invalid promo code:', codeResult);
         }
 
     } catch (error) {

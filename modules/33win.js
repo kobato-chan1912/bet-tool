@@ -43,7 +43,7 @@ async function getCaptchaToken(proxyString) {
     // Kiểm tra và in ra dữ liệu base64
     if (captchaImg && captchaImg.startsWith('data:image')) {
         const base64Data = captchaImg.split(',')[1]; // Bỏ phần "data:image/png;base64,"
-        const captchaSolution = await helper.solveCaptcha(base64Data);
+        const captchaSolution = await helper.solveCaptchaWithAntiCaptcha(base64Data, false);
         return captchaSolution.toUpperCase();
     } else {
         console.error('Không tìm thấy captcha base64!');

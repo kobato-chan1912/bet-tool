@@ -118,7 +118,7 @@ const enterF168 = async (promoCode, playerId, proxyString) => {
 
         // Bước 2: Giải captcha
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptchaWithGPT(captchaBase64);
+        let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code và cộng điểm

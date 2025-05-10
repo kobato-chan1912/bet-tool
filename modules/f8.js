@@ -162,13 +162,12 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
 
         // Bước 2: Giải captcha
         console.log('Solving captcha...');
-        let captchaSolution = await helper.solveCaptchaWithGPT(captchaBase64);
+        let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
         captchaSolution = captchaSolution.toUpperCase();
 
         // Bước 3: Kiểm tra code
         console.log('Checking promo code:', promoCode);
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
-        console.log('Code check result:', codeResult);
 
         if (codeResult.valid === true) {
             // Bước 4: Cộng điểm nếu code hợp lệ
