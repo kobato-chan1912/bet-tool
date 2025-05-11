@@ -107,7 +107,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         // await J88.processJ88(message)
         // await sh.processSH(message)
         // await win33.processwin33(message, client)
-        await f168.processF168(message, client)
+        // await f168.processF168(message, client)
         // await EightK.process8K(message, client)
         // await f8.processF8(message, client)
         // await new88.processNew88(message)
