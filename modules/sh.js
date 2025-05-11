@@ -149,26 +149,43 @@ const addPoints = async (playerId, promoCode, proxyString) => {
 // Hàm chính thực hiện toàn bộ quy trình
 const enterSH = async (promoCode, playerId, proxyString) => {
     try {
+        // Bước 1: Lấy token và captcha
+        const captchaData = await getCaptchaToken(proxyString);
+        const captchaBase64 = captchaData.captchaUrl;
+        const clientToken = captchaData.token;
 
-        const addPointResult = await addPoints(playerId, promoCode, proxyString);
-        console.log(`SH - Add Point result ${promoCode} - ${playerId}:`, addPointResult);
+        // Bước 2: Giải captcha
+        let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
+        captchaSolution = captchaSolution.toUpperCase();
+
+        // Bước 3: Kiểm tra code
+        const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
+        console.log(`Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
+
+        if (codeResult.valid === true) {
+            // Bước 4: Cộng điểm nếu code hợp lệ
+            const addPointResult = await addPoints(playerId, promoCode, proxyString);
+            console.log(`Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
 
 
-        if (addPointResult.valid === true) {
-            success.push({
-                user: playerId,
-                msg: addPointResult.point
-            })
-            // console.log(`SH -  ${addPointResult.point} cho ${addPointResult.player_id}`);
-        } else {
-            // console.log(`SH - Failed to add points for ${addPointResult.player_id}:`, addPointResult.text_mess);
-            if (/tài khoản/i.test(addPointResult.text_mess)) {
-                failed.push({
+            if (addPointResult.valid === true) {
+                success.push({
                     user: playerId,
-                    msg: addPointResult.text_mess
+                    msg: addPointResult.point
                 })
+                // console.log(`SH -  ${addPointResult.point} cho ${addPointResult.player_id}`);
+            } else {
+                // console.log(`SH - Failed to add points for ${addPointResult.player_id}:`, addPointResult.text_mess);
+                if (/tài khoản/i.test(addPointResult.text_mess)) {
+                    failed.push({
+                        user: playerId,
+                        msg: addPointResult.text_mess
+                    })
+                }
+                
             }
-
+        } else {
+            // console.log('SH - Invalid promo code:', codeResult);
         }
 
     } catch (error) {

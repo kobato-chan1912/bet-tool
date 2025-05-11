@@ -102,24 +102,39 @@ const addPoints = async (playerId, promoCode, proxyString) => {
 // 🔄 Hàm chính (dùng HttpsProxyAgent)
 const enterNew88Code = async (promoCode, playerId, proxyString) => {
     try {
+        const captchaData = await getCaptchaToken(proxyString);
+        const captchaBase64 = captchaData.captchaUrl;
+        // console.log(captchaBase64)
+        const clientToken = captchaData.token;
 
-        const addPointResult = await addPoints(playerId, promoCode, proxyString);
-        console.log(`New88 - Add Point result ${promoCode} - ${playerId}:`, addPointResult);
+        let captchaSolution = await helper.solveCaptchaWithAntiCaptcha(captchaBase64);
+        console.log(captchaSolution);
+        captchaSolution = captchaSolution.toUpperCase();
+
+        const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
+        console.log(`Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
+
+        if (codeResult.valid) {
+            const addPointResult = await addPoints(playerId, promoCode, proxyString);
+            console.log(`Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
 
 
-        if (addPointResult.valid) {
-            success.push({
-                user: playerId,
-                msg: addPointResult.point
-            })
-            // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
-        } else {
-            if (/tài khoản/i.test(addPointResult.text_mess)) {
-                failed.push({
+            if (addPointResult.valid) {
+                success.push({
                     user: playerId,
-                    msg: addPointResult.text_mess
+                    msg: addPointResult.point
                 })
+                // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
+            } else {
+                if (/tài khoản/i.test(addPointResult.text_mess)) {
+                    failed.push({
+                        user: playerId,
+                        msg: addPointResult.text_mess
+                    })
+                }
             }
+        } else {
+            // console.log('New88 - Lỗi API Code Result: ', codeResult);
         }
     } catch (error) {
         console.error('Process failed: ', error.message);
