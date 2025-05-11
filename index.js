@@ -10,6 +10,7 @@ const f8 = require("./modules/f8.js")
 const sh = require("./modules/sh.js")
 const f168 = require("./modules/f168.js")
 const win33 = require("./modules/33win.js")
+const mb66 = require("./modules/mb66.js")
 
 const { Api } = require('telegram/tl/');
 
@@ -21,6 +22,7 @@ const new88IDS = ['2332416396', '2254564969', '2300154005', '2330343641', '24203
 const shIDS = ['2473867941', '2256674249', '2039859279', '2567090159', '2461333728']
 const f168IDS = ['2276768042', '2402298595']
 const win33IDS = ['2543570786']
+const mb66IDS = ['2335248619', '2649488775'];
 
 const EightKIDS = ['2482026491']
 const J88IDS = ['1610937400']
@@ -111,6 +113,7 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         // await EightK.process8K(message, client)
         // await f8.processF8(message, client)
         // await new88.processNew88(message)
+        // await mb66.processMB66(message)
       }
 
       if (EightKIDS.includes(sendID)) { // CODE may mắn
@@ -150,6 +153,11 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
       if (win33IDS.includes(sendID) && message.message.includes("NHẬN TIỀN THẬT CÙNG 33WIN")) {
         await win33.processwin33(message, client)
+      }
+
+
+      if (mb66IDS.includes(sendID) && message.message.includes("TẶNG CODE MIỄN PHÍ")) {
+        await mb66.processMB66(message)
       }
 
 
