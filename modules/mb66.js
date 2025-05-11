@@ -125,7 +125,7 @@ async function processMB66(message) {
         codes = [...codes6, ...codes10];
 
         // remove ['Iphone', 'Promax', 'dancer', 'online'] 
-        codes = codes.filter(code => !['Iphone', 'Promax', 'dancer', 'online'].includes(code));
+        codes = codes.filter(code => !['Iphone', 'Promax', 'dancer', 'online', 'LIVESTREAM'].includes(code));
 
     if (codes.length === 0) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
