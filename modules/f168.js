@@ -129,7 +129,7 @@ const enterF168 = async (promoCode, playerId, proxyString) => {
                 user: playerId,
                 msg: result.point
             })
-        }
+        } 
 
     } catch (error) {
         console.error('Process failed:', error.message);
@@ -164,12 +164,9 @@ async function processF168(message, client) {
     success = [];
     for (const user of f168Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
-
-        for (const code of codes) {
-            let [username, teleId] = user.split(/\s+/);
-            tasks.push(limit(() => enterF168(code, username, proxyString)));
-
-        }
+        let code = helper.getRandomElement(codes);
+        let [username, teleId] = user.split(/\s+/);
+        tasks.push(limit(() => enterF168(code, username, proxyString)));
     }
 
     await Promise.all(tasks);
