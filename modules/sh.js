@@ -160,12 +160,12 @@ const enterSH = async (promoCode, playerId, proxyString) => {
 
         // Bước 3: Kiểm tra code
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
-        console.log(`Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
+        console.log(`SH - Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
 
         if (codeResult.valid === true) {
             // Bước 4: Cộng điểm nếu code hợp lệ
             const addPointResult = await addPoints(playerId, promoCode, proxyString);
-            console.log(`Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
+            console.log(`SH - Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
 
 
             if (addPointResult.valid === true) {

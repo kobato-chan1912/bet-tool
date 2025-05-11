@@ -112,11 +112,11 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
         captchaSolution = captchaSolution.toUpperCase();
 
         const codeResult = await getCode(promoCode, captchaSolution, clientToken, proxyString);
-        console.log(`Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
+        console.log(`New 88 - Code result ${promoCode} - ${playerId} - ${captchaSolution}: `, codeResult);
 
         if (codeResult.valid) {
             const addPointResult = await addPoints(playerId, promoCode, proxyString);
-            console.log(`Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
+            console.log(`New 88 - Add Point result ${promoCode} - ${playerId} - ${captchaSolution}:`, addPointResult);
 
 
             if (addPointResult.valid) {

@@ -129,7 +129,7 @@ const enterF168 = async (promoCode, playerId, proxyString) => {
                 user: playerId,
                 msg: result.point
             })
-        } 
+        }
 
     } catch (error) {
         console.error('Process failed:', error.message);
@@ -142,6 +142,9 @@ async function processF168(message, client) {
     console.log(chalk.greenBright(`\n📥 Code mới từ F168`));
     let messageContent = message.message;
     let codes = await helper.processText(messageContent, 8);
+    // delete phatcode
+    codes = codes.filter(code => code !== 'phatcode');
+
     if (codes.length === 0) {
         const imgPath = await helper.downloadMedia(message, client);
         codes = await helper.processImage(imgPath, 8);
@@ -152,8 +155,6 @@ async function processF168(message, client) {
         return;
     }
 
-    // delete phatcode
-    codes = codes.filter(code => code !== 'phatcode');
 
 
     const f168Users = await helper.readFileToArray("config/f168.txt");
