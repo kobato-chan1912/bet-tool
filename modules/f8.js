@@ -155,7 +155,7 @@ const addPoints = async (playerId, promoCode, proxyString) => {
 const enterF8Code = async (promoCode, playerId, proxyString) => {
     try {
         const addPointResult = await addPoints(playerId, promoCode, proxyString);
-        console.log(`Add Point result ${promoCode} - ${playerId}:`, addPointResult);
+        console.log(`F8 - Add Point result ${promoCode} - ${playerId}:`, addPointResult);
 
         if (addPointResult.valid === true) {
             success.push({

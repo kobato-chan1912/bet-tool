@@ -151,7 +151,7 @@ const enterSH = async (promoCode, playerId, proxyString) => {
     try {
 
         const addPointResult = await addPoints(playerId, promoCode, proxyString);
-        console.log(`Add Point result ${promoCode} - ${playerId}:`, addPointResult);
+        console.log(`SH - Add Point result ${promoCode} - ${playerId}:`, addPointResult);
 
 
         if (addPointResult.valid === true) {

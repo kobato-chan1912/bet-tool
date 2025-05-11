@@ -104,7 +104,7 @@ const enterNew88Code = async (promoCode, playerId, proxyString) => {
     try {
 
         const addPointResult = await addPoints(playerId, promoCode, proxyString);
-        console.log(`Add Point result ${promoCode} - ${playerId}:`, addPointResult);
+        console.log(`New88 - Add Point result ${promoCode} - ${playerId}:`, addPointResult);
 
 
         if (addPointResult.valid) {
