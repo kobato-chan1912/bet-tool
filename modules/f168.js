@@ -129,14 +129,6 @@ const enterF168 = async (promoCode, playerId, proxyString) => {
                 user: playerId,
                 msg: result.point
             })
-        } else if (result.status_code === 403) {
-            // console.log(`F168 nhập code ${promoCode} cho user ${playerId} - Error: ${result.title_mess}, Promo Code: ${promoCode}, Points: ${result.detail.point}`);
-        } else if (result.status_code === 400) {
-            // console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: Invalid captcha`);
-        } else if (result.status_code === 502) {
-            // console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
-        } else {
-            // console.log(`F168 nhập code ${promoCode} cho user ${playerId}: - Error: ${result.title_mess}, ${result.text_mess}`);
         }
 
     } catch (error) {
@@ -172,9 +164,12 @@ async function processF168(message, client) {
     success = [];
     for (const user of f168Users) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
-        let code = helper.getRandomElement(codes);
-        let [username, teleId] = user.split(/\s+/);
-        tasks.push(limit(() => enterF168(code, username, proxyString)));
+
+        for (const code of codes) {
+            let [username, teleId] = user.split(/\s+/);
+            tasks.push(limit(() => enterF168(code, username, proxyString)));
+
+        }
     }
 
     await Promise.all(tasks);
