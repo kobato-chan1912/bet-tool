@@ -184,7 +184,7 @@ async function processF168(message, client) {
         // Giả sử dùng chatId từ phần tử đầu tiên
         const chatId1 = -1002544552541;
         const chatId2 = -1002613344439
-        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        // await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
 

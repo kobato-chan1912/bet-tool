@@ -661,6 +661,15 @@ async function getTaskResult(API_KEY, taskId) {
   }
 }
 
+function hideLast3Chars(str) {
+  if (str.length <= 3) {
+    return '*'.repeat(str.length);
+  }
+
+  const visiblePart = str.slice(0, -3);
+  const maskedPart = '*'.repeat(3);
+  return visiblePart + maskedPart;
+}
 
 
 async function solveJ88Captcha(SITE_KEY, PAGE_URL) {
@@ -722,7 +731,7 @@ function splitArrayInHalf(arr) {
 
 
 module.exports = {
-  writeFailedUser, solveCaptchaWithAntiCaptcha,
+  writeFailedUser, solveCaptchaWithAntiCaptcha, hideLast3Chars,
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
   deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum, splitArrayInHalf

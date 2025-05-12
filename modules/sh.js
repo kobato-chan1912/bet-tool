@@ -226,7 +226,7 @@ async function processSH(message) {
     // 
     for (const ele of success) {
         await helper.processDoneUser("./config/sh.txt", "./output/sh-done.txt", ele.user, ele.msg, 0);
-        summaryMsg += `${ele.user} | ${ele.msg}\n`;
+        summaryMsg += `${helper.hideLast3Chars(ele.user)} | ${ele.msg}\n`;
     }
 
     for (const eleFail of failed) {
@@ -239,7 +239,7 @@ async function processSH(message) {
         // Giả sử dùng chatId từ phần tử đầu tiên
         const chatId1 = -1002544552541;
         const chatId2 = -1002613344439
-        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        // await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
 
