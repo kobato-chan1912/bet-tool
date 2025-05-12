@@ -12,45 +12,56 @@ let failed = [];
 // Thông tin cấu hình
 
 
-const information = {
-    site: "mb66",
-    endpoint: "https://api-freecode-mb66.freecodevip.org",
-    key_free: "mocbai.haudai@att$$2023@@mb66",
-};
+const FM = "https://api-freecode-mb66.freecodevip.org"; // API base URL
+const IM = "mb66"; // site
+const UM = "mocbai.haudai@att$$2023@@mb66"; // Secret key for AES
+
 
 // Hàm mã hóa
-const encrypt = (text) => {
-    const md5Key = md5(information.key_free).toLowerCase();
-    return CryptoJS.AES.encrypt(text, md5Key).toString();
-};
+function Mb(inputJson) {
+    const key = CryptoJS.MD5(UM).toString().toLowerCase();
+    return CryptoJS.AES.encrypt(inputJson, key).toString();
+}
 
 // Giải mã (nếu cần)
-const decrypt = (cipherText) => {
-    const md5Key = md5(information.key_free).toLowerCase();
-    const bytes = CryptoJS.AES.decrypt(cipherText, md5Key);
-    return bytes.toString(CryptoJS.enc.Utf8);
-};
+function Yz(raw) {
+    return CryptoJS.SHA256(raw).toString();
+}
 
-
+// --- Hàm sinh captcha (client-side)
+function generateCaptcha(length = 5) {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return result;
+  }
+  
 
 // ✅ Xác thực code (dùng HttpsProxyAgent)
-const getCode = async (promoCode, proxyString) => {
+const getCode = async (promo_code, proxyString) => {
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const headers = {
         'Content-Type': 'application/json'
     };
 
-    const objParam = { promo_code: promoCode };
-    const encryptedKey = encrypt(JSON.stringify(objParam));
+
+
+    const payload = {
+        promo_code
+    };
+    const key = Mb(JSON.stringify(payload));
+
     // console.log('encryptedKey: ', encryptedKey);
     const body = {
-        key: encryptedKey,
+        key: key,
         deviceType: 'mobile'
     };
 
     try {
         const response = await axios.post(
-            `${information.endpoint}/client/get-code?promo_code=${promoCode}&site=${information.site}`,
+            `${FM}/client/get-code?promo_code=${promo_code}&site=${IM}`,
             body,
             { headers, httpsAgent: agent }
         );
@@ -62,16 +73,21 @@ const getCode = async (promoCode, proxyString) => {
 };
 
 // ⭐ Cộng điểm (dùng HttpsProxyAgent)
-const addPoints = async (playerId, promoCode, proxyString) => {
+const addPoints = async (playerId, promo_code, captchaToken, proxyString) => {
     const agent = new HttpsProxyAgent(`http://${proxyString}`); // Proxy dạng user:pass@ip:port
     const headers = { 'Content-Type': 'application/json' };
-    const objParam = { promo_code: promoCode };
-    const encryptedKey = encrypt(JSON.stringify(objParam));
-    const body = { key: encryptedKey };
+    const key = Mb(JSON.stringify({ promo_code }));
+    const keyCode = Yz(playerId + IM + promo_code);
+    const body = {
+        key,
+        keyCode,
+        captchaTokenGG: captchaToken
+
+    }
 
     try {
         const response = await axios.post(
-            `${information.endpoint}/client?player_id=${playerId}&promo_code=${promoCode}&site=${information.site}`,
+            `${FM}/client?player_id=${playerId}&promo_code=${promo_code}&site=${IM}`,
             body,
             { headers, httpsAgent: agent }
         );
@@ -89,7 +105,8 @@ const enterMb66 = async (promoCode, playerId, proxyString) => {
         console.log(`Code result ${promoCode} - ${playerId}: `, codeResult);
 
         if (codeResult.valid) {
-            const addPointResult = await addPoints(playerId, promoCode, proxyString);
+            const CaptchaToken = generateCaptcha();
+            const addPointResult = await addPoints(playerId, promoCode, CaptchaToken, proxyString);
             console.log(`Add Point result ${promoCode} - ${playerId}:`, addPointResult);
 
 
@@ -116,16 +133,18 @@ const enterMb66 = async (promoCode, playerId, proxyString) => {
 };
 
 
+
+
 async function processMB66(message) {
     console.log(chalk.greenBright(`\n📥 Code mới từ MB66`));
     let messageContent = message.message;
-        let codes;
-        const codes6 = await helper.processText(messageContent, 6);
-        const codes10 = await helper.processText(messageContent, 10);
-        codes = [...codes6, ...codes10];
+    let codes;
+    const codes6 = await helper.processText(messageContent, 6);
+    const codes10 = await helper.processText(messageContent, 10);
+    codes = [...codes6, ...codes10];
 
-        // remove ['Iphone', 'Promax', 'dancer', 'online'] 
-        codes = codes.filter(code => !['Iphone', 'Promax', 'dancer', 'online', 'LIVESTREAM'].includes(code));
+    // remove ['Iphone', 'Promax', 'dancer', 'online'] 
+    codes = codes.filter(code => !['Iphone', 'Promax', 'dancer', 'online', 'LIVESTREAM'].includes(code));
 
     if (codes.length === 0) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
@@ -170,6 +189,9 @@ async function processMB66(message) {
     }
 
 }
+
+
+enterMb66('0ozcEu', 'thunga2222', 'DD3E0F:P2c06pmD@echo.tunproxy.net:35903')
 
 module.exports = {
     processMB66
