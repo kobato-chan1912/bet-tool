@@ -143,7 +143,8 @@ async function processF168(message, client) {
     let messageContent = message.message;
     let codes = await helper.processText(messageContent, 8);
     // delete phatcode
-    codes = codes.filter(code => code !== 'phatcode');
+    codes = codes.filter(code => !['phatcode', 'cskhf168'].includes(code));
+
 
     if (codes.length === 0) {
         const imgPath = await helper.downloadMedia(message, client);
