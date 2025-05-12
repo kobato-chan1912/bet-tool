@@ -191,7 +191,7 @@ async function processMB66(message) {
 }
 
 
-enterMb66('0ozcEu', 'thunga2222', 'DD3E0F:P2c06pmD@echo.tunproxy.net:35903')
+// enterMb66('0ozcEu', 'thunga2222', 'DD3E0F:P2c06pmD@echo.tunproxy.net:35903')
 
 module.exports = {
     processMB66
