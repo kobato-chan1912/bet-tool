@@ -783,7 +783,7 @@ function splitArrayInHalf(arr) {
 
 
 module.exports = {
-  writeFailedUser, solveCaptchaWithAntiCaptcha, hideLast3Chars,
+  writeFailedUser, solveCaptchaWithAntiCaptcha, hideLast3Chars, processFailUser,
   solveCaptcha, processDoneUser, processText, processImage, isNaturalNumber, readFileToArray, loadConfig, fetchSpoilerText,
   getRandomElement, getRandomProxy, parseProxyString, shuffleArray, saveConfig, downloadMedia, fetchImage, solveCaptchaWithGPT,
   deleteAccs, sendTelegramMessage, solveJ88Captcha, hasNumber, downloadSecondPhotoInAlbum, splitArrayInHalf
