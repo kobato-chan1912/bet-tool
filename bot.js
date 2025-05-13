@@ -281,145 +281,21 @@ nguyentri 5560
                 break;
             case '➕ Thêm Acc 8K':
                 userStates[chatId] = 'awaiting_8k';
-                bot.sendMessage(chatId, `Tài khoản 8KBET có giá trị 7000vnd/tài khoản.
-
-📍Hướng dẫn note danh sách tài khoản . (có thể note 1 lần nhiều tk )
-
-account1
-account2
-
-❗️Lưu ý và cách kiểm tra tài khoản có đủ điều kiện để nhận thưởng hay không : 
-
-
-📍NHẬP TÊN TÀI KHOẢN CÓ HIỆN NỘI DUNG SAU LÀ NHẬN ĐƯỢC :
-
-- Số tiền nạp không đạt.
-
-- Kiểm tra thất bại , Duy trì nạp tiền và đặt cược bình thường để có thể nhận thưởng 
- (nếu ko nhận được thì nạp tổi thiểu 10k, 11h trưa là nhận được code )
-
--Tài khoản mới tạo yêu cầu nạp tổi thiểu 10k qua 11h trưa mới nhận được nha .
-
-📍NHẬP TÊN TÀI KHOẢN CÓ HIỆN NỘI DUNG SAU LÀ KHÔNG NHẬN ĐC: 
-
--Nhận thưởng không thành công, tài khoản của bạn không đủ điều kiện nhận thưởng.
-
--TK ko tồn tại.
-
-❗️Lưu ý :BOT SẼ KHÔNG HOÀN LẠI TIỀN KHI GẶP CÁC TRƯỜNG HỢP SAU :
-
--TK ko tồn tại .
-
--Note sai tên tài khoản .
-
--Nhận thưởng không thành công, tài khoản của bạn không đủ điều kiện nhận thưởng.
-
--📍Link check lạm dụng : https://google8ksp50k.vip/
-`);
+                bot.sendMessage(chatId, `Tài khoản 8KBET có giá trị 7000vnd/tài khoản.`);
                 break;
 
             case '➕ Thêm Acc New88':
                 userStates[chatId] = 'awaiting_new88';
-                bot.sendMessage(chatId, `Tài khoản New88 có giá trị 12000vnd/tài khoản .
-
-📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
-
-account1
-account2
-
-❗️Lưu ý và điều kiện để nhận code cho mỗi tài khoản : 
-
-- Tài khoản phải có phát sinh giao dịch nạp gần đây .
-
-- Ưu tiên những tk có giao dịch nạp rút .
-
-📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
-
-- tk lâu ko nạp 
-
-
--lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
-
-📍Link check lạm dụng : https://khuyenmai-new88okvip1.pages.dev/?promo_id=MM88
-
-❗️Lưu ý : 
-
-- Bot sẽ không hoàn tiền cho tk nhập sai và bị lạm dụng .
-
--Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
-
-
-
-`);
+                bot.sendMessage(chatId, `Tài khoản New88 có giá trị 12000vnd/tài khoản .`);
                 break;
             case '➕ Thêm Acc F8':
                 userStates[chatId] = 'awaiting_f8';
-                bot.sendMessage(chatId, `Tài khoản F8 có giá trị 10000vnd/tài khoản .
-
-📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
-
-account1
-account2
-
-❗️Lưu ý và điều kiện để nhận code cho mỗi tài khoản : 
-
-- Tài khoản phải có phát sinh giao dịch nạp gần đây .
-
-- Ưu tiên những tk có giao dịch nạp rút .
-
-📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
-
--ko đủ đkien ( trường hợp này các bạn dùng hoàn tiền 70% để hoàn tiền )
-
--lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
-
-📍Link check lạm dụng : https://ttkm-f8bet02.pages.dev/?promo_id=NH03
-
-❗️Lưu ý : 
-
-- Bot sẽ không hoàn tiền cho tk nhập sai và bị lạm dụng .
-
--Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
-
-
-
-*Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm .`);
+                bot.sendMessage(chatId, `Tài khoản F8 có giá trị 10000vnd/tài khoản .`);
                 break;
 
             case '➕ Thêm Acc SHBet':
                 userStates[chatId] = 'awaiting_sh';
-                bot.sendMessage(chatId, `Tài khoản SHBET có giá trị 7000vnd/tài khoản .
-
-📍Hướng dẫn cách note tài khoản : (có thể note 1 lần nhiều tài khoản )
-
-account1
-account2
-
-❗️Lưu ý và điều kiện để nhận code cho mỗi tài khoản : 
-
-- Tài khoản phải có phát sinh giao dịch nạp gần đây .
-
-- Ưu tiên những tk có giao dịch nạp rút .
-
-📍 TÀI KHOẢN KHÔNG NHẬN ĐƯỢC CODE : 
-
-- tk lâu ko nạp r (trường hợp này mình sẽ không delete tài khoản ra khỏi note , sau 12h các bạn không nạp tiền vào tk hoặc là ko hoàn tiền thì Bot xóa khỏi note và k hoàn tiền )
-
--ko đủ đkien ( trường hợp này các bạn dùng hoàn tiền 70% để hoàn tiền )
-
--lạm dụng ( tài khoản k đủ điều kiện để nhận thưởng )
-
-📍Link check lạm dụng : https://khuyenmai-shbet01.pages.dev/?promo_id=SL01
-
-❗️Lưu ý : 
-
-- Bot sẽ không hoàn tiền cho tk nhập sai và bị lạm dụng .
-
--Tài khoản mới và sau khi có giao dịch nạp thì sau 1-2 tiếng thì mới nhận đc code .
-
--1 người dùng tốt nhất chỉ sử dụng 2 đến 3 tài khoản k nên quá nhìu.( trường hợp muốn nhận nhiều tk vui lòng liên hệ mình để biết thêm thông tin chi tiết.)
-
-*Nếu có gì sai sót xin vui lòng liên hệ mình để góp ý thêm.`);
+                bot.sendMessage(chatId, `Tài khoản SHBET có giá trị 7000vnd/tài khoản .`);
                 break;
 
 
