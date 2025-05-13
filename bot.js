@@ -78,7 +78,7 @@ BOT : @HUNTER_CODE_DEN_BOT
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền', '♻️ Hoàn tiền'],
-                    ['➕ Thêm Acc F168', '➕ Thêm Acc SHBet', '➕ Thêm Acc 8K'],
+                    ['➕ Thêm Acc SHBet', '➕ Thêm Acc 8K'],
                     ['➕ Thêm Acc New88', '➕ Thêm Acc F8', '➕ Thêm Acc MB66']
                 ],
                 resize_keyboard: true,
