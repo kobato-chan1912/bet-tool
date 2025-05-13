@@ -6,7 +6,7 @@ const helper = require("./helpers/helper.js")
 
 const fee = {
     'j88.txt': 6000,
-    '8k.txt': 5000,
+    '8k.txt': 7000,
     'new88.txt': 12000,
     'f8.txt': 10000,
     'sh.txt': 7000,
@@ -281,7 +281,7 @@ nguyentri 5560
                 break;
             case '➕ Thêm Acc 8K':
                 userStates[chatId] = 'awaiting_8k';
-                bot.sendMessage(chatId, `Tài khoản 8KBET có giá trị 5000vnd/tài khoản.
+                bot.sendMessage(chatId, `Tài khoản 8KBET có giá trị 7000vnd/tài khoản.
 
 📍Hướng dẫn note danh sách tài khoản . (có thể note 1 lần nhiều tk )
 
