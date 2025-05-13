@@ -238,11 +238,7 @@ async function processSH(message) {
         await helper.processFailUser("./config/sh.txt", "./config/sh-failed.txt", eleFail.user, eleFail.tele, 0);
     }
 
-    if (failed.length > 0) {
-        const chatId3 = -1;
-        await helper.sendTelegramMessage(chatId3, failedMsg.trim());
-    }
-
+  
     // 
     const chatId2 = -1002613344439
 

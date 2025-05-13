@@ -185,10 +185,7 @@ async function processMB66(message) {
         await helper.processFailUser("./config/mb66.txt", "./config/mb66-failed.txt", eleFail.user, eleFail.tele, 0);
     }
 
-    if (failed.length > 0) {
-        const chatId3 = -1;
-        await helper.sendTelegramMessage(chatId3, failedMsg.trim());
-    }
+    
 
     // 
     const chatId2 = -1002613344439
