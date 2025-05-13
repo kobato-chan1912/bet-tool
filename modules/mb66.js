@@ -140,8 +140,9 @@ async function processMB66(message) {
     let messageContent = message.message;
     let codes;
     const codes6 = await helper.processText(messageContent, 6);
+    const codes8 = await helper.processText(messageContent, 8);
     const codes10 = await helper.processText(messageContent, 10);
-    codes = [...codes6, ...codes10];
+    codes = [...codes6, ...codes8, ...codes10];
 
     // remove ['Iphone', 'Promax', 'dancer', 'online'] 
     codes = codes.filter(code => !['Iphone', 'Promax', 'dancer', 'online', 'LIVESTREAM'].includes(code));
