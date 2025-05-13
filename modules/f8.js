@@ -235,7 +235,7 @@ async function processF8(message, client) {
     for (const eleFail of failed) {
         let temp = `${eleFail.user} | ${eleFail.msg}`;
         failedMsg += `${temp}\n`;
-        await helper.processFailUser("./config/f8.txt", "./config/f8-failed.txt", eleFail.user, eleFail.tele, 0);
+        await helper.processFailUser("./config/f8.txt", "./config/f8-failed.txt", eleFail.user, eleFail.tele);
     }
 
     const chatId2 = -1002613344439

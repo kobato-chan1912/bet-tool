@@ -201,7 +201,7 @@ async function processNew88(message) {
     for (const eleFail of failed) {
         let temp = `${eleFail.user} | ${eleFail.msg}`;
         failedMsg += `${temp}\n`;
-        await helper.processFailUser("./config/new88.txt", "./config/new88-failed.txt", eleFail.user, eleFail.tele, 0);
+        await helper.processFailUser("./config/new88.txt", "./config/new88-failed.txt", eleFail.user, eleFail.tele);
     }
 
  

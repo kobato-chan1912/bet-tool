@@ -182,7 +182,7 @@ async function processMB66(message) {
     for (const eleFail of failed) {
         let temp = `${eleFail.user} | ${eleFail.msg}`;
         failedMsg += `${temp}\n`;
-        await helper.processFailUser("./config/mb66.txt", "./config/mb66-failed.txt", eleFail.user, eleFail.tele, 0);
+        await helper.processFailUser("./config/mb66.txt", "./config/mb66-failed.txt", eleFail.user, eleFail.tele);
     }
 
     

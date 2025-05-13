@@ -235,7 +235,7 @@ async function processSH(message) {
     for (const eleFail of failed) {
         let temp = `${eleFail.user} | ${eleFail.msg}`;
         failedMsg += `${temp}\n`;
-        await helper.processFailUser("./config/sh.txt", "./config/sh-failed.txt", eleFail.user, eleFail.tele, 0);
+        await helper.processFailUser("./config/sh.txt", "./config/sh-failed.txt", eleFail.user, eleFail.tele);
     }
 
   
