@@ -15,6 +15,17 @@ const fee = {
 };
 
 
+const fileGroups = {
+    j88: ['j88.txt'],
+    '8k': ['8k.txt'],
+    new88: ['new88.txt'],
+    f8: ['f8.txt', 'f8-failed.txt'],
+    f168: ['f168.txt'],
+    sh: ['sh.txt'],
+    mb66: ['mb66.txt']
+};
+
+
 async function main() {
     let config = await helper.loadConfig()
     const token = config.BOT_TOKEN;
@@ -136,22 +147,35 @@ BOT : @HUNTER_CODE_DEN_BOT
             const loai = refundMatch[1].toLowerCase();
             const acc = refundMatch[2];
             const userId = username;
+
+
+
             const feeMap = fee;
+            const relatedFiles = fileGroups[loai];
+            let targetFile = null;
+            let targetLine = null;
 
-            const filePath = path.join(__dirname, 'config', `${loai}.txt`);
-            if (!fs.existsSync(filePath)) {
-                return bot.sendMessage(chatId, `❌ Không tìm thấy danh sách ${loai}`);
+            // Tìm file chứa dòng acc cần hoàn
+            for (const fileName of relatedFiles) {
+                const filePath = path.join(__dirname, 'config', fileName);
+                if (!fs.existsSync(filePath)) continue;
+
+                const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
+                const line = lines.find(line => line.includes(acc) && line.includes(userId));
+
+                if (line) {
+                    targetFile = filePath;
+                    targetLine = line;
+                    break;
+                }
             }
-
-            const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
-            const targetLine = lines.find(line => line.includes(acc) && line.includes(userId));
 
             if (!targetLine) {
                 return bot.sendMessage(chatId, `⚠️ Không tìm thấy acc "${acc}" của bạn trong danh sách ${loai}.`);
             }
 
-            // Trả lại 70% phí
-            const refundAmount = Math.floor(feeMap[loai + ".txt"] * 0.7);
+            // Hoàn tiền 70%
+            const refundAmount = Math.floor(feeMap[`${loai}.txt`] * 0.7);
 
             // Cập nhật số dư
             const balancesPath = path.join(__dirname, 'database', 'balances.json');
@@ -159,13 +183,14 @@ BOT : @HUNTER_CODE_DEN_BOT
             balances[userId] = (balances[userId] || 0) + refundAmount;
             fs.writeFileSync(balancesPath, JSON.stringify(balances, null, 2));
 
-            // Xóa khỏi file
+            // Xóa dòng khỏi file gốc
+            const lines = fs.readFileSync(targetFile, 'utf8').split('\n').filter(Boolean);
             const newLines = lines.filter(line => line !== targetLine);
-            fs.writeFileSync(filePath, newLines.join('\n'));
+            fs.writeFileSync(targetFile, newLines.join('\n'));
 
-            bot.sendMessage(chatId, `✅ Đã hoàn lại ${refundAmount.toLocaleString()}đ cho acc <b>${acc}</b> (${loai})\n\n💰 Số dư mới của bạn sẽ được cập nhật muộn nhất sau 30 giây.`, { parse_mode: 'HTML' });
-            return;
+            return bot.sendMessage(chatId, `✅ Đã hoàn lại ${refundAmount.toLocaleString()}đ cho acc <b>${acc}</b> (${loai})\n\n💰 Số dư mới của bạn sẽ được cập nhật muộn nhất sau 30 giây.`, { parse_mode: 'HTML' });
         }
+
 
 
 
@@ -193,24 +218,28 @@ BOT : @HUNTER_CODE_DEN_BOT
             case '♻️ Hoàn tiền':
                 const userId = username;
                 const configPath = path.join(__dirname, 'config');
-                const files = ['j88.txt', '8k.txt', 'new88.txt', 'f8.txt', 'f168.txt', 'sh.txt', 'mb66.txt'];
+
+
 
                 let response = `🔁 Các tài khoản bạn đã thêm:\n\n`;
                 let found = false;
 
-                files.forEach(file => {
-                    const filePath = path.join(configPath, file);
-                    if (!fs.existsSync(filePath)) return;
+                Object.entries(fileGroups).forEach(([type, fileList]) => {
+                    let userLines = [];
 
-                    const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
-                    const userLines = lines.filter(line => line.includes(userId));
+                    fileList.forEach(file => {
+                        const filePath = path.join(configPath, file);
+                        if (!fs.existsSync(filePath)) return;
+
+                        const lines = fs.readFileSync(filePath, 'utf8').split('\n').filter(Boolean);
+                        userLines.push(...lines.filter(line => line.includes(userId)));
+                    });
 
                     if (userLines.length > 0) {
                         found = true;
-                        const type = file.replace('.txt', '');
                         response += `📂 <b>${type.toUpperCase()}</b>\n`;
                         userLines.forEach(line => {
-                            const acc = line.split(' ')[0].trim();
+                            const acc = line.split(' ')[0].trim(); // Chỉ lấy tên acc
                             response += `— <code>${acc}</code>\n`;
                         });
                         response += `📥 Hoàn tiền lệnh: <code>/hoantien ${type} têntk</code>\n\n`;
@@ -223,6 +252,7 @@ BOT : @HUNTER_CODE_DEN_BOT
                     bot.sendMessage(chatId, response, { parse_mode: 'HTML' });
                 }
                 break;
+
 
 
             case '➕ Thêm Acc J88':
@@ -398,10 +428,10 @@ account2
                 bot.sendMessage(chatId, `Tài khoản F168 có giá trị 10000vnd/tài khoản. Mỗi dòng là mỗi tài khoản.`)
                 break;
 
-                case '➕ Thêm Acc MB66':
-                    userStates[chatId] = 'awaiting_mb66';
-                    bot.sendMessage(chatId, `Tài khoản MB66 có giá trị 10000vnd/tài khoản. Mỗi dòng là mỗi tài khoản.`)
-                    break;
+            case '➕ Thêm Acc MB66':
+                userStates[chatId] = 'awaiting_mb66';
+                bot.sendMessage(chatId, `Tài khoản MB66 có giá trị 10000vnd/tài khoản. Mỗi dòng là mỗi tài khoản.`)
+                break;
 
 
             default:

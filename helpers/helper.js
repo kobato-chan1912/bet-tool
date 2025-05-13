@@ -134,6 +134,58 @@ const processDoneUser = async (inputFile, outputFile, username, point, status = 
   }
 };
 
+const processFailUser = async (inputFile, outputFile, username, teleId) => {
+  try {
+    // Đảm bảo thư mục tồn tại
+    await fs.mkdir(path.dirname(inputFile), { recursive: true });
+    await fs.mkdir(path.dirname(outputFile), { recursive: true });
+    await ensureFileExists(inputFile);
+    await ensureFileExists(outputFile);
+
+    // Dùng Lock để tránh mất dữ liệu khi ghi file
+    await lockFile.lock(inputFile);
+    await lockFile.lock(outputFile);
+
+    try {
+      // Đọc dữ liệu từ inputFile
+      let inputData = [];
+      try {
+        const inputContent = await fs.readFile(inputFile, 'utf8');
+        inputData = inputContent.split('\n').map(line => line.trim()).filter(line => line);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error; // Bỏ qua nếu file không tồn tại
+      }
+
+      // Xóa username khỏi inputFile nếu cần
+      let newInputData = inputData;
+      newInputData = inputData.filter(user => !user.includes(username));
+
+      await fs.writeFile(inputFile, newInputData.join('\n'), 'utf8');
+
+      // Đọc dữ liệu từ outputFile
+      let outputData = [];
+      try {
+        const outputContent = await fs.readFile(outputFile, 'utf8');
+        outputData = outputContent.split('\n').map(line => line.trim()).filter(line => line);
+      } catch (error) {
+        if (error.code !== 'ENOENT') throw error; // Bỏ qua nếu file không tồn tại
+      }
+
+      // Nếu username chưa có trong outputFile, thêm vào
+
+      outputData.push(username + " " + teleId);
+      await fs.writeFile(outputFile, outputData.join('\n'), 'utf8');
+
+    } finally {
+      await lockFile.unlock(inputFile);
+      await lockFile.unlock(outputFile);
+    }
+
+  } catch (error) {
+    console.error("❌ Lỗi:", error.message);
+  }
+};
+
 
 async function writeFailedUser(inputFile, msg) {
   try {

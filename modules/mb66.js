@@ -33,11 +33,11 @@ function generateCaptcha(length = 5) {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let result = "";
     for (let i = 0; i < length; i++) {
-      result += chars[Math.floor(Math.random() * chars.length)];
+        result += chars[Math.floor(Math.random() * chars.length)];
     }
     return result;
-  }
-  
+}
+
 
 // ✅ Xác thực code (dùng HttpsProxyAgent)
 const getCode = async (promo_code, proxyString) => {
@@ -99,7 +99,7 @@ const addPoints = async (playerId, promo_code, captchaToken, proxyString) => {
 };
 
 // 🔄 Hàm chính (dùng HttpsProxyAgent)
-const enterMb66 = async (promoCode, playerId, proxyString) => {
+const enterMb66 = async (promoCode, playerId, proxyString, teleId) => {
     try {
         const codeResult = await getCode(promoCode, proxyString);
         console.log(`Code result ${promoCode} - ${playerId}: `, codeResult);
@@ -113,14 +113,16 @@ const enterMb66 = async (promoCode, playerId, proxyString) => {
             if (addPointResult.valid) {
                 success.push({
                     user: playerId,
-                    msg: addPointResult.point
+                    msg: addPointResult.point,
+                    tele: teleId
                 })
                 // await helper.processDoneUser("./config/new88.txt", "./output/new88-done.txt", playerId, addPointResult.point, 0);
             } else {
                 if (/tài khoản/i.test(addPointResult.text_mess)) {
                     failed.push({
                         user: playerId,
-                        msg: addPointResult.text_mess
+                        msg: /giao dịch/i.test(addPointResult.text_mess) ? 'Đã lâu không nạp' : 'Tài khoản không đủ điều kiện',
+                        tele: teleId
                     })
                 }
             }
@@ -163,7 +165,7 @@ async function processMB66(message) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
         let [username, teleId] = user.split(/\s+/);
-        tasks.push(limit(() => enterMb66(code, username, proxyString)));
+        tasks.push(limit(() => enterMb66(code, username, proxyString, teleId)));
     }
 
     await Promise.all(tasks);
@@ -175,17 +177,28 @@ async function processMB66(message) {
         summaryMsg += `${helper.hideLast3Chars(ele.user)} | ${ele.msg}\n`;
     }
 
+    let failedMsg = "Danh sách acc mb66 lạm dụng\n";
+
     for (const eleFail of failed) {
         let temp = `${eleFail.user} | ${eleFail.msg}`;
-        await helper.writeFailedUser("./output/mb66-failed.txt", temp);
+        failedMsg += `${temp}\n`;
+        await helper.processFailUser("./config/mb66.txt", "./config/mb66-failed.txt", eleFail.user, eleFail.tele, 0);
+    }
+
+    if (failed.length > 0) {
+        const chatId3 = -1;
+        await helper.sendTelegramMessage(chatId3, failedMsg.trim());
     }
 
     // 
+    const chatId2 = -1002613344439
+
+
+    if (failed.length > 0) {
+        await helper.sendTelegramMessage(chatId2, failedMsg.trim());
+    }
+
     if (success.length > 0) {
-        // Giả sử dùng chatId từ phần tử đầu tiên
-        const chatId1 = -1002544552541;
-        const chatId2 = -1002613344439
-        // await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
 

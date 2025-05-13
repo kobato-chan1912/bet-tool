@@ -152,7 +152,7 @@ const addPoints = async (playerId, promoCode, proxyString) => {
 };
 
 // Hàm chính thực hiện toàn bộ quy trình
-const enterF8Code = async (promoCode, playerId, proxyString) => {
+const enterF8Code = async (promoCode, playerId, proxyString, teleId) => {
     try {
         // Bước 1: Lấy token và captcha
         const captchaData = await getCaptchaToken(proxyString);
@@ -174,14 +174,16 @@ const enterF8Code = async (promoCode, playerId, proxyString) => {
             if (addPointResult.valid === true) {
                 success.push({
                     user: playerId,
-                    msg: addPointResult.point
+                    msg: addPointResult.point,
+                    tele: teleId
                 })
                 
             } else {
                 if (/tài khoản/i.test(addPointResult.text_mess)) {
                     failed.push({
                         user: playerId,
-                        msg: addPointResult.text_mess
+                        msg: /giao dịch/i.test(addPointResult.text_mess) ? 'Đã lâu không nạp' : 'Tài khoản không đủ điều kiện',
+                        tele: teleId
                     })
                 }
             }
@@ -215,7 +217,7 @@ async function processF8(message, client) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
         let [username, teleId] = user.split(/\s+/);
-        tasks.push(limit(() => enterF8Code(code, username, proxyString)));
+        tasks.push(limit(() => enterF8Code(code, username, proxyString, teleId)));
     }
 
     await Promise.all(tasks);
@@ -227,16 +229,23 @@ async function processF8(message, client) {
         summaryMsg += `${helper.hideLast3Chars(ele.user)} | ${ele.msg}\n`;
     }
 
+
+    let failedMsg = "Danh sách acc F8 lạm dụng\n";
+
     for (const eleFail of failed) {
         let temp = `${eleFail.user} | ${eleFail.msg}`;
-        await helper.writeFailedUser("./output/f8-failed.txt", temp);
+        failedMsg += `${temp}\n`;
+        await helper.processFailUser("./config/f8.txt", "./config/f8-failed.txt", eleFail.user, eleFail.tele, 0);
+    }
+
+    const chatId2 = -1002613344439
+
+
+    if (failed.length > 0) {
+        await helper.sendTelegramMessage(chatId2, failedMsg.trim());
     }
 
     if (success.length > 0) {
-        // Giả sử dùng chatId từ phần tử đầu tiên
-        const chatId1 = -1002544552541;
-        const chatId2 = -1002613344439
-        // await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
 
