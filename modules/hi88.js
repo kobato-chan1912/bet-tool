@@ -182,17 +182,18 @@ async function processHi88(message, client) {
         await helper.processFailUser("./config/hi88.txt", "./config/hi88-failed.txt", eleFail.user, eleFail.tele);
     }
 
- 
-//     const chatId2 = -1002613344439
-// 
-// 
-//     if (failed.length > 0) {
-//         await helper.sendTelegramMessage(chatId2, failedMsg.trim());
-//     }
-// 
-//     if (success.length > 0) {
-//         await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
-//     }
+    const chatId1 = -1002503689777
+
+    const chatId2 = -1002630085987
+
+
+    if (failed.length > 0) {
+        await helper.sendTelegramMessage(chatId2, failedMsg.trim());
+    }
+
+    if (success.length > 0) {
+        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+    }
 
 
 }
