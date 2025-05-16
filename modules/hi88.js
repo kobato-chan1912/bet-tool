@@ -171,7 +171,7 @@ async function processHi88(message, client) {
 
     for (const ele of success) {
         await helper.processDoneUser("./config/hi88.txt", "./output/hi88-done.txt", ele.user, ele.msg, 0);
-        summaryMsg += `${helper.hideLast3Chars(ele.user)} | ${ele.msg}\n`;
+        summaryMsg += `${ele.user} | ${ele.msg}\n`;
     }
 
     let failedMsg = "Danh sách acc hi88 lạm dụng\n";

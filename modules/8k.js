@@ -130,7 +130,7 @@ async function process8K(message, client) {
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
         if (ele.notify == 1) {
-            summaryMsg += `${ helper.hideLast3Chars(ele.user) } | ${ele.msg}\n`;
+            summaryMsg += `${ ele.user } | ${ele.msg}\n`;
         }
         // await helper.sendTelegramMessage(ele.chatId, msg)
     }
