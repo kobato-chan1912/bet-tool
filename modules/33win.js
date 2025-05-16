@@ -1,6 +1,7 @@
 const cheerio = require('cheerio');
 const axios = require("axios")
 const helper = require("../helpers/helper.js");
+const crypto = require('crypto');
 
 let success = [];
 const { HttpsProxyAgent } = require('https-proxy-agent');
@@ -8,8 +9,15 @@ const pLimit = require('p-limit');
 const chalk = require('chalk');
 const qs = require('qs');
 
+function generateSessionID(length = 26) {
+    return crypto.randomBytes(Math.ceil(length / 2))
+                 .toString('hex') // chuyển sang chuỗi hex (a-f, 0-9)
+                 .slice(0, length); // cắt đúng độ dài mong muốn
+  }
+  
+  
 
-async function getCaptchaToken(proxyString) {
+async function getCaptchaToken(proxyString, sessionID) {
 
 
     const agent = new HttpsProxyAgent(`http://${proxyString}`);
@@ -20,7 +28,7 @@ async function getCaptchaToken(proxyString) {
             'content-type': 'application/json',
             'origin': 'https://33winbonus.com/',
             'priority': 'u=1, i',
-            'cookie': 'PHPSESSID=sjkr8n9qrb06h2d7cetpcqm750',
+            'cookie': 'PHPSESSID=' + sessionID,
             'referer': 'https://33winbonus.com/',
             'sec-ch-ua': '"Chromium";v="135", "Not:A-Brand";v="24", "Google Chrome";v="135"',
             'sec-ch-ua-mobile': '?0',
@@ -51,7 +59,7 @@ async function getCaptchaToken(proxyString) {
 
 }
 
-async function enter33win(promoCode, account, proxyString) {
+async function enter33win(promoCode, account, sessionID, proxyString) {
     const agent = new HttpsProxyAgent(`http://${proxyString}`);
     const headers = {
         'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -63,7 +71,7 @@ async function enter33win(promoCode, account, proxyString) {
         'sec-ch-ua': '"Chromium";v="135", "Not:A-Brand";v="24", "Google Chrome";v="135"',
         'sec-ch-ua-mobile': '?0',
         'sec-ch-ua-platform': '"macOS"',
-        'cookie': 'PHPSESSID=sjkr8n9qrb06h2d7cetpcqm750',
+        'cookie': 'PHPSESSID=' + sessionID,
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
         'sec-fetch-site': 'cross-site',
@@ -71,7 +79,8 @@ async function enter33win(promoCode, account, proxyString) {
 
     };
 
-    let captchaSolution = await getCaptchaToken(proxyString);
+    let captchaSolution = await getCaptchaToken(proxyString, sessionID);
+   
 
     const body = qs.stringify({
         action: 'check_captcha',
@@ -88,7 +97,7 @@ async function enter33win(promoCode, account, proxyString) {
 
 
     let rspData = response.data;
-    console.log(rspData);
+    console.log(`33WIN - Nhập code ${promoCode} cho ${account} (captcha: ${captchaSolution}): `, rspData);
     if (helper.hasNumber(rspData.data.message)) {
         success.push({
             user: account,
@@ -103,12 +112,15 @@ async function enter33win(promoCode, account, proxyString) {
 async function processwin33(message, client) {
     console.log(chalk.greenBright(`\n📥 Code mới từ 33WIN`));
     const imgPath = await helper.downloadSecondPhotoInAlbum(message, client);
-    let codes = await helper.processImage(imgPath, 5);
+    let codes = await helper.processImage(imgPath, 6);
+    codes = codes.filter(code => !/[0O]/.test(code));
+
 
     if (codes.length === 0) {
         console.log(chalk.red('⚠ Không tìm thấy mã hợp lệ!'));
         return;
     }
+
 
 
     const win33Users = await helper.readFileToArray("config/33win.txt");
@@ -121,7 +133,8 @@ async function processwin33(message, client) {
         let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
         let code = helper.getRandomElement(codes);
         let [username, teleId] = user.split(/\s+/);
-        tasks.push(limit(() => enter33win(code, username, proxyString)));
+        const sessionID = generateSessionID();  
+        tasks.push(limit(() => enter33win(code, username, sessionID, proxyString)));
     }
 
     await Promise.all(tasks);
@@ -133,15 +146,10 @@ async function processwin33(message, client) {
         summaryMsg += `${ele.user} | ${ele.msg}\n`;
     }
     // 
-    if (success.length > 0) {
-        // Giả sử dùng chatId từ phần tử đầu tiên
-        const chatId1 = -1002544552541;
-        const chatId2 = -1002613344439
-        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
-        await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
-    }
+  
 
 }
+
 
 module.exports = {
     processwin33
