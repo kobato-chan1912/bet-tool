@@ -11,11 +11,12 @@ const sh = require("./modules/sh.js")
 const f168 = require("./modules/f168.js")
 const win33 = require("./modules/33win.js")
 const mb66 = require("./modules/mb66.js")
+const hi88 = require("./modules/hi88.js")
 
 const { Api } = require('telegram/tl/');
 
 // data input
-const hi88IDs = ["2321421266", "2018121888", "1628875713"]
+const hi88IDs = ["2321421266", "2018121888", "2695720902", "2571098959", '2657420328']
 const q88IDS = ['2446066378', '2272716520', '2421765170']
 const f88IDS = ['2321837001']
 const new88IDS = ['2332416396', '2254564969', '2300154005', '2330343641', '2420370864']
@@ -114,6 +115,8 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
         // await f8.processF8(message, client)
         // await new88.processNew88(message)
         // await mb66.processMB66(message)
+
+        // await hi88.processHi88(message, client)
       }
 
       if (EightKIDS.includes(sendID)) { // CODE may mắn
@@ -158,6 +161,10 @@ const sleep = ms => new Promise(res => setTimeout(res, ms));
 
       if (mb66IDS.includes(sendID) && message.message.includes("TẶNG CODE MIỄN PHÍ")) {
         await mb66.processMB66(message)
+      }
+
+      if (hi88IDs.includes(sendID)) {
+        await hi88.processHi88(message, client)
       }
 
 

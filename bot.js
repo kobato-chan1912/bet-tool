@@ -78,8 +78,8 @@ BOT : @HUNTER_CODE_DEN_BOT
             reply_markup: {
                 keyboard: [
                     ['💰 Xem số dư', '💸 Nạp tiền', '♻️ Hoàn tiền'],
-                    ['➕ Thêm Acc SHBet', '➕ Thêm Acc 8K'],
-                    ['➕ Thêm Acc New88', '➕ Thêm Acc F8', '➕ Thêm Acc MB66']
+                    ['➕ Thêm Acc SHBet', '➕ Thêm Acc F8'],
+                    ['➕ Thêm Acc New88', '➕ Thêm Acc MB66']
                 ],
                 resize_keyboard: true,
                 one_time_keyboard: false
@@ -374,55 +374,7 @@ nguyentri 5560
 
 
 
-                // Thêm 8K
-                if (state === 'awaiting_8k' && text) {
-                    const lines = text.trim().split(/[\s]+/);
-                    const filePath = path.join(__dirname, 'config', '8k.txt');
-                    const balancePath = path.join(__dirname, 'database', 'balances.json');
-
-                    const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
-                    const balanceData = fs.existsSync(balancePath) ? JSON.parse(fs.readFileSync(balancePath)) : {};
-                    const userBalance = balanceData[username] || 0;
-
-                    let added = 0, duplicated = 0;
-                    const entries = [];
-
-                    for (let line of lines) {
-                        const acc = line.trim();
-                        if (!acc) continue;
-                        const entry = `${acc} ${username}`;
-                        if (!current.includes(entry)) {
-                            entries.push(entry);
-                        } else {
-                            duplicated++;
-                        }
-                    }
-
-                    const cost = entries.length * fee["8k.txt"];
-                    if (userBalance < cost) {
-                        bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
-                        delete userStates[chatId];
-                        return;
-                    }
-                    if (fs.existsSync(filePath)) {
-                        const content = fs.readFileSync(filePath, 'utf8');
-                        if (content.length > 0 && !content.endsWith('\n')) {
-                            fs.appendFileSync(filePath, '\n');
-                        }
-                    }
-                    for (const entry of entries) {
-                        fs.appendFileSync(filePath, entry + '\n');
-                        added++;
-                    }
-
-                    // Trừ tiền
-                    balanceData[username] = userBalance - cost;
-                    fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
-
-                    bot.sendMessage(chatId, `✅ Đã thêm ${added} acc 8K.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
-                    delete userStates[chatId];
-                    return;
-                }
+                
 
                 // Thêm New88
                 if (state === 'awaiting_new88' && text) {
@@ -584,54 +536,7 @@ nguyentri 5560
                 }
 
 
-                if (state === 'awaiting_f168' && text) {
-                    const lines = text.trim().split(/[\s]+/);
-                    const filePath = path.join(__dirname, 'config', 'f168.txt');
-                    const balancePath = path.join(__dirname, 'database', 'balances.json');
-
-                    const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : '';
-                    const balanceData = fs.existsSync(balancePath) ? JSON.parse(fs.readFileSync(balancePath)) : {};
-                    const userBalance = balanceData[username] || 0;
-
-                    let added = 0, duplicated = 0;
-                    const entries = [];
-
-                    for (let line of lines) {
-                        const acc = line.trim();
-                        if (!acc) continue;
-                        const entry = `${acc} ${username}`;
-                        if (!current.includes(entry)) {
-                            entries.push(entry);
-                        } else {
-                            duplicated++;
-                        }
-                    }
-
-                    const cost = entries.length * fee["f168.txt"];
-                    if (userBalance < cost) {
-                        bot.sendMessage(chatId, `⚠️ Số dư không đủ. Bạn cần ${cost.toLocaleString()}đ để thêm ${entries.length} acc.`);
-                        delete userStates[chatId];
-                        return;
-                    }
-                    if (fs.existsSync(filePath)) {
-                        const content = fs.readFileSync(filePath, 'utf8');
-                        if (content.length > 0 && !content.endsWith('\n')) {
-                            fs.appendFileSync(filePath, '\n');
-                        }
-                    }
-                    for (const entry of entries) {
-                        fs.appendFileSync(filePath, entry + '\n');
-                        added++;
-                    }
-
-                    // Trừ tiền
-                    balanceData[username] = userBalance - cost;
-                    fs.writeFileSync(balancePath, JSON.stringify(balanceData, null, 2));
-
-                    bot.sendMessage(chatId, `✅ Đã thêm ${added} acc F168.\n\n⚠️ ${duplicated} acc bị trùng.\n\n💰 Số dư còn lại: ${balanceData[username].toLocaleString()}đ`);
-                    delete userStates[chatId];
-                    return;
-                }
+             
 
 
                 if (state === 'awaiting_mb66' && text) {
