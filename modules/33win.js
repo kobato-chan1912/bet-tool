@@ -11,11 +11,11 @@ const qs = require('qs');
 
 function generateSessionID(length = 26) {
     return crypto.randomBytes(Math.ceil(length / 2))
-                 .toString('hex') // chuyển sang chuỗi hex (a-f, 0-9)
-                 .slice(0, length); // cắt đúng độ dài mong muốn
-  }
-  
-  
+        .toString('hex') // chuyển sang chuỗi hex (a-f, 0-9)
+        .slice(0, length); // cắt đúng độ dài mong muốn
+}
+
+
 
 async function getCaptchaToken(proxyString, sessionID) {
 
@@ -80,7 +80,7 @@ async function enter33win(promoCode, account, sessionID, proxyString) {
     };
 
     let captchaSolution = await getCaptchaToken(proxyString, sessionID);
-   
+
 
     const body = qs.stringify({
         action: 'check_captcha',
@@ -110,9 +110,10 @@ async function enter33win(promoCode, account, sessionID, proxyString) {
 
 
 async function processwin33(message, client) {
+    let messageContent = message.message;
     console.log(chalk.greenBright(`\n📥 Code mới từ 33WIN`));
-    const imgPath = await helper.downloadSecondPhotoInAlbum(message, client);
-    let codes = await helper.processImage(imgPath, 6);
+    // const imgPath = await helper.downloadSecondPhotoInAlbum(message, client);
+    let codes = await helper.processText(messageContent, 6);
     codes = codes.filter(code => !/[0O]/.test(code));
 
 
@@ -130,11 +131,14 @@ async function processwin33(message, client) {
     const tasks = [];
     success = [];
     for (const user of win33Users) {
-        let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
-        let code = helper.getRandomElement(codes);
-        let [username, teleId] = user.split(/\s+/);
-        const sessionID = generateSessionID();  
-        tasks.push(limit(() => enter33win(code, username, sessionID, proxyString)));
+        for (const code of codes) {
+            let proxyString = await helper.getRandomProxy(); // Proxy dạng user:pass@ip:port
+            // let code = helper.getRandomElement(codes);
+            let [username, teleId] = user.split(/\s+/);
+            const sessionID = generateSessionID();
+            tasks.push(limit(() => enter33win(code, username, sessionID, proxyString)));
+
+        }
     }
 
     await Promise.all(tasks);
@@ -146,7 +150,7 @@ async function processwin33(message, client) {
         summaryMsg += `${ele.user} | ${ele.msg}\n`;
     }
     // 
-  
+
 
 }
 
