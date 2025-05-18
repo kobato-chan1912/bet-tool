@@ -79,26 +79,24 @@ const enter8K = async (user, codes, chatId) => {
 
 async function process8K(message, client) {
     console.log(chalk.greenBright(`\n📥 Code mới từ 8K`));
-    console.log(chalk.white(`\n${message.message}`));
+    // console.log(chalk.white(`\n${message.message}`));
     let messageContent = message.message;
     let codes
-    if (messageContent.includes("ở bên dưới")) {
-        const codes8 = await helper.processText(messageContent, 8);
-        const codes10 = await helper.processText(messageContent, 10);
-        codes = [...codes8, ...codes10];
-
-        if (codes.length === 0) {
-            const imgPath = await helper.downloadMedia(message, client);
-            const imgCodes8 = await helper.processImage(imgPath, 8);
-            const imgCodes10 = await helper.processImage(imgPath, 10);
-            codes = [...imgCodes8, ...imgCodes10];
-        }
-    } else {
+    const codes8 = await helper.processText(messageContent, 8);
+    const codes10 = await helper.processText(messageContent, 10);
+    codes = [...codes8, ...codes10];
+    if (codes.length < 5) {
         const imgPath = await helper.downloadMedia(message, client);
         const imgCodes8 = await helper.processImage(imgPath, 8);
         const imgCodes10 = await helper.processImage(imgPath, 10);
         codes = [...imgCodes8, ...imgCodes10];
     }
+
+    
+
+
+
+
 
 
 
@@ -130,7 +128,7 @@ async function process8K(message, client) {
     for (const ele of success) {
         await helper.processDoneUser("./config/8k.txt", "./output/8kbet-done.txt", ele.user, ele.msg, 0);
         if (ele.notify == 1) {
-            summaryMsg += `${ ele.user } | ${ele.msg}\n`;
+            summaryMsg += `${helper.hideLast3Chars(ele.user)} | ${ele.msg}\n`;
         }
         // await helper.sendTelegramMessage(ele.chatId, msg)
     }
@@ -139,7 +137,7 @@ async function process8K(message, client) {
         const chatId1 = -1002503689777;
         const chatId2 = -1002613344439
         // await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
-        await helper.sendTelegramMessage(chatId1, summaryMsg.trim());
+        await helper.sendTelegramMessage(chatId2, summaryMsg.trim());
     }
 
 

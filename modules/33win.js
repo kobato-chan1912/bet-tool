@@ -114,7 +114,7 @@ async function processwin33(message, client) {
     console.log(chalk.greenBright(`\n📥 Code mới từ 33WIN`));
     // const imgPath = await helper.downloadSecondPhotoInAlbum(message, client);
     let codes = await helper.processText(messageContent, 6);
-    codes = codes.filter(code => !/[0O]/.test(code));
+    // codes = codes.filter(code => !/[0O]/.test(code));
 
 
     if (codes.length === 0) {
